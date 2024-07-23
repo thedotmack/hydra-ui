@@ -1,0 +1,1 @@
+{"version":3,"file":"transaction-signature-needed.d.ts","sourceRoot":"","sources":["../../../src/payloads/transaction-signature-needed.ts"],"names":[],"mappings":"AAEA,MAAM,WAAW,iCACf,SAAQ,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC;IAC/B,uBAAuB,EAAE,MAAM,EAAE,CAAC;CACnC;AAED,wBAAgB,gDAAgD,CAC9D,OAAO,EAAE,OAAO,GACf,OAAO,IAAI,iCAAiC,CAa9C"}

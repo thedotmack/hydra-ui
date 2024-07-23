@@ -1,0 +1,1 @@
+{"version":3,"file":"message-signature-needed.d.ts","sourceRoot":"","sources":["../../../src/payloads/message-signature-needed.ts"],"names":[],"mappings":"AAEA,MAAM,WAAW,6BAA8B,SAAQ,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC;IAC5E,cAAc,EAAE,MAAM,CAAC;CACxB;AAED,wBAAgB,4CAA4C,CAC1D,OAAO,EAAE,OAAO,GACf,OAAO,IAAI,6BAA6B,CAQ1C"}

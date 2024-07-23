@@ -1,0 +1,18 @@
+import WalletAdapter from './base';
+import { Cluster, Transaction } from '@solana/web3.js';
+export default class WebAdapter extends WalletAdapter {
+    private _instance;
+    private _provider;
+    private _network;
+    private _pollTimer;
+    get publicKey(): import("@solana/web3.js").PublicKey | null;
+    get connected(): boolean;
+    constructor(provider: string, network: Cluster);
+    connect(): Promise<void>;
+    disconnect(): Promise<void>;
+    signTransaction(transaction: Transaction): Promise<Transaction>;
+    signAllTransactions(transactions: Transaction[]): Promise<Transaction[]>;
+    signMessage(data: Uint8Array, display?: 'hex' | 'utf8'): Promise<Uint8Array>;
+    private _handleConnect;
+    private _handleDisconnect;
+}

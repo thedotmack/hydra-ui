@@ -1,0 +1,1 @@
+{"version":3,"file":"message-signature-needed-response.d.ts","sourceRoot":"","sources":["../../../src/payloads/message-signature-needed-response.ts"],"names":[],"mappings":"AAEA,MAAM,WAAW,qCACf,SAAQ,MAAM,CAAC,MAAM,EAAE,OAAO,CAAC;IAC/B,gBAAgB,EAAE,MAAM,CAAC;CAC1B;AAED,wBAAgB,oDAAoD,CAClE,OAAO,EAAE,OAAO,GACf,OAAO,IAAI,qCAAqC,CAQlD"}

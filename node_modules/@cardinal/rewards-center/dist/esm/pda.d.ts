@@ -1,0 +1,23 @@
+import { BN } from "@coral-xyz/anchor";
+import { PublicKey } from "@solana/web3.js";
+export declare const STAKE_ENTRY_SEED = "stake-entry";
+export declare const findStakeEntryId: (stakePoolId: PublicKey, mintId: PublicKey, user?: PublicKey, isFungible?: boolean) => PublicKey;
+export declare const STAKE_POOL_SEED = "stake-pool";
+export declare const findStakePoolId: (identifier: string) => PublicKey;
+export declare const STAKE_AUTHORIZATION_RECORD_SEED = "stake-authorization";
+export declare const findStakeAuthorizationRecordId: (stakePoolId: PublicKey, mintId: PublicKey) => PublicKey;
+export declare const USER_ESCROW_SEED = "escrow";
+export declare const findUserEscrowId: (user: PublicKey) => PublicKey;
+export declare const STAKE_BOOSTER_SEED = "stake-booster";
+export declare const findStakeBoosterId: (stakePoolId: PublicKey, identifier?: BN) => PublicKey;
+export declare const REWARD_DISTRIBUTOR_SEED = "reward-distributor";
+export declare const findRewardDistributorId: (stakePoolId: PublicKey, identifier?: BN) => PublicKey;
+export declare const REWARD_ENTRY_SEED = "reward-entry";
+export declare const findRewardEntryId: (rewardDistributorId: PublicKey, stakeEntryId: PublicKey) => PublicKey;
+export declare const RECEIPT_MANAGER_SEED = "receipt-manager";
+export declare const findReceiptManagerId: (stakePoolId: PublicKey, identifier: string) => PublicKey;
+export declare const REWARD_RECEIPT_SEED = "reward-receipt";
+export declare const findRewardReceiptId: (receiptManagerId: PublicKey, stakeEntryId: PublicKey) => PublicKey;
+export declare const PAYMENT_INFO_SEED = "payment-info";
+export declare const findPaymentInfoId: (identifier: string) => PublicKey;
+//# sourceMappingURL=pda.d.ts.map

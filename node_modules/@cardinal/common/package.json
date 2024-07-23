@@ -1,0 +1,40 @@
+{
+  "name": "@cardinal/common",
+  "description": "Token-related utilities for Solana.",
+  "version": "8.0.0",
+  "repository": "git@github.com:cardinal-labs/cardinal-common.git",
+  "author": "Giannis Chatziveroglou <giannis@cardinal.so>",
+  "license": "Apache-2.0",
+  "keywords": [
+    "solana",
+    "cardinal"
+  ],
+  "homepage": "https://cardinal.so",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "scripts": {
+    "build": "tsc && tsc -P tsconfig.esm.json",
+    "clean": "rm -fr dist/",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.27.0",
+    "@metaplex-foundation/mpl-token-auth-rules": "^1.2.0",
+    "@metaplex-foundation/mpl-token-metadata": "^2.8.3",
+    "@msgpack/msgpack": "^2.8.0",
+    "@solana/buffer-layout": "^4.0.0",
+    "@solana/spl-token": "^0.3.5",
+    "@solana/web3.js": "^1.73.3",
+    "bignumber.js": "^9.1.0",
+    "polished": "^4.2.2",
+    "tslib": "^2.4.0"
+  },
+  "files": [
+    "dist/",
+    "src/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "d5ebe40e75d6e8d0f969b1714614151edf2af032"
+}

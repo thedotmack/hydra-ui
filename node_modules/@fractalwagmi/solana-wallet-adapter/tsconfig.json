@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "es2019",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmitOnError": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "removeComments": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "src",
+    "outDir": "dist/esm",
+    "baseUrl": "./src",
+    "paths": {
+      "*": ["*"]
+    },
+    "plugins": [
+      {
+        "transform": "typescript-transform-paths",
+        "useRootDirs": true,
+        "exclude": [ "**/node_modules/**" ]
+      },
+      {
+        "transform": "typescript-transform-paths",
+        "useRootDirs": true,
+        "exclude": [ "**/node_modules/**" ],
+        "afterDeclarations": true
+      }
+    ]
+  },
+  "exclude": ["node_modules", "dist"],
+}

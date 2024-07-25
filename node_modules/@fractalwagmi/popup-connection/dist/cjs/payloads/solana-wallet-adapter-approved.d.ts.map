@@ -1,1 +1,0 @@
-{"version":3,"file":"solana-wallet-adapter-approved.d.ts","sourceRoot":"","sources":["../../../src/payloads/solana-wallet-adapter-approved.ts"],"names":[],"mappings":"AAEA,MAAM,WAAW,kCAAkC;IACjD,eAAe,EAAE,MAAM,CAAC;CACzB;AAED,wBAAgB,0CAA0C,CACxD,OAAO,EAAE,OAAO,GACf,OAAO,IAAI,kCAAkC,CAW/C"}

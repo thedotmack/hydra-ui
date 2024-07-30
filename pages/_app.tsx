@@ -9,10 +9,6 @@ import {
   EnvironmentProvider,
   getInitialProps,
 } from 'providers/EnvironmentProvider'
-import {
-  GlowWalletAdapter,
-  PhantomWalletAdapter,
-} from '@solana/wallet-adapter-wallets'
 import { useMemo } from 'react'
 import { ToastContainer } from 'common/Notification'
 import Head from 'next/head'
@@ -31,7 +27,7 @@ const App = ({
     </Head>
     <EnvironmentProvider defaultCluster={cluster}>
       <WalletProvider
-        wallets={[new PhantomWalletAdapter(), new GlowWalletAdapter()]}
+        wallets={[]}
       >
         <WalletIdentityProvider>
           <WalletModalProvider>

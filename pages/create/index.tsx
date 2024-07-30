@@ -1,7 +1,7 @@
 import { Fanout, FanoutClient, MembershipModel } from '@glasseaters/hydra-sdk'
 import { Wallet } from '@saberhq/solana-contrib'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { Transaction } from '@solana/web3.js'
+import { Transaction, ComputeBudgetProgram } from '@solana/web3.js'
 import { AsyncButton } from 'common/Button'
 import { Header } from 'common/Header'
 import { notify } from 'common/Notification'
@@ -73,6 +73,9 @@ const Home: NextPage = () => {
         }
       } catch (e) {}
       const transaction = new Transaction()
+      transaction.add(ComputeBudgetProgram.setComputeUnitPrice({ 
+        microLamports: 1 
+      }));
       transaction.add(
         ...(
           await fanoutSdk.initializeFanoutInstructions({

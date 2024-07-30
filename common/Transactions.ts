@@ -26,7 +26,6 @@ export const executeTransaction = async (
 ): Promise<string> => {
   let txid = ''
   try {
-    transaction.feePayer = wallet.publicKey
     transaction.recentBlockhash = (
       await connection.getRecentBlockhash('max')
     ).blockhash

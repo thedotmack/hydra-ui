@@ -1,12 +1,12 @@
 import { Fanout, FanoutClient, MembershipModel } from '@glasseaters/hydra-sdk'
 import { Wallet } from '@saberhq/solana-contrib'
 import { useWallet } from '@solana/wallet-adapter-react'
-import { Transaction, ComputeBudgetProgram } from '@solana/web3.js'
+import { Transaction } from '@solana/web3.js'
 import { AsyncButton } from 'common/Button'
 import { Header } from 'common/Header'
 import { notify } from 'common/Notification'
 import { executeTransaction } from 'common/Transactions'
-import { tryPublicKey } from 'common/utils'
+import { getPriorityFeeIx, tryPublicKey } from 'common/utils'
 import { asWallet } from 'common/Wallets'
 import type { NextPage } from 'next'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
@@ -24,6 +24,9 @@ const Home: NextPage = () => {
 
   const validateAndCreateWallet = async () => {
     try {
+      if (!wallet.publicKey) {
+        throw 'Please connect your wallet'
+      }
       if (!walletName) {
         throw 'Specify a wallet name'
       }
@@ -73,9 +76,6 @@ const Home: NextPage = () => {
         }
       } catch (e) {}
       const transaction = new Transaction()
-      transaction.add(ComputeBudgetProgram.setComputeUnitPrice({ 
-        microLamports: 1 
-      }));
       transaction.add(
         ...(
           await fanoutSdk.initializeFanoutInstructions({
@@ -97,6 +97,9 @@ const Home: NextPage = () => {
           ).instructions
         )
       }
+      transaction.feePayer = wallet.publicKey!
+      const priorityFeeIx = await getPriorityFeeIx(connection, transaction)
+      transaction.add(priorityFeeIx)
       await executeTransaction(connection, wallet as Wallet, transaction, {})
       setSuccess(true)
     } catch (e) {

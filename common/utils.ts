@@ -1,4 +1,5 @@
 import { web3 } from '@coral-xyz/anchor'
+import { ComputeBudgetProgram, Connection, Transaction, TransactionInstruction } from '@solana/web3.js'
 import { BigNumber } from 'bignumber.js'
 
 export const firstParam = (param: string | string[] | undefined): string => {
@@ -71,4 +72,88 @@ export function getMintNaturalAmountFromDecimal(
   decimals: number
 ) {
   return new BigNumber(mintAmount.toString()).shiftedBy(-decimals)
+}
+
+function getDistinctPublicKeys(transaction: Transaction): web3.PublicKey[] {
+  const uniqueKeysSet = new Set<string>();
+  const distinctPublicKeys: web3.PublicKey[] = [];
+
+  for (const instruction of transaction.instructions) {
+    if (instruction) {
+      // Add pubkeys from the keys array of the instruction
+      for (const accountMeta of instruction.keys) {
+        const pubkeyStr = accountMeta.pubkey.toBase58();
+        if (!uniqueKeysSet.has(pubkeyStr)) {
+          uniqueKeysSet.add(pubkeyStr);
+          distinctPublicKeys.push(accountMeta.pubkey);
+        }
+      }
+
+      // Add the programId from the instruction
+      const programIdStr = instruction.programId.toBase58();
+      if (!uniqueKeysSet.has(programIdStr)) {
+        uniqueKeysSet.add(programIdStr);
+        distinctPublicKeys.push(instruction.programId);
+      }
+    }
+  }
+
+  return distinctPublicKeys;
+}
+
+interface feeEntry {
+  prioritizationFee: number;
+  slot: number;
+}
+
+interface ApiResponse {
+  jsonrpc: string;
+  result: feeEntry[];
+  id: number;
+}
+
+function getTop10AverageFees(response: ApiResponse): number {
+  const fees = response.result.map(entry => entry.prioritizationFee);
+
+  const sortedFees = fees.sort((a, b) => b - a);
+
+  const top5Fees = sortedFees.slice(0, 5);
+
+  const sumTop5Fees = top5Fees.reduce((sum, fee) => sum + fee, 0);
+  const averageTop5Fees = Math.ceil(sumTop5Fees / top5Fees.length);
+
+  return averageTop5Fees;
+}
+
+export const getPriorityFeeIx = async (
+  connection: Connection,
+  transaction: Transaction
+): Promise<TransactionInstruction> => {
+  const distinctPublicKeys = getDistinctPublicKeys(transaction);
+  // directly fetch to avoid web3.js compatability issues
+  const response = await fetch(connection.rpcEndpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getRecentPrioritizationFees',
+      params: [distinctPublicKeys],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json() as ApiResponse;
+  const priorityFee = getTop10AverageFees(data)
+  console.info("using priority Fee: ", priorityFee)
+  
+  //@ts-ignore since setComputeUnitPrice is not found but exists
+  return ComputeBudgetProgram.setComputeUnitPrice({ 
+    microLamports: priorityFee
+  })
 }

@@ -4,9 +4,11 @@ import { AccountConnect } from '@cardinal/namespaces-components'
 
 import { Wallet } from '@saberhq/solana-contrib'
 import { useRouter } from 'next/router'
-import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
+import { Environment, ENVIRONMENTS, useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import styled from '@emotion/styled'
 import { Cluster } from '@solana/web3.js'
+import Tooltip from './Tooltip'
+import { createTypeNodeFromIdl } from '@metaplex-foundation/kinobi'
 
 export const StyledWalletButton = styled(WalletMultiButton)`
   color: rgb(55, 65, 81, 1);
@@ -22,6 +24,29 @@ export const Header = () => {
   const router = useRouter()
   const ctx = useEnvironmentCtx()
   const wallet = useWallet()
+
+  function updateQueryParameter() {
+    const url = new URL(window.location.href);
+  
+    const currentCluster = ctx.environment.label
+  
+    let newCluster;
+    if (currentCluster === null) {
+        newCluster = 'devnet'; // Parameter does not exist, so set it to 'devnet'
+    } else if (currentCluster === 'devnet') {
+        newCluster = 'mainnet-beta';
+    } else if (currentCluster === 'mainnet-beta') {
+        newCluster = 'devnet';
+    } else {
+        newCluster = currentCluster;
+    }
+    const newEnv = ENVIRONMENTS.find(env => env.label === newCluster);
+    if (!newEnv) return;
+    ctx.setEnvironment(newEnv)
+    url.searchParams.set('cluster', newCluster);
+    window.history.replaceState(null, '', url.toString());
+  }
+
   return (
     <div className={`flex flex-row h-20 justify-between pl-5 text-white`}>
       <div className="flex items-center gap-3">
@@ -39,11 +64,13 @@ export const Header = () => {
         >
           Hydra UI
         </div>
-        {ctx.environment.label !== 'mainnet-beta' && (
-          <div className="cursor-pointer rounded-md bg-[#9945ff] p-1 text-[10px] italic text-white">
+        {/* {ctx.environment.label !== 'mainnet-beta' && ( */}
+        <Tooltip content="Switch Network">
+          <div className="cursor-pointer rounded-md bg-[#9945ff] p-1 text-[10px] italic text-white" onClick={updateQueryParameter}>
             {ctx.environment.label}
           </div>
-        )}
+        </Tooltip>
+        {/* )} */}
       </div>
 
       <div className="relative my-auto flex items-center pr-8 align-middle">

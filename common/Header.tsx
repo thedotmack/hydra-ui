@@ -4,11 +4,10 @@ import { AccountConnect } from '@cardinal/namespaces-components'
 
 import { Wallet } from '@saberhq/solana-contrib'
 import { useRouter } from 'next/router'
-import { Environment, ENVIRONMENTS, useEnvironmentCtx } from 'providers/EnvironmentProvider'
+import { ENVIRONMENTS, useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import styled from '@emotion/styled'
 import { Cluster } from '@solana/web3.js'
 import Tooltip from './Tooltip'
-import { createTypeNodeFromIdl } from '@metaplex-foundation/kinobi'
 
 export const StyledWalletButton = styled(WalletMultiButton)`
   color: rgb(55, 65, 81, 1);

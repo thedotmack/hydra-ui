@@ -9,6 +9,7 @@ import { Header } from 'common/Header'
 import { notify } from 'common/Notification'
 import {
   getMintNaturalAmountFromDecimal,
+  getPriorityFeeIx,
   pubKeyUrl,
   shortPubKey,
   tryPublicKey,
@@ -152,9 +153,11 @@ const Home: NextPage = () => {
                 ]
               }
 
+              transaction.feePayer = wallet.publicKey
+              const priorityFeeIx = await getPriorityFeeIx(connection, transaction)
+              transaction.add(priorityFeeIx)
               const { blockhash } = await connection.getLatestBlockhash()
               transaction.recentBlockhash = blockhash
-              transaction.feePayer = wallet.publicKey
               transaction = await wallet.signTransaction!(transaction)
 
               const signature = await connection.sendRawTransaction(

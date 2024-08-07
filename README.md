@@ -1,11 +1,11 @@
 ## Overview
 
-This is an open UI for Hydra, a protocol on Solana for facilitating collective account pooling, fan out wallet and dao treasury. It can be thought of as a group-owned wallet that can accept funds. Unlike a multi-signature wallet, this is meant to collect and distribute funds, not execute group transactions. More information on the protocol can be found a https://github.com/GlassEaters/hydra.
+This is an open UI for Hydra, a protocol on Solana for facilitating collective account pooling, fan out wallet and dao treasury. It can be thought of as a group-owned wallet that can accept funds. Unlike a multi-signature wallet, this is meant to collect and distribute funds, not execute group transactions. More information on the protocol can be found in the [Metaplex Developer Hub](https://developers.metaplex.com/hydra).
 
 | Package   | Description          | Version                       |
 | :-------- | :------------------- | :---------------------------- |
-| `Devnet`  | Devnet ui for Hydra  | https://dev-hydra.cardinal.so |
-| `Mainnet` | Mainnet ui for Hydra | https://hydra.cardinal.so     |
+| `Devnet`  | Devnet ui for Hydra  | https://hydra.metaplex.com?cluster=devnet |
+| `Mainnet` | Mainnet ui for Hydra | https://hydra.metaplex.com    |
 
 <p align="center">
     <img src="./public/example.png" />

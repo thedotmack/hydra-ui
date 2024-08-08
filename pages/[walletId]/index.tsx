@@ -1,6 +1,6 @@
 import { DisplayAddress } from 'common/DisplayAddress'
 import { executeTransaction } from 'common/Transactions'
-import { FanoutClient } from '@glasseaters/hydra-sdk'
+import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey, Transaction } from '@solana/web3.js'

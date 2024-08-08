@@ -14,7 +14,7 @@
     "@coral-xyz/anchor": "0.27.0",
     "@emotion/react": "^11.13.0",
     "@emotion/styled": "11.8.1",
-    "@glasseaters/hydra-sdk": "0.3.2",
+    "@metaplex-foundation/mpl-hydra/dist/src": "0.5",
     "@saberhq/solana-contrib": "^3.0.0",
     "@solana/wallet-adapter-base": "^0.9.5",
     "@solana/wallet-adapter-react": "^0.15.32",

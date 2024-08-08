@@ -1,4 +1,4 @@
-import { Fanout, FanoutClient, MembershipModel } from '@glasseaters/hydra-sdk'
+import { Fanout, FanoutClient, MembershipModel } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { Wallet } from '@saberhq/solana-contrib'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Transaction } from '@solana/web3.js'

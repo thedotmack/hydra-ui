@@ -28,7 +28,7 @@ export const ENVIRONMENTS: Environment[] = [
   },
   {
     label: 'devnet',
-    primary: 'https://api.devnet.solana.com',
+    primary: process.env.MAINNET_PRIMARY || 'https://api.devnet.solana.com',
   },
 ]
 

@@ -3,13 +3,13 @@ import {
   paymentMintConfig,
 } from './../config/paymentMintConfig'
 import { useFanoutId } from 'hooks/useFanoutId'
-import * as hydra from '@glasseaters/hydra-sdk'
+import * as hydra from '@metaplex-foundation/mpl-hydra/dist/src'
 import { BorshAccountsCoder, utils } from '@coral-xyz/anchor'
 import { PublicKey } from '@solana/web3.js'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 
 import { useDataHook } from './useDataHook'
-import { FanoutMint } from '@glasseaters/hydra-sdk'
+import { FanoutMint } from '@metaplex-foundation/mpl-hydra/dist/src'
 import * as splToken from '@solana/spl-token'
 import { shortPubKey } from 'common/utils'
 

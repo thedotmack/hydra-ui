@@ -1,13 +1,13 @@
 import { tryPublicKey } from './../common/utils'
 import { useFanoutId } from 'hooks/useFanoutId'
-import * as hydra from '@glasseaters/hydra-sdk'
+import * as hydra from '@metaplex-foundation/mpl-hydra/dist/src'
 import { BorshAccountsCoder, utils } from '@coral-xyz/anchor'
 import { PublicKey } from '@solana/web3.js'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 
 import { useDataHook } from './useDataHook'
 import { AccountData } from 'common/AccountData'
-import { FanoutMembershipMintVoucher } from '@glasseaters/hydra-sdk'
+import { FanoutMembershipMintVoucher } from '@metaplex-foundation/mpl-hydra/dist/src'
 
 const HYDRA_PROGRAM_ID = new PublicKey(
   'hyDQ4Nz1eYyegS6JfenyKwKzYxRsCWCriYSAjtzP4Vg'

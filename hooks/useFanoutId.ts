@@ -1,4 +1,4 @@
-import { FanoutClient } from '@glasseaters/hydra-sdk'
+import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { firstParam } from 'common/utils'
 import { useRouter } from 'next/router'
 import { useDataHook } from './useDataHook'

@@ -2,7 +2,7 @@ import { useFanoutId } from 'hooks/useFanoutId'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 
 import { useDataHook } from './useDataHook'
-import { Fanout, FanoutClient } from '@glasseaters/hydra-sdk'
+import { Fanout, FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { asWallet } from 'common/Wallets'
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'

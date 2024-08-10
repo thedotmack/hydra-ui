@@ -1,6 +1,6 @@
-import { DisplayAddress } from '@cardinal/namespaces-components'
-import { executeTransaction } from '@cardinal/staking'
-import { FanoutClient } from '@glasseaters/hydra-sdk'
+import { DisplayAddress } from 'common/DisplayAddress'
+import { executeTransaction } from 'common/Transactions'
+import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -154,7 +154,10 @@ const Home: NextPage = () => {
               }
 
               transaction.feePayer = wallet.publicKey
-              const priorityFeeIx = await getPriorityFeeIx(connection, transaction)
+              const priorityFeeIx = await getPriorityFeeIx(
+                connection,
+                transaction
+              )
               transaction.add(priorityFeeIx)
               const { blockhash } = await connection.getLatestBlockhash()
               transaction.recentBlockhash = blockhash

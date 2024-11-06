@@ -27,7 +27,7 @@ export const executeTransaction = async (
   let txid = ''
   try {
     transaction.recentBlockhash = (
-      await connection.getRecentBlockhash('max')
+      await connection.getLatestBlockhash('max')
     ).blockhash
     transaction = await wallet.signTransaction(transaction)
     if (config.signers && config.signers.length > 0) {

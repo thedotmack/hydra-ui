@@ -13,7 +13,7 @@ This is an open UI for Hydra, a protocol on Solana for facilitating collective a
 ## Getting Started
 
 ```bash
-git clone git@github.com:metaplex-foundation/hydra-ui.git
+git clone https://github.com/metaplex-foundation/hydra-ui.git
 cd hydra-ui
 yarn install
 yarn dev

@@ -24,6 +24,10 @@ import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
 
 const Home: NextPage = () => {
   const router = useRouter()
@@ -219,17 +223,19 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="bg-white h-screen max-h-screen">
-      <Header />
-      <main className="h-[80%] py-16 flex flex-1 flex-col justify-center items-center">
-        <div className="text-gray-700 w-full max-w-xl py-3 md:px-0 px-10 mb-10">
-          {fanoutData.error && (
-            <div className="text-gray-700 bg-red-300 w-full text-center py-3 mb-10">
-              <div className="font-bold uppercase tracking-wide">
-                Hydra Wallet not found
-              </div>
-              <div
-                className="cursor-pointer"
+    <DashboardLayout>
+      <div className="space-y-6">
+        {fanoutData.error && (
+          <Card className="border-destructive/50 bg-destructive/10">
+            <CardHeader>
+              <CardTitle className="text-destructive">Hydra Wallet Not Found</CardTitle>
+              <CardDescription>
+                The requested wallet could not be found or accessed.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button
+                variant="outline"
                 onClick={() =>
                   router.push(
                     `/${
@@ -242,205 +248,253 @@ const Home: NextPage = () => {
                   )
                 }
               >
-                Retry
-              </div>
-            </div>
-          )}
+                Return to Dashboard
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-          <div className="mb-5 border-b-2">
-            <div className="font-bold uppercase tracking-wide text-2xl mb-1">
-              {fanoutData.data?.fanout.name ? (
-                fanoutData.data?.fanout.name
-              ) : (
-                <div className="animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></div>
-              )}
-            </div>
-            <div className="flex justify-between">
-              <div className="flex-col">
-                <div className="font-bold uppercase tracking-wide text-lg mb-1 flex items-center gap-1">
-                  Total Inflow:{' '}
-                  {selectedFanoutMint ? (
-                    `${Number(
-                      getMintNaturalAmountFromDecimal(
-                        Number(selectedFanoutMint.data.totalInflow),
-                        selectedFanoutMint.info.decimals
-                      )
-                    )} ${selectedFanoutMint.config.symbol}`
-                  ) : fanoutData.data?.fanout ? (
-                    `${
-                      parseInt(
-                        fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
-                      ) / 1e9
-                    } ◎`
-                  ) : (
-                    <div className="animate h-6 w-10 animate-pulse bg-gray-200 rounded-md"></div>
-                  )}
-                </div>
-                <p className="font-bold uppercase tracking-wide text-lg mb-1">
-                  Balance:{' '}
-                  {selectedFanoutMint
-                    ? `${selectedFanoutMint.balance} ${selectedFanoutMint.config.symbol}`
-                    : `${fanoutData.data?.balance}◎`}
-                </p>
-              </div>
-
-              <div className="">
-                <select
-                  className="w-min-content bg-gray-700 text-white px-4 py-3 border-r-transparent border-r-8 rounded-md"
-                  value={mintId}
-                  onChange={(e) => {
-                    selectSplToken(e.target.value)
-                  }}
-                >
-                  <option value={'default'}>SOL</option>
-                  {fanoutMints.data?.map((fanoutMint) => (
-                    <option
-                      key={fanoutMint.id.toString()}
-                      value={fanoutMint.data.mint.toString()}
-                    >
-                      {paymentMintConfig[fanoutMint.data.mint.toString()]
-                        ? paymentMintConfig[fanoutMint.data.mint.toString()]
-                            ?.name
-                        : shortPubKey(fanoutMint.data.mint.toString())}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="mb-5">
-            <p className="font-bold uppercase tracking-wide text-md mb-1">
-              Fanout Address:{' '}
-              <a
-                className="hover:text-blue-500 transition"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={pubKeyUrl(fanoutData.data?.fanoutId, environment.label)}
-              >
-                {shortPubKey(fanoutData.data?.fanoutId.toString())}
-              </a>
-            </p>
-            {selectedFanoutMint ? (
-              <p className="font-bold uppercase tracking-wide text-md mb-1">
-                {selectedFanoutMint.config.symbol} Wallet Token Account:{' '}
-                <a
-                  className="hover:text-blue-500 transition"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={pubKeyUrl(
-                    selectedFanoutMint.data.tokenAccount,
-                    environment.label
-                  )}
-                >
-                  {shortPubKey(selectedFanoutMint.data.tokenAccount)}
-                </a>
-              </p>
-            ) : (
-              <p className="font-bold uppercase tracking-wide text-md mb-1">
-                Sol Wallet Address:{' '}
-                <a
-                  className="hover:text-blue-500 transition"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={pubKeyUrl(
-                    fanoutData.data?.nativeAccount,
-                    environment.label
-                  )}
-                >
-                  {shortPubKey(fanoutData.data?.nativeAccount)}
-                </a>
-              </p>
+        {/* Wallet Header */}
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            {fanoutData.data?.fanout.name || (
+              <div className="h-8 w-48 animate-pulse bg-muted rounded-md"></div>
             )}
-            <p className="font-bold uppercase tracking-wide text-md mb-1">
-              Total Members: {fanoutData.data?.fanout?.totalMembers.toString()}
-            </p>
-            <ul className="list-disc ml-6">
+          </h1>
+          <p className="text-muted-foreground">
+            Treasury wallet management and distribution
+          </p>
+        </div>
+
+        {/* Balance and Token Selection */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Total Inflow</CardTitle>
+              <CardDescription>Total funds received by this wallet</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {selectedFanoutMint ? (
+                  `${Number(
+                    getMintNaturalAmountFromDecimal(
+                      Number(selectedFanoutMint.data.totalInflow),
+                      selectedFanoutMint.info.decimals
+                    )
+                  )} ${selectedFanoutMint.config.symbol}`
+                ) : fanoutData.data?.fanout ? (
+                  `${
+                    parseInt(
+                      fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
+                    ) / 1e9
+                  } ◎`
+                ) : (
+                  <div className="h-8 w-20 animate-pulse bg-muted rounded-md"></div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Current Balance</CardTitle>
+              <CardDescription>Available for distribution</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {selectedFanoutMint
+                  ? `${selectedFanoutMint.balance} ${selectedFanoutMint.config.symbol}`
+                  : `${fanoutData.data?.balance} ◎`}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Token Selection</CardTitle>
+              <CardDescription>Choose token to view and distribute</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <select
+                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                value={mintId || 'default'}
+                onChange={(e) => selectSplToken(e.target.value)}
+              >
+                <option value="default">SOL</option>
+                {fanoutMints.data?.map((fanoutMint) => (
+                  <option
+                    key={fanoutMint.id.toString()}
+                    value={fanoutMint.data.mint.toString()}
+                  >
+                    {paymentMintConfig[fanoutMint.data.mint.toString()]
+                      ? paymentMintConfig[fanoutMint.data.mint.toString()]?.name
+                      : shortPubKey(fanoutMint.data.mint.toString())}
+                  </option>
+                ))}
+              </select>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Wallet Information */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Wallet Information</CardTitle>
+            <CardDescription>Important addresses and member details</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Fanout Address</label>
+                <div className="text-sm text-muted-foreground">
+                  <a
+                    className="hover:text-primary transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={pubKeyUrl(fanoutData.data?.fanoutId, environment.label)}
+                  >
+                    {shortPubKey(fanoutData.data?.fanoutId.toString())}
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium">
+                  {selectedFanoutMint ? `${selectedFanoutMint.config.symbol} Token Account` : 'SOL Wallet Address'}
+                </label>
+                <div className="text-sm text-muted-foreground">
+                  <a
+                    className="hover:text-primary transition-colors"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={pubKeyUrl(
+                      selectedFanoutMint
+                        ? selectedFanoutMint.data.tokenAccount
+                        : fanoutData.data?.nativeAccount,
+                      environment.label
+                    )}
+                  >
+                    {shortPubKey(
+                      selectedFanoutMint
+                        ? selectedFanoutMint.data.tokenAccount
+                        : fanoutData.data?.nativeAccount
+                    )}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <label className="text-sm font-medium">Total Members</label>
+                <div className="text-2xl font-bold">
+                  {fanoutData.data?.fanout?.totalMembers.toString()}
+                </div>
+              </div>
+              <div>
+                <label className="text-sm font-medium">Total Shares</label>
+                <div className="text-2xl font-bold">
+                  {fanoutData.data?.fanout?.totalShares.toString()}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Members List */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Members & Distribution</CardTitle>
+            <CardDescription>
+              Wallet members, their shares, and claim status
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
               {!fanoutMembershipVouchers.data ? (
                 <>
-                  <li className="mb-1 animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></li>
-                  <li className="mb-1 animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></li>
-                  <li className="mb-1 animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></li>
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-12 w-full animate-pulse bg-muted rounded-md"></div>
+                  ))}
                 </>
               ) : (
-                fanoutMembershipVouchers.data?.map((voucher, i) => (
-                  <li
+                fanoutMembershipVouchers.data?.map((voucher) => (
+                  <div
                     key={voucher.pubkey.toString()}
-                    className="relative font-bold uppercase tracking-wide text-md mb-1"
+                    className="flex items-center justify-between p-3 rounded-lg border bg-card"
                   >
-                    <div className="flex">
+                    <div className="flex-1">
                       <DisplayAddress
                         connection={connection}
                         address={voucher.parsed.membershipKey}
                       />
-                      <span className="ml-2 hover:text-blue-500 transition">
-                        <>
-                          {`(${voucher.parsed.shares.toString()} shares, `}
-                          {selectedFanoutMint
-                            ? fanoutMembershipMintVouchers.data &&
-                              fanoutMembershipMintVouchers.data.length > 0
-                              ? `${
-                                  Number(
-                                    getMintNaturalAmountFromDecimal(
-                                      Number(
-                                        fanoutMembershipMintVouchers.data.filter(
-                                          (v) =>
-                                            v.pubkey.toString() ===
-                                            voucherMapping[
-                                              voucher.pubkey.toString()
-                                            ]
-                                        )[0]?.parsed.lastInflow
-                                      ),
-                                      selectedFanoutMint.info.decimals
-                                    )
-                                  ) *
-                                  (Number(voucher.parsed.shares) / 100)
-                                } ${selectedFanoutMint.config.symbol} claimed)`
-                              : `0 ${selectedFanoutMint.config.symbol} claimed)`
-                            : `${
-                                parseInt(
-                                  voucher.parsed.totalInflow.toString()
-                                ) / 1e9
-                              }◎ claimed)`}
-                        </>
-                      </span>
                     </div>
-                  </li>
+                    <div className="text-right">
+                      <div className="text-sm font-medium">
+                        {voucher.parsed.shares.toString()} shares
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {selectedFanoutMint
+                          ? fanoutMembershipMintVouchers.data &&
+                            fanoutMembershipMintVouchers.data.length > 0
+                            ? `${
+                                Number(
+                                  getMintNaturalAmountFromDecimal(
+                                    Number(
+                                      fanoutMembershipMintVouchers.data.filter(
+                                        (v) =>
+                                          v.pubkey.toString() ===
+                                          voucherMapping[voucher.pubkey.toString()]
+                                      )[0]?.parsed.lastInflow
+                                    ),
+                                    selectedFanoutMint.info.decimals
+                                  )
+                                ) * (Number(voucher.parsed.shares) / 100)
+                              } ${selectedFanoutMint.config.symbol} claimed`
+                            : `0 ${selectedFanoutMint.config.symbol} claimed`
+                          : `${
+                              parseInt(voucher.parsed.totalInflow.toString()) / 1e9
+                            } ◎ claimed`}
+                      </div>
+                    </div>
+                  </div>
                 ))
               )}
-            </ul>
-            <p className="font-bold uppercase tracking-wide text-md mb-1">
-              Total Shares: {fanoutData.data?.fanout?.totalShares.toString()}
-            </p>
-          </div>
-          <div className="flex">
-            <AsyncButton
-              type="button"
-              variant="primary"
-              bgColor="rgb(96 165 250)"
-              className="bg-blue-400 text-white hover:bg-blue-500 px-3 py-2 rounded-md mr-2"
-              handleClick={async () =>
-                fanoutData.data && distributeShare(fanoutData.data, true)
-              }
-            >
-              Distribute To All
-            </AsyncButton>
-            {fanoutData.data &&
-              fanoutData.data.fanout.authority.toString() ===
-                wallet.publicKey?.toString() && (
-                <AsyncButton
-                  type="button"
-                  variant="primary"
-                  bgColor="rgb(156 163 175)"
-                  className="bg-gray-400 text-white hover:bg-blue-500 px-3 py-2 rounded-md "
-                  handleClick={async () => addSplToken()}
-                >
-                  Add SPL Token
-                </AsyncButton>
-              )}
-          </div>
-        </div>
-      </main>
-    </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Action Buttons */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Actions</CardTitle>
+            <CardDescription>Distribute funds or manage wallet settings</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4">
+              <Button
+                onClick={() => fanoutData.data && distributeShare(fanoutData.data, true)}
+                disabled={!fanoutData.data}
+              >
+                Distribute To All
+              </Button>
+              {fanoutData.data &&
+                fanoutData.data.fanout.authority.toString() ===
+                  wallet.publicKey?.toString() && (
+                  <Button
+                    variant="outline"
+                    onClick={() => addSplToken()}
+                  >
+                    Add SPL Token
+                  </Button>
+                )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
   )
 }
 

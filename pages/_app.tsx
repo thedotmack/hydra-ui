@@ -8,6 +8,7 @@ import {
   EnvironmentProvider,
   getInitialProps,
 } from 'providers/EnvironmentProvider'
+import { ThemeProvider } from 'providers/ThemeProvider'
 import { useMemo } from 'react'
 import { ToastContainer } from 'common/Notification'
 import Head from 'next/head'
@@ -24,7 +25,13 @@ const App = ({
     <Head>
         <title>Hydra UI</title>
     </Head>
-    <EnvironmentProvider defaultCluster={cluster}>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <EnvironmentProvider defaultCluster={cluster}>
       <WalletProvider
         wallets={[]}
       >
@@ -37,7 +44,8 @@ const App = ({
           </WalletModalProvider>
 {/*         </WalletIdentityProvider>
  */}      </WalletProvider>
-    </EnvironmentProvider>
+      </EnvironmentProvider>
+    </ThemeProvider>
     </>
   )
 }

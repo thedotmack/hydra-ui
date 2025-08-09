@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const Home: NextPage = () => {
   const { connection } = useEnvironmentCtx()
@@ -116,25 +117,27 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create Hydra Wallet</h1>
-          <p className="text-muted-foreground">
+      <div className="max-w-4xl mx-auto space-y-12">
+        <div className="space-y-4">
+          <h1 className="text-3xl font-bold text-white">
+            Create Hydra Wallet
+          </h1>
+          <p className="text-gray-400 text-lg leading-relaxed max-w-2xl">
             Set up a new treasury wallet with member shares and distribution rules.
           </p>
         </div>
 
         {success && (
-          <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
-            <CardHeader>
-              <CardTitle className="text-green-800 dark:text-green-200">
-                Hydra Wallet Created Successfully!
+          <Card className="bg-green-950/50 border-green-500/30 border-2">
+            <CardHeader className="space-y-3">
+              <CardTitle className="text-green-400 text-xl font-semibold">
+                ✅ Wallet Created Successfully
               </CardTitle>
-              <CardDescription className="text-green-700 dark:text-green-300">
+              <CardDescription className="text-green-300/80 text-base">
                 Your wallet is ready to use. Access it at{' '}
                 <a
                   href={`/${walletName}${window.location.search ?? ''}`}
-                  className="font-medium underline hover:no-underline"
+                  className="font-medium underline hover:no-underline text-green-400"
                 >
                   /{walletName}
                 </a>
@@ -143,21 +146,20 @@ const Home: NextPage = () => {
           </Card>
         )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Wallet Configuration</CardTitle>
-            <CardDescription>
+        <Card className="bg-gray-900/60 border-gray-700/50 border">
+          <CardHeader className="space-y-3 pb-6">
+            <CardTitle className="text-white text-xl font-semibold">Wallet Configuration</CardTitle>
+            <CardDescription className="text-gray-400 text-base">
               Configure your wallet name and total shares for distribution
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          <CardContent className="space-y-8">
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-white block">
                   Hydra Wallet Name
                 </label>
-                <input
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                <Input
                   type="text"
                   placeholder="hydra-wallet"
                   onChange={(e) => {
@@ -165,41 +167,41 @@ const Home: NextPage = () => {
                     setSuccess(false)
                   }}
                   value={walletName}
+                  className="h-12 bg-gray-800/80 border-gray-600 text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-white block">
                   Total Shares
                 </label>
-                <input
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                <Input
                   type="number"
                   onChange={(e) => {
                     setTotalShares(parseInt(e.target.value))
                   }}
                   value={totalShares}
+                  className="h-12 bg-gray-800/80 border-gray-600 text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                 />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Wallet Members</CardTitle>
-            <CardDescription>
+        <Card className="bg-gray-900/60 border-gray-700/50 border">
+          <CardHeader className="space-y-3 pb-6">
+            <CardTitle className="text-white text-xl font-semibold">Wallet Members</CardTitle>
+            <CardDescription className="text-gray-400 text-base">
               Add members and their corresponding shares. Total shares must equal {totalShares || 100}.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             {hydraWalletMembers.map((member, i) => (
-              <div key={i} className="grid gap-4 md:grid-cols-5">
-                <div className="md:col-span-4 space-y-2">
-                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              <div key={i} className="grid gap-6 md:grid-cols-5 p-4 bg-gray-800/40 border border-gray-700/30 rounded-lg">
+                <div className="md:col-span-4 space-y-3">
+                  <label className="text-sm font-semibold text-white block">
                     Wallet Address
                   </label>
-                  <input
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  <Input
                     type="text"
                     placeholder="Cmw...4xW"
                     onChange={(e) => {
@@ -208,14 +210,14 @@ const Home: NextPage = () => {
                       setHydraWalletMembers([...walletMembers])
                     }}
                     value={member.memberKey}
+                    className="h-12 bg-gray-800/80 border-gray-600 text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-white block">
                     Shares
                   </label>
-                  <input
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  <Input
                     type="number"
                     placeholder="50"
                     onChange={(e) => {
@@ -224,12 +226,13 @@ const Home: NextPage = () => {
                       setHydraWalletMembers([...walletMembers])
                     }}
                     value={member.shares}
+                    className="h-12 bg-gray-800/80 border-gray-600 text-white placeholder:text-gray-500 focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20"
                   />
                 </div>
               </div>
             ))}
 
-            <div className="flex gap-2">
+            <div className="flex gap-4 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -242,6 +245,7 @@ const Home: NextPage = () => {
                     },
                   ])
                 }
+                className="h-11 px-6 bg-gray-800/60 border-gray-600 text-gray-300 hover:bg-gray-700/80 hover:text-white hover:border-gray-500"
               >
                 Add Member
               </Button>
@@ -256,16 +260,17 @@ const Home: NextPage = () => {
                       )
                     )
                   }
+                  className="h-11 px-6 bg-gray-800/60 border-gray-600 text-gray-300 hover:bg-gray-700/80 hover:text-white hover:border-gray-500"
                 >
                   Remove Member
                 </Button>
               )}
             </div>
 
-            <div className="pt-4">
+            <div className="pt-8 border-t border-gray-700/50">
               <Button
                 type="button"
-                className="w-full md:w-auto"
+                className="h-12 px-8 bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-base border-0 shadow-lg transition-all duration-200 hover:shadow-cyan-500/25"
                 onClick={() => validateAndCreateWallet()}
                 disabled={!wallet.publicKey}
               >

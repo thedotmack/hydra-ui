@@ -13,7 +13,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen gradient-primary pattern-grid">
       {/* Sidebar */}
       <Sidebar 
         collapsed={sidebarCollapsed} 
@@ -27,7 +27,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
         
         {/* Page Content */}
         <main className={cn(
-          "flex-1 overflow-y-auto p-6",
+          "flex-1 overflow-y-auto p-0",
           className
         )}>
           {children}

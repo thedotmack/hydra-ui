@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 const Home: NextPage = () => {
   const [walletName, setWalletName] = useState<string>('')
@@ -14,107 +15,120 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome to Hydra UI</h1>
-          <p className="text-muted-foreground">
-            Modern treasury management for Solana. Create and manage your Hydra wallets with ease.
+      <div className="max-w-6xl mx-auto px-6 py-8 gradient-primary pattern-dots min-h-screen space-rhythm-large">
+        
+        {/* Header */}
+        <div className="mb-12 text-center">
+          <h1 className="text-5xl font-bold mb-4 text-gradient">
+            Treasury Management
+          </h1>
+          <p className="text-slate-300 text-xl leading-relaxed max-w-3xl mx-auto text-enhanced">
+            Manage multi-party revenue sharing wallets on Solana. Load an existing wallet or create a new one to get started.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {/* Quick Access Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Load Existing Wallet</CardTitle>
-              <CardDescription>
-                Enter a wallet name to view and manage your existing Hydra wallet
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  router.push(
-                    `/${walletName}${
-                      ctx.environment.label !== 'mainnet-beta'
-                        ? `?cluster=${ctx.environment.label}`
-                        : ''
-                    }`,
-                    undefined,
-                    { shallow: true }
-                  )
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                    Wallet Name
-                  </label>
-                  <input
-                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                    type="text"
-                    placeholder="hydra-wallet"
-                    onChange={(e) => {
-                      setWalletName(e.target.value)
-                    }}
-                    value={walletName}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    We currently only support Hydra wallets of membership model Wallet
-                  </p>
-                </div>
-                <Button type="submit" className="w-full">
-                  Load Hydra Wallet
+        {/* Cards */}
+        <div className="grid gap-8 lg:grid-cols-3">
+          
+          {/* Load Wallet - Primary */}
+          <div className="lg:col-span-2">
+            <Card className="glass-morphism hover:glow-accent hover-lift shadow-enhanced">
+              <CardHeader className="pb-6">
+                <CardTitle className="text-3xl text-gradient font-bold mb-3 text-glow">
+                  Load Existing Wallet
+                </CardTitle>
+                <CardDescription className="text-slate-300 text-lg leading-relaxed text-enhanced">
+                  Access your existing Hydra wallet to view balances, manage distributions, and track member activity.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault()
+                    router.push(
+                      `/${walletName}${
+                        ctx.environment.label !== 'mainnet-beta'
+                          ? `?cluster=${ctx.environment.label}`
+                          : ''
+                      }`,
+                      undefined,
+                      { shallow: true }
+                    )
+                  }}
+                  className="space-y-6"
+                >
+                  <div className="space-rhythm-small">
+                    <label className="text-lg font-semibold text-neon-cyan block mb-4 text-glow">
+                      Wallet Name
+                    </label>
+                    <Input
+                      type="text"
+                      placeholder="hydra-wallet"
+                      onChange={(e) => {
+                        setWalletName(e.target.value)
+                      }}
+                      value={walletName}
+                      className="input-enhanced h-14 text-white text-lg"
+                      autoFocus
+                    />
+                    <p className="text-sm text-slate-400 mt-3 text-enhanced">
+                      Currently supports Hydra wallets with membership model "Wallet"
+                    </p>
+                  </div>
+                  <Button 
+                    type="submit" 
+                    className="gradient-accent button-enhanced hover-glow-intense hover-lift text-white h-14 text-lg"
+                    disabled={!walletName.trim()}
+                  >
+                    Load Wallet
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Create Wallet - Secondary */}
+          <div className="lg:col-span-1">
+            <Card className="glass hover:glow-gold hover-lift shadow-glow h-full">
+              <CardHeader className="text-center pb-8">
+                <CardTitle className="text-2xl text-neon-gold font-bold mb-4 text-glow">
+                  Create New Wallet
+                </CardTitle>
+                <CardDescription className="text-slate-300 text-base leading-relaxed text-enhanced">
+                  Set up a new treasury with custom member shares and distribution rules.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex flex-col justify-center items-center space-rhythm-small">
+                <Button 
+                  variant="outline"
+                  className="border-gradient-hover glass-morphism text-neon-gold hover:text-white button-enhanced interactive-element h-12 px-8 text-lg"
+                  onClick={() => {
+                    router.push(
+                      `/create${
+                        ctx.environment.label !== 'mainnet-beta'
+                          ? `?cluster=${ctx.environment.label}`
+                          : ''
+                      }`
+                    )
+                  }}
+                >
+                  Create Wallet
                 </Button>
-              </form>
-            </CardContent>
-          </Card>
+                <p className="text-sm text-slate-400 mt-4 text-center text-enhanced">
+                  Configure members & shares
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Create New Wallet Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Create New Wallet</CardTitle>
-              <CardDescription>
-                Set up a new Hydra wallet with members and share distribution
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={() => {
-                  router.push(
-                    `/create${
-                      ctx.environment.label !== 'mainnet-beta'
-                        ? `?cluster=${ctx.environment.label}`
-                        : ''
-                    }`
-                  )
-                }}
-                className="w-full"
-              >
-                Create Wallet
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Network Info Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Network Status</CardTitle>
-              <CardDescription>
-                Currently connected to {ctx.environment.label}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-2">
-                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-muted-foreground capitalize">
-                  {ctx.environment.label} Active
-                </span>
-              </div>
-            </CardContent>
-          </Card>
         </div>
+
+        {/* Status */}
+        <div className="mt-16 flex items-center justify-center gap-3 text-sm">
+          <div className="w-3 h-3 bg-neon-green rounded-full animate-glow shadow-neon"></div>
+          <span className="text-neon-green text-enhanced">Network: {ctx.environment.label}</span>
+        </div>
+
       </div>
     </DashboardLayout>
   )

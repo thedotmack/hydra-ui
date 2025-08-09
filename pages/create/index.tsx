@@ -11,6 +11,9 @@ import { asWallet } from 'common/Wallets'
 import type { NextPage } from 'next'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useState } from 'react'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const Home: NextPage = () => {
   const { connection } = useEnvironmentCtx()
@@ -112,118 +115,124 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="bg-white h-screen max-h-screen">
-      <Header />
-      <main className="h-[80%] py-16 flex flex-1 flex-col justify-center items-center">
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Create Hydra Wallet</h1>
+          <p className="text-muted-foreground">
+            Set up a new treasury wallet with member shares and distribution rules.
+          </p>
+        </div>
+
         {success && (
-          <div className="text-gray-700 bg-green-300 w-full max-w-lg text-center py-3 mb-10">
-            <p className="font-bold uppercase tracking-wide">
-              Hydra Wallet Created
-            </p>
-            <p>
-              {' '}
-              Access the wallet at{' '}
-              <a
-                href={`/${walletName}${window.location.search ?? ''}`}
-                className="text-blue-600 hover:text-blue-500"
-              >
-                {window.location.origin}/{walletName}
-                {window.location.search ?? ''}
-              </a>
-            </p>
-          </div>
+          <Card className="border-green-200 bg-green-50 dark:bg-green-900/20">
+            <CardHeader>
+              <CardTitle className="text-green-800 dark:text-green-200">
+                Hydra Wallet Created Successfully!
+              </CardTitle>
+              <CardDescription className="text-green-700 dark:text-green-300">
+                Your wallet is ready to use. Access it at{' '}
+                <a
+                  href={`/${walletName}${window.location.search ?? ''}`}
+                  className="font-medium underline hover:no-underline"
+                >
+                  /{walletName}
+                </a>
+              </CardDescription>
+            </CardHeader>
+          </Card>
         )}
-        <form className="w-full max-w-lg">
-          <div className="w-full mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="grid-first-name"
-            >
-              Hydra Wallet Name
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-              name="grid-first-name"
-              type="text"
-              placeholder="hydra-wallet"
-              onChange={(e) => {
-                setWalletName(e.target.value)
-                setSuccess(false)
-              }}
-              value={walletName}
-            />
-          </div>
-          <div className="w-full mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="grid-first-name"
-            >
-              Total Shares
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-              name="grid-first-name"
-              type="number"
-              onChange={(e) => {
-                setTotalShares(parseInt(e.target.value))
-              }}
-              value={totalShares}
-            />
-          </div>
-          <div className="flex flex-wrap mb-6">
-            <div className="w-4/5 pr-3 mb-6 md:mb-0">
-              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Wallet Address
-              </label>
-              {hydraWalletMembers &&
-                hydraWalletMembers.map((member, i) => {
-                  return (
-                    <input
-                      key={i}
-                      name="memberKey"
-                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                      id="grid-first-name"
-                      type="text"
-                      placeholder="Cmw...4xW"
-                      onChange={(e) => {
-                        const walletMembers = hydraWalletMembers
-                        walletMembers[i]!.memberKey = e.target.value
-                        setHydraWalletMembers([...walletMembers])
-                      }}
-                      value={member.memberKey}
-                    />
-                  )
-                })}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Wallet Configuration</CardTitle>
+            <CardDescription>
+              Configure your wallet name and total shares for distribution
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Hydra Wallet Name
+                </label>
+                <input
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  type="text"
+                  placeholder="hydra-wallet"
+                  onChange={(e) => {
+                    setWalletName(e.target.value)
+                    setSuccess(false)
+                  }}
+                  value={walletName}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Total Shares
+                </label>
+                <input
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                  type="number"
+                  onChange={(e) => {
+                    setTotalShares(parseInt(e.target.value))
+                  }}
+                  value={totalShares}
+                />
+              </div>
             </div>
-            <div className="w-1/5">
-              <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                Shares {totalShares ? `/ ${totalShares}` : ''}
-              </label>
-              {hydraWalletMembers.map((member, i) => {
-                return (
-                  <div className="flex" key={`share-${i}`}>
-                    <input
-                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                      id="grid-last-name"
-                      type="number"
-                      placeholder="50"
-                      onChange={(e) => {
-                        const walletMembers = hydraWalletMembers
-                        walletMembers[i]!.shares = parseInt(e.target.value)
-                        setHydraWalletMembers([...walletMembers])
-                      }}
-                      value={member.shares}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-          <div className="flex justify-between">
-            <div>
-              <button
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Wallet Members</CardTitle>
+            <CardDescription>
+              Add members and their corresponding shares. Total shares must equal {totalShares || 100}.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {hydraWalletMembers.map((member, i) => (
+              <div key={i} className="grid gap-4 md:grid-cols-5">
+                <div className="md:col-span-4 space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Wallet Address
+                  </label>
+                  <input
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    type="text"
+                    placeholder="Cmw...4xW"
+                    onChange={(e) => {
+                      const walletMembers = hydraWalletMembers
+                      walletMembers[i]!.memberKey = e.target.value
+                      setHydraWalletMembers([...walletMembers])
+                    }}
+                    value={member.memberKey}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Shares
+                  </label>
+                  <input
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    type="number"
+                    placeholder="50"
+                    onChange={(e) => {
+                      const walletMembers = hydraWalletMembers
+                      walletMembers[i]!.shares = parseInt(e.target.value)
+                      setHydraWalletMembers([...walletMembers])
+                    }}
+                    value={member.shares}
+                  />
+                </div>
+              </div>
+            ))}
+
+            <div className="flex gap-2">
+              <Button
                 type="button"
-                className="bg-gray-200 text-gray-600 hover:bg-gray-300 px-4 py-3 rounded-md mr-3"
+                variant="outline"
                 onClick={() =>
                   setHydraWalletMembers([
                     ...hydraWalletMembers,
@@ -235,36 +244,38 @@ const Home: NextPage = () => {
                 }
               >
                 Add Member
-              </button>
-              <button
-                type="button"
-                className="bg-gray-200 text-gray-600 hover:bg-gray-300 px-4 py-3 rounded-md "
-                onClick={() =>
-                  setHydraWalletMembers(
-                    hydraWalletMembers.filter(
-                      (item, index) => index !== hydraWalletMembers.length - 1
+              </Button>
+              {hydraWalletMembers.length > 1 && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() =>
+                    setHydraWalletMembers(
+                      hydraWalletMembers.filter(
+                        (item, index) => index !== hydraWalletMembers.length - 1
+                      )
                     )
-                  )
-                }
-              >
-                Remove Member
-              </button>
+                  }
+                >
+                  Remove Member
+                </Button>
+              )}
             </div>
-            <div>
-              <AsyncButton
+
+            <div className="pt-4">
+              <Button
                 type="button"
-                bgColor="rgb(96 165 250)"
-                variant="primary"
-                className="bg-blue-400 text-white hover:bg-blue-500 px-4 py-3 rounded-md"
-                handleClick={async () => validateAndCreateWallet()}
+                className="w-full md:w-auto"
+                onClick={() => validateAndCreateWallet()}
+                disabled={!wallet.publicKey}
               >
                 Create Hydra Wallet
-              </AsyncButton>
+              </Button>
             </div>
-          </div>
-        </form>
-      </main>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </DashboardLayout>
   )
 }
 

@@ -3,6 +3,9 @@ import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useState } from 'react'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 const Home: NextPage = () => {
   const [walletName, setWalletName] = useState<string>('')
@@ -10,50 +13,28 @@ const Home: NextPage = () => {
   const ctx = useEnvironmentCtx()
 
   return (
-    <div className="bg-white h-screen max-h-screen">
-      <Header />
-      <main className="h-[80%] flex flex-1 flex-col justify-center items-center">
-        <div className="block uppercase tracking-wide text-gray-700 text-lg font-bold mb-6">
-          Welcome to Hydra UI
+    <DashboardLayout>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome to Hydra UI</h1>
+          <p className="text-muted-foreground">
+            Modern treasury management for Solana. Create and manage your Hydra wallets with ease.
+          </p>
         </div>
-        <form
-          className="w-full max-w-lg"
-          onSubmit={(e) => {
-            e.preventDefault()
-            router.push(
-              `/${walletName}${
-                ctx.environment.label !== 'mainnet-beta'
-                  ? `?cluster=${ctx.environment.label}`
-                  : ''
-              }`,
-              undefined,
-              { shallow: true }
-            )
-          }}
-        >
-          <div className="w-full mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="grid-first-name"
-            >
-              Wallet Name
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="grid-first-name"
-              onSubmit={() => alert('HEr')}
-              type="text"
-              placeholder="hydra-wallet"
-              onChange={(e) => {
-                setWalletName(e.target.value)
-              }}
-              value={walletName}
-            />
-            <span className="text-xs mt-1 mb-3 block text-gray-400 italic">We currently only support Hydra wallets of membership model Wallet</span>
-            <div>
-              <div
-                className="bg-blue-400 text-white hover:bg-blue-500 px-4 py-3 rounded-md float-right cursor-pointer"
-                onClick={() => {
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {/* Quick Access Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Load Existing Wallet</CardTitle>
+              <CardDescription>
+                Enter a wallet name to view and manage your existing Hydra wallet
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
                   router.push(
                     `/${walletName}${
                       ctx.environment.label !== 'mainnet-beta'
@@ -64,14 +45,78 @@ const Home: NextPage = () => {
                     { shallow: true }
                   )
                 }}
+                className="space-y-4"
               >
-                Load Hydra Wallet
+                <div>
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Wallet Name
+                  </label>
+                  <input
+                    className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                    type="text"
+                    placeholder="hydra-wallet"
+                    onChange={(e) => {
+                      setWalletName(e.target.value)
+                    }}
+                    value={walletName}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    We currently only support Hydra wallets of membership model Wallet
+                  </p>
+                </div>
+                <Button type="submit" className="w-full">
+                  Load Hydra Wallet
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Create New Wallet Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Create New Wallet</CardTitle>
+              <CardDescription>
+                Set up a new Hydra wallet with members and share distribution
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => {
+                  router.push(
+                    `/create${
+                      ctx.environment.label !== 'mainnet-beta'
+                        ? `?cluster=${ctx.environment.label}`
+                        : ''
+                    }`
+                  )
+                }}
+                className="w-full"
+              >
+                Create Wallet
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Network Info Card */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Network Status</CardTitle>
+              <CardDescription>
+                Currently connected to {ctx.environment.label}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center space-x-2">
+                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-muted-foreground capitalize">
+                  {ctx.environment.label} Active
+                </span>
               </div>
-            </div>
-          </div>
-        </form>
-      </main>
-    </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </DashboardLayout>
   )
 }
 

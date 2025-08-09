@@ -5,6 +5,7 @@ import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import { AsyncButton } from 'common/Button'
+import { AsyncTextureButton } from '@/components/ui/async-texture-button'
 import { Header } from 'common/Header'
 import { notify } from 'common/Notification'
 import {
@@ -24,7 +25,7 @@ import type { NextPage } from 'next'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { TextureButton } from '@/components/ui/texture-button'
 import { Input } from '@/components/ui/input'
@@ -46,20 +47,21 @@ const StatCard = ({
   mounted?: boolean
 }) => {
   const colorMap: Record<string, string> = {
-    green: 'from-emerald-900/25 to-emerald-800/10 border-emerald-500/25',
-    blue: 'from-blue-900/25 to-blue-800/10 border-blue-500/25',
-    orange: 'from-orange-900/25 to-orange-800/10 border-orange-500/25',
+    green: 'from-emerald-500/10 via-transparent to-emerald-300/10',
+    blue: 'from-blue-500/10 via-transparent to-blue-300/10',
+    orange: 'from-orange-500/10 via-transparent to-orange-300/10',
   }
 
   const displayValue = typeof value === 'string' ? value : String(value)
 
   return (
-    <div className={`rounded-2xl border ${colorMap[color]} bg-gradient-to-br backdrop-blur-md p-6 shadow-sm hover:shadow-md transition-shadow`}>        
-      <div className="mb-4 space-y-1">
+    <div className="glass-panel rounded-2xl p-6 relative overflow-hidden group" data-elev="1">
+      <div className={`pointer-events-none absolute inset-0 opacity-40 mix-blend-plus-lighter bg-gradient-to-br ${colorMap[color]}`} />
+      <div className="relative mb-4 space-y-1">
         <div className="text-sm font-medium text-white/90 tracking-wide">{String(title)}</div>
         <div className="text-xs text-gray-400">{String(subtitle)}</div>
       </div>
-      <div className="flex items-end gap-2">
+      <div className="relative flex items-end gap-2">
         <div className="text-3xl font-semibold leading-none bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
           {mounted ? displayValue : <span className="h-6 w-20 bg-gray-700/40 animate-pulse rounded" />}
         </div>
@@ -97,20 +99,28 @@ const Home: NextPage = () => {
   const [showStakeTokens, setShowStakeTokens] = useState(false)
   const [stakeAmount, setStakeAmount] = useState<number>(0)
 
+  // Hoisted function for stable reference in effects
+  const selectSplToken = React.useCallback((mintId: string) => {
+    setMintId(mintId === 'default' ? undefined : mintId)
+    const fanoutMint = fanoutMints.data?.find(
+      (fanoutMint) => fanoutMint.data.mint.toString() === mintId
+    )
+    if (environment.label === 'mainnet-beta') {
+      router.push(`${location.pathname}#${fanoutMint?.config.symbol ?? ''}`)
+    }
+  }, [fanoutMints.data, environment.label, router])
+
+  // Sync hash with selected token mint when route or fanout mints change
   useEffect(() => {
     const anchor = router.asPath.split('#')[1]
-    const fanoutMint = fanoutMints.data?.find(
-      (fanoutMint) =>
-        fanoutMint.config.symbol === anchor ||
-        fanoutMint.id.toString() === anchor
+    if (!anchor || !fanoutMints.data) return
+    const match = fanoutMints.data.find(
+      (fm) => fm.config.symbol === anchor || fm.id.toString() === anchor
     )
-    if (fanoutMint?.data.mint && fanoutMint?.data.mint.toString() !== mintId) {
-      selectSplToken(fanoutMint?.data.mint.toString())
+    if (match?.data.mint && match.data.mint.toString() !== mintId) {
+      selectSplToken(match.data.mint.toString())
     }
-  }, [
-    router,
-    fanoutMints.data?.map((fanoutMint) => fanoutMint.id.toString()).join(','),
-  ])
+  }, [router.asPath, fanoutMints.data, mintId, selectSplToken])
 
   useEffect(() => {
     const setMapping = async () => {
@@ -254,8 +264,9 @@ const Home: NextPage = () => {
 
       const removeMemberInstructions = await fanoutSdk.removeMemberInstructions({
         fanout: fanoutData.data.fanoutId,
+        // TODO: verify correct argument name; temporary cast applied
         membershipAccount: membershipVoucher.pubkey,
-      })
+      } as any)
       
       transaction.add(...removeMemberInstructions.instructions)
       await executeTransaction(connection, wallet as Wallet, transaction, {})
@@ -309,10 +320,11 @@ const Home: NextPage = () => {
         fanout: fanoutData.data.fanoutId,
         fromMember: fromMemberPK,
         toMember: toMemberPK,
+        // TODO: verify arg names in SDK; using cast to unblock
         fromMembershipAccount: fromMembershipVoucher.pubkey,
         toMembershipAccount: toMembershipVoucher.pubkey,
         shares: transferShareAmount,
-      })
+      } as any)
       
       transaction.add(...transferSharesInstructions.instructions)
       await executeTransaction(connection, wallet as Wallet, transaction, {})
@@ -423,15 +435,6 @@ const Home: NextPage = () => {
     }
   }
 
-  const selectSplToken = (mintId: string) => {
-    setMintId(mintId === 'default' ? undefined : mintId)
-    const fanoutMint = fanoutMints.data?.find(
-      (fanoutMint) => fanoutMint.data.mint.toString() === mintId
-    )
-    if (environment.label === 'mainnet-beta') {
-      router.push(`${location.pathname}#${fanoutMint?.config.symbol ?? ''}`)
-    }
-  }
 
   const distributeShare = async (
     fanoutData: FanoutData,
@@ -543,11 +546,11 @@ const Home: NextPage = () => {
       <div className="space-y-10">
         {/* Error State */}
         {fanoutData.error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-900/20 backdrop-blur p-6 text-center">
+          <div className="glass-panel rounded-[var(--radius-xl)] p-6 text-center" data-elev="2">
             <h3 className="text-xl font-semibold text-red-300 mb-2">Hydra Wallet Not Found</h3>
-            <TextureButton 
+            <TextureButton
               onClick={() => router.push(`/${environment.label !== 'mainnet-beta' ? `?cluster=${environment.label}` : ''}`)}
-              variant="secondary"
+              variant="glass"
               className="mt-4"
             >
               Return to Dashboard
@@ -557,7 +560,7 @@ const Home: NextPage = () => {
 
         {/* Heading */}
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+          <h1 className="hero-title text-4xl font-semibold tracking-tight">
             {mounted && fanoutData.data?.fanout?.name ? 
               String(fanoutData.data.fanout.name) : 
               <span className="inline-block h-10 w-64 animate-pulse rounded-md bg-gray-700/30" />
@@ -630,15 +633,15 @@ const Home: NextPage = () => {
         {/* Token Selection & Wallet Details */}
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Token Selection */}
-          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
-            <div className="mb-4">
-              <h3 className="text-xl font-semibold text-white mb-2">Token Selection</h3>
-              <p className="text-gray-400 text-sm">Choose which token to view and manage</p>
+          <div className="glass-panel rounded-2xl p-6" data-elev="1">
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold text-white mb-2">Token Selection</h3>
+                <p className="text-gray-400 text-sm">Choose which token to view and manage</p>
             </div>
             <select
               value={mintId || 'default'}
               onChange={(e) => selectSplToken(e.target.value)}
-              className="w-full h-12 bg-gray-800/50 border border-gray-700/50 text-white rounded-lg px-4 focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20"
+              className="w-full h-12 input-glass rounded-lg px-4"
             >
               <option value="default">SOL</option>
               {fanoutMints.data?.map((fanoutMint) => (
@@ -650,7 +653,7 @@ const Home: NextPage = () => {
           </div>
 
           {/* Wallet Addresses */}
-          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
+          <div className="glass-panel rounded-2xl p-6" data-elev="1">
             <div className="mb-4">
               <h3 className="text-xl font-semibold text-white mb-2">Wallet Addresses</h3>
               <p className="text-gray-400 text-sm">Key addresses for this treasury</p>
@@ -697,7 +700,7 @@ const Home: NextPage = () => {
         </div>
 
         {/* Members List */}
-        <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
+  <div className="glass-panel rounded-2xl p-6" data-elev="2">
           <div className="mb-6 flex justify-between items-center">
             <div>
               <h3 className="text-xl font-semibold text-white mb-2">Members</h3>
@@ -707,14 +710,14 @@ const Home: NextPage = () => {
               <div className="flex gap-2">
                 <TextureButton
                   onClick={() => setShowAddMember(!showAddMember)}
-                  variant="accent"
+                  variant={showAddMember ? 'glass' : 'luminous'}
                   className="h-9 px-4 text-sm"
                 >
                   {showAddMember ? 'Cancel' : 'Add Member'}
                 </TextureButton>
                 <TextureButton
                   onClick={() => setShowTransferShares(!showTransferShares)}
-                  variant="secondary"
+                  variant={showTransferShares ? 'glass' : 'glass'}
                   className="h-9 px-4 text-sm"
                 >
                   {showTransferShares ? 'Cancel' : 'Transfer Shares'}
@@ -722,7 +725,7 @@ const Home: NextPage = () => {
                 {fanoutData.data.fanout.membershipModel === 2 && (
                   <TextureButton
                     onClick={() => setShowStakeTokens(!showStakeTokens)}
-                    variant="minimal"
+                    variant={showStakeTokens ? 'glass' : 'glass'}
                     className="h-9 px-4 text-sm"
                   >
                     {showStakeTokens ? 'Cancel' : 'Stake Tokens'}
@@ -734,7 +737,7 @@ const Home: NextPage = () => {
           
           {/* Add Member Form */}
           {showAddMember && (
-            <div className="mb-6 p-4 rounded-lg border border-blue-500/30 bg-blue-900/20 backdrop-blur">
+            <div className="mb-6 p-4 rounded-lg glass-panel" data-elev="1">
               <h4 className="text-lg font-medium text-white mb-4">Add New Member</h4>
               
               {/* Member Type Selector - only show for NFT model fanouts */}
@@ -776,7 +779,7 @@ const Home: NextPage = () => {
                     placeholder={newMemberType === 'nft' ? 'Enter NFT mint address...' : 'Enter Solana wallet address...'}
                     value={newMemberWallet}
                     onChange={(e) => setNewMemberWallet(e.target.value)}
-                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                    className="h-10 input-glass text-white"
                   />
                 </div>
                 <div>
@@ -786,14 +789,14 @@ const Home: NextPage = () => {
                     placeholder="0"
                     value={newMemberShares || ''}
                     onChange={(e) => setNewMemberShares(parseInt(e.target.value) || 0)}
-                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                    className="h-10 input-glass"
                   />
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
                 <TextureButton
                   onClick={addMember}
-                  variant="accent"
+                  variant={(!newMemberWallet || newMemberShares <= 0) ? 'glass' : 'luminous'}
                   className="h-9 px-6"
                   disabled={!newMemberWallet || newMemberShares <= 0}
                 >
@@ -806,7 +809,7 @@ const Home: NextPage = () => {
                     setNewMemberShares(0)
                     setNewMemberType('wallet')
                   }}
-                  variant="secondary"
+                  variant="glass"
                   className="h-9 px-4"
                 >
                   Cancel
@@ -817,7 +820,7 @@ const Home: NextPage = () => {
           
           {/* Transfer Shares Form */}
           {showTransferShares && (
-            <div className="mb-6 p-4 rounded-lg border border-purple-500/30 bg-purple-900/20 backdrop-blur">
+            <div className="mb-6 p-4 rounded-lg glass-panel" data-elev="1">
               <h4 className="text-lg font-medium text-white mb-4">Transfer Shares</h4>
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
@@ -825,7 +828,7 @@ const Home: NextPage = () => {
                   <select
                     value={transferFromMember}
                     onChange={(e) => setTransferFromMember(e.target.value)}
-                    className="w-full h-10 bg-gray-800/50 border border-gray-700/50 text-white rounded-lg px-3"
+                    className="w-full h-10 input-glass rounded-lg px-3"
                   >
                     <option value="">Select member...</option>
                     {fanoutMembershipVouchers.data?.map((voucher) => (
@@ -840,7 +843,7 @@ const Home: NextPage = () => {
                   <select
                     value={transferToMember}
                     onChange={(e) => setTransferToMember(e.target.value)}
-                    className="w-full h-10 bg-gray-800/50 border border-gray-700/50 text-white rounded-lg px-3"
+                    className="w-full h-10 input-glass rounded-lg px-3"
                   >
                     <option value="">Select member...</option>
                     {fanoutMembershipVouchers.data?.map((voucher) => (
@@ -857,14 +860,14 @@ const Home: NextPage = () => {
                     placeholder="0"
                     value={transferShareAmount || ''}
                     onChange={(e) => setTransferShareAmount(parseInt(e.target.value) || 0)}
-                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                    className="h-10 input-glass"
                   />
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
                 <TextureButton
                   onClick={transferShares}
-                  variant="accent"
+                  variant={(!transferFromMember || !transferToMember || transferShareAmount <= 0) ? 'glass' : 'luminous'}
                   className="h-9 px-6"
                   disabled={!transferFromMember || !transferToMember || transferShareAmount <= 0}
                 >
@@ -877,7 +880,7 @@ const Home: NextPage = () => {
                     setTransferToMember('')
                     setTransferShareAmount(0)
                   }}
-                  variant="secondary"
+                  variant="glass"
                   className="h-9 px-4"
                 >
                   Cancel
@@ -888,7 +891,7 @@ const Home: NextPage = () => {
           
           {/* Stake Tokens Form */}
           {showStakeTokens && (
-            <div className="mb-6 p-4 rounded-lg border border-green-500/30 bg-green-900/20 backdrop-blur">
+            <div className="mb-6 p-4 rounded-lg glass-panel" data-elev="1">
               <h4 className="text-lg font-medium text-white mb-4">Stake Tokens</h4>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
@@ -898,14 +901,14 @@ const Home: NextPage = () => {
                     placeholder="0"
                     value={stakeAmount || ''}
                     onChange={(e) => setStakeAmount(parseInt(e.target.value) || 0)}
-                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                    className="h-10 input-glass"
                   />
                 </div>
                 <div className="flex items-end">
                   <div className="flex gap-2 w-full">
                     <TextureButton
                       onClick={stakeTokens}
-                      variant="accent"
+                      variant={stakeAmount > 0 ? "luminous" : "glass"}
                       className="h-10 px-6"
                       disabled={stakeAmount <= 0}
                     >
@@ -916,7 +919,7 @@ const Home: NextPage = () => {
                         setShowStakeTokens(false)
                         setStakeAmount(0)
                       }}
-                      variant="secondary"
+                      variant="glass"
                       className="h-10 px-4"
                     >
                       Cancel
@@ -936,7 +939,7 @@ const Home: NextPage = () => {
           ) : (
             <div className="space-y-3">
               {fanoutMembershipVouchers.data.map((voucher, i) => (
-                <div key={voucher.pubkey.toString()} className="flex items-center justify-between p-4 rounded-lg border border-gray-800/50 bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+                <div key={voucher.pubkey.toString()} className="flex items-center justify-between p-4 rounded-lg glass-panel" data-elev="1">
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
                       {String.fromCharCode(65 + (i % 26))}
@@ -964,12 +967,11 @@ const Home: NextPage = () => {
                     <span className="inline-block px-3 py-1 bg-purple-900/30 text-purple-300 border border-purple-500/30 rounded-lg text-sm font-medium">
                       {voucher.parsed.shares.toString()} shares
                     </span>
-                    <AsyncButton
-                      type="button"
-                      variant="primary"
-                      bgColor="rgb(34 197 94)"
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-medium"
-                      handleClick={async () => {
+                    <AsyncTextureButton
+                      variant="luminous"
+                      size="sm"
+                      className="h-8 px-3 text-xs font-medium"
+                      onAction={async () => {
                         if (fanoutData.data) {
                           await distributeShare(fanoutData.data, false, voucher.parsed.membershipKey)
                         }
@@ -977,14 +979,13 @@ const Home: NextPage = () => {
                       disabled={!wallet.publicKey}
                     >
                       Distribute
-                    </AsyncButton>
+                    </AsyncTextureButton>
                     {fanoutData.data && fanoutData.data.fanout.membershipModel === 2 && (
-                      <AsyncButton
-                        type="button"
-                        variant="primary"
-                        bgColor="rgb(234 88 12)"
-                        className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded text-xs font-medium"
-                        handleClick={async () => {
+                      <AsyncTextureButton
+                        variant="glass"
+                        size="sm"
+                        className="h-8 px-3 text-xs font-medium"
+                        onAction={async () => {
                           if (confirm(`Unstake tokens for ${shortPubKey(voucher.parsed.membershipKey)}?`)) {
                             await unstakeTokens(voucher.parsed.membershipKey)
                           }
@@ -992,15 +993,14 @@ const Home: NextPage = () => {
                         disabled={!wallet.publicKey}
                       >
                         Unstake
-                      </AsyncButton>
+                      </AsyncTextureButton>
                     )}
                     {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-                      <AsyncButton
-                        type="button"
-                        variant="primary"
-                        bgColor="rgb(239 68 68)"
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium"
-                        handleClick={async () => {
+                      <AsyncTextureButton
+                        variant="glass"
+                        size="sm"
+                        className="h-8 px-3 text-xs font-medium text-red-300 hover:text-red-200"
+                        onAction={async () => {
                           if (confirm(`Remove member ${shortPubKey(voucher.parsed.membershipKey)}?`)) {
                             await removeMember(voucher.parsed.membershipKey)
                           }
@@ -1008,7 +1008,7 @@ const Home: NextPage = () => {
                         disabled={!wallet.publicKey}
                       >
                         Remove
-                      </AsyncButton>
+                      </AsyncTextureButton>
                     )}
                   </div>
                 </div>
@@ -1019,27 +1019,24 @@ const Home: NextPage = () => {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-4">
-          <AsyncButton
-            type="button"
-            variant="primary"
-            bgColor="rgb(37 99 235)"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
-            handleClick={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
+          <AsyncTextureButton
+            variant="luminous"
+            className="px-6 py-3 rounded-lg font-medium"
+            onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
             disabled={!wallet.publicKey}
           >
             Distribute To All Members
-          </AsyncButton>
+          </AsyncTextureButton>
           {fanoutData.data &&
             fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-            <AsyncButton
-              type="button"
-              variant="primary"
-              bgColor="rgb(75 85 99)"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium border border-gray-500"
-              handleClick={addSplToken}
+            <AsyncTextureButton
+              variant="glass"
+              className="px-6 py-3 rounded-lg font-medium border border-[var(--glass-border)]"
+              onAction={addSplToken}
+              disabled={!wallet.publicKey}
             >
               Add SPL Token
-            </AsyncButton>
+            </AsyncTextureButton>
           )}
         </div>
       </div>

@@ -2,7 +2,6 @@ import { Fanout, FanoutClient, MembershipModel } from '@metaplex-foundation/mpl-
 import { Wallet } from '@saberhq/solana-contrib'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Transaction } from '@solana/web3.js'
-import { AsyncButton } from 'common/Button'
 // Legacy Header removed; ModernHeader used via DashboardLayout
 import { notify } from 'common/Notification'
 import { executeTransaction } from 'common/Transactions'
@@ -119,7 +118,7 @@ const Home: NextPage = () => {
     <DashboardLayout>
       {/* Heading */}
       <div className="text-center mb-12 space-y-4">
-        <h1 className="text-4xl font-semibold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+        <h1 className="hero-title text-4xl font-semibold">
           Create Hydra Wallet
         </h1>
         <p className="text-gray-400 text-lg max-w-3xl mx-auto leading-relaxed">
@@ -149,7 +148,7 @@ const Home: NextPage = () => {
       <div className="grid gap-10 lg:gap-12 grid-cols-1 xl:grid-cols-12 mb-20">
         {/* Configuration Panel */}
         <div className="xl:col-span-5 space-y-8">
-          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-8 md:p-10 shadow-xl">
+          <div className="glass-panel rounded-[var(--radius-xl)] p-8 md:p-10" data-elev="2">
             <div className="space-y-5 mb-6">
               <h2 className="text-2xl font-semibold text-white">Wallet Configuration</h2>
               <p className="text-gray-300 text-sm md:text-base leading-relaxed">
@@ -167,7 +166,7 @@ const Home: NextPage = () => {
                     setSuccess(false)
                   }}
                   value={walletName}
-                  className="h-12 bg-gray-800/50 border-gray-700/50 text-white text-base placeholder:text-gray-500 focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 rounded-lg font-mono"
+                  className="h-12 input-glass text-base font-mono"
                 />
                 <p className="text-xs text-gray-500">Used as the wallet&apos;s unique identifier (no spaces).</p>
               </div>
@@ -177,11 +176,11 @@ const Home: NextPage = () => {
                   type="number"
                   onChange={(e) => setTotalShares(parseInt(e.target.value))}
                   value={totalShares}
-                  className="h-12 bg-gray-800/50 border-gray-700/50 text-white text-xl font-semibold placeholder:text-gray-500 focus:border-orange-400/60 focus:ring-2 focus:ring-orange-400/20 rounded-lg text-center"
+                  className="h-12 input-glass text-xl font-semibold text-center"
                 />
                 <p className="text-xs text-orange-400 font-medium">Distribution units (must match allocation sum)</p>
               </div>
-              <div className="rounded-lg bg-gray-800/40 border border-gray-700/40 p-4">
+              <div className="rounded-lg glass-panel p-4" data-elev="1">
                 <p className="text-gray-200 text-sm mb-2">⚙️ Tips</p>
                 <ul className="space-y-1 text-xs text-gray-400">
                   <li>• Use descriptive names</li>
@@ -191,7 +190,7 @@ const Home: NextPage = () => {
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border border-purple-500/30 bg-purple-900/20 backdrop-blur p-6 shadow-md">
+          <div className="glass-panel rounded-[var(--radius-xl)] p-6" data-elev="1">
             <p className="text-sm font-medium text-purple-200 mb-2">💡 Allocation Summary</p>
             <p className="text-xs text-purple-200/80">Members defined: <span className="font-semibold">{hydraWalletMembers.length}</span></p>
             <p className="text-xs text-purple-200/80">Total shares target: <span className="font-semibold">{totalShares}</span></p>
@@ -199,8 +198,8 @@ const Home: NextPage = () => {
         </div>
 
         {/* Members Panel */}
-        <div className="xl:col-span-7 space-y-8">
-          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/50 backdrop-blur p-8 md:p-10 shadow-lg">
+    <div className="xl:col-span-7 space-y-8">
+      <div className="glass-panel rounded-[var(--radius-xl)] p-8 md:p-10" data-elev="2">
             <div className="space-y-5 mb-6">
               <h2 className="text-2xl font-semibold text-white">Wallet Members</h2>
               <p className="text-gray-300 text-sm md:text-base leading-relaxed">
@@ -211,7 +210,7 @@ const Home: NextPage = () => {
               {hydraWalletMembers.map((member, i) => {
                 const sharePercentage = member.shares && totalShares ? ((member.shares / totalShares) * 100).toFixed(1) : '0'
                 return (
-                  <div key={i} className="grid gap-6 md:grid-cols-6 p-5 rounded-xl border border-gray-800/70 bg-gray-800/40 hover:bg-gray-800/60 transition-colors group">
+      <div key={i} className="grid gap-6 md:grid-cols-6 p-5 rounded-xl glass-panel" data-elev="1">
                     <div className="flex items-center justify-center">
                       <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-inner shadow-black/30">
                         {String.fromCharCode(65 + (i % 26))}
@@ -228,7 +227,7 @@ const Home: NextPage = () => {
                           setHydraWalletMembers([...walletMembers])
                         }}
                         value={member.memberKey}
-                        className="h-11 bg-gray-900/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-400/20 font-mono rounded-md text-xs"
+        className="h-11 input-glass font-mono text-xs"
                       />
                     </div>
                     <div className="space-y-2">
@@ -242,7 +241,7 @@ const Home: NextPage = () => {
                           setHydraWalletMembers([...walletMembers])
                         }}
                         value={member.shares}
-                        className="h-11 bg-gray-900/50 border-gray-700/50 text-white text-sm font-semibold placeholder:text-gray-500 focus:border-green-400/60 focus:ring-2 focus:ring-green-400/20 rounded-md text-center"
+        className="h-11 input-glass text-sm font-semibold text-center"
                       />
                     </div>
                     <div className="flex flex-col justify-center items-center space-y-1">
@@ -267,7 +266,7 @@ const Home: NextPage = () => {
                       { memberKey: undefined, shares: undefined },
                     ])
                   }
-                  variant="accent"
+      variant="luminous"
                   className="h-10 px-5 font-medium"
                 >
                   + Add Member
@@ -290,7 +289,7 @@ const Home: NextPage = () => {
               <div className="pt-6 border-t border-gray-800/60">
                 <TextureButton
                   type="button"
-                  variant="accent"
+      variant="luminous"
                   className="h-12 px-8 font-semibold text-base w-full md:w-auto"
                   onClick={() => validateAndCreateWallet()}
                   disabled={!wallet.publicKey}
@@ -298,7 +297,7 @@ const Home: NextPage = () => {
                   Create Hydra Wallet
                 </TextureButton>
               </div>
-              <div className="rounded-lg bg-purple-900/15 border border-purple-500/20 p-4 mt-2">
+      <div className="rounded-lg glass-panel p-4 mt-2" data-elev="1">
                 <p className="text-purple-200 text-sm mb-2">💫 Member Management</p>
                 <ul className="space-y-1 text-xs text-purple-300">
                   <li>• Valid Solana address required</li>

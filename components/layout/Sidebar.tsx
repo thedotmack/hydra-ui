@@ -66,13 +66,13 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-gray-900/50 backdrop-blur-sm border-r border-gray-700/50 transition-all duration-300",
+        "flex flex-col h-full border-r border-[var(--border-subtle)] transition-all duration-300 bg-[linear-gradient(165deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_55%,rgba(255,255,255,0)_100%)] backdrop-blur-xl",
         collapsed ? "w-16" : "w-72",
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-gray-700/50">
+  <div className="flex items-center justify-between p-6 border-b border-gray-700/40">
         {!collapsed && (
           <div className="font-bold text-xl text-white flex items-center gap-3">
             <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
@@ -80,17 +80,20 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
           </div>
         )}
         <TextureButton
-          variant="minimal"
+          variant="glass"
           onClick={onToggle}
-          className="h-8 w-8 hover:bg-gray-800/50 hover:text-purple-400 transition-colors"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={!collapsed}
+          data-focus-ring="true"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className="h-8 w-8 p-0 hover:shadow-[0_0_0_1px_var(--color-accent-ring)]"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </TextureButton>
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 py-6">
-        <nav className="space-y-2 px-4">
+  <nav className="flex flex-col gap-1 px-3 py-2">
           {sidebarItems.map((item) => {
             const isActive = router.pathname === item.href
             const Icon = item.icon
@@ -98,21 +101,22 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
             return (
               <Link key={item.href} href={getHref(item.href)}>
                 <TextureButton
-                  variant="minimal"
+                  variant="glass"
                   className={cn(
-                    "w-full justify-start gap-4 h-12 font-medium transition-all duration-200 rounded-lg group",
-                    collapsed && "px-3 justify-center",
-                    isActive 
-                      ? "bg-purple-900/30 text-purple-400 border border-purple-400/30 shadow-lg" 
-                      : "hover:bg-gray-800/50 hover:border-r-2 hover:border-purple-400 text-gray-300 hover:text-white"
+                    "relative w-full justify-start gap-3 h-11 font-medium transition-colors duration-150 rounded-[var(--radius-md)] group text-sm tracking-tight pl-4 pr-3 overflow-hidden",
+                    collapsed && "px-0 justify-center pl-0",
+                    isActive
+                      ? "nav-item-active text-purple-200"
+                      : "text-gray-300 hover:text-white"
                   )}
+                  data-focus-ring="true"
                 >
                   <Icon className={cn(
-                    "h-5 w-5 shrink-0 transition-colors duration-200",
-                    isActive ? "text-purple-400" : "text-gray-400 group-hover:text-purple-400"
+                    "h-5 w-5 shrink-0 transition-colors duration-150 relative z-10",
+                    isActive ? "text-purple-200" : "text-gray-400 group-hover:text-purple-200"
                   )} />
                   {!collapsed && (
-                    <span className={isActive ? "text-purple-400" : "group-hover:text-white"}>
+                  <span className={cn("relative z-10", isActive ? "text-purple-200" : "group-hover:text-white") }>
                       {item.title}
                     </span>
                   )}
@@ -120,15 +124,14 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
               </Link>
             )
           })}
-        </nav>
-      </div>
+      </nav>
 
       {/* Footer Status */}
       {!collapsed && (
-        <div className="p-4 border-t border-gray-700/50">
-          <div className="flex items-center gap-2 text-xs text-gray-400">
-            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-            <span>{environment.label}</span>
+  <div className="p-4 border-t border-gray-700/40">
+          <div className="flex items-center gap-2 text-xs text-gray-400" aria-label={`Network: ${environment.label}`}>
+            <span className="status-pulse" />
+            <span className="capitalize">{environment.label}</span>
           </div>
         </div>
       )}

@@ -2,7 +2,7 @@ import * as React from "react"
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { useTheme } from "next-themes"
-import { Moon, Sun, Network } from "lucide-react"
+import { Moon, Sun, Network, ChevronDown } from "lucide-react"
 import { TextureButton } from "@/components/ui/texture-button"
 import { useEnvironmentCtx, ENVIRONMENTS } from 'providers/EnvironmentProvider'
 import { Cluster } from '@solana/web3.js'
@@ -22,6 +22,8 @@ export function ModernHeader({ className }: HeaderProps) {
     setMounted(true)
   }, [])
 
+  const [announce, setAnnounce] = React.useState("")
+
   const updateNetwork = () => {
     const url = new URL(window.location.href)
     const currentCluster = ctx.environment.label
@@ -40,61 +42,58 @@ export function ModernHeader({ className }: HeaderProps) {
     const newEnv = ENVIRONMENTS.find((env) => env.label === newCluster)
     if (!newEnv) return
     
-    ctx.setEnvironment(newEnv)
+  ctx.setEnvironment(newEnv)
     url.searchParams.set('cluster', newCluster)
     window.history.replaceState(null, '', url.toString())
+  setAnnounce(`Network changed to ${newCluster}`)
   }
 
   return (
     <header className={cn(
-      "border-b border-gray-800/60 bg-gray-900/60 backdrop-blur-xl px-4 md:px-6",
+      "h-14 border-b border-[var(--border-subtle)] bg-[var(--glass-bg)]/40 backdrop-blur-md px-4 sm:px-5 md:px-6",
       className
     )}>
-      <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-6">
-      <div className="flex items-center gap-3">
-        {/* Network Switcher */}
-        <TextureButton
-          variant="secondary"
-          onClick={updateNetwork}
-          className="gap-2 bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 hover:border-purple-400 transition-all duration-200"
-        >
-          <Network className="h-4 w-4 text-purple-400" />
-          <span className="capitalize font-medium">{ctx.environment.label}</span>
-        </TextureButton>
-      </div>
-
-  <div className="flex items-center gap-2 md:gap-4">
-        {/* Theme Toggle */}
-        {mounted && (
+      <div className="max-w-7xl mx-auto w-full h-full flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2">
+          {/* Network Switcher */}
           <TextureButton
-            variant="minimal"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="hover:bg-gray-800/50 hover:text-purple-400 transition-all duration-200 h-9 w-9"
+            variant="glass"
+            onClick={updateNetwork}
+            aria-label="Change network"
+            data-focus-ring="true"
+            className="h-9 px-3 gap-1.5 text-sm font-medium hover:shadow-[0_0_0_1px_var(--color-accent-ring),0_0_0_3px_rgba(174,104,255,0.15)]"
           >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-gray-300" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-gray-300" />
-            <span className="sr-only">Toggle theme</span>
+            <Network className="h-4 w-4 text-purple-300" />
+            <span className="capitalize font-medium tracking-tight">{ctx.environment.label}</span>
+            <ChevronDown className="h-3.5 w-3.5 opacity-70" />
           </TextureButton>
-        )}
+        </div>
 
-        {/* Wallet Connection */}
-        {mounted && (
-          <div className="transition-all duration-200 rounded-lg">
-            <WalletMultiButton
-              style={{
-                fontSize: '14px',
-                height: '36px',
-                borderRadius: '6px',
-                background: 'linear-gradient(135deg, oklch(0.7 0.15 285), oklch(0.75 0.12 300))',
-                border: 'none',
-                color: 'white',
-                fontWeight: '500',
-              }}
-            />
-          </div>
-        )}
-  </div>
-  </div>
+        <div className="flex items-center gap-1.5 md:gap-2">
+          {/* Theme Toggle */}
+          {mounted && (
+            <TextureButton
+              variant="glass"
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              aria-label="Toggle theme"
+              data-focus-ring="true"
+              className="h-9 w-9 p-0 flex items-center justify-center hover:shadow-[0_0_0_1px_var(--color-accent-ring),0_0_0_3px_rgba(174,104,255,0.15)]"
+            >
+              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-gray-300" />
+              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-gray-300" />
+            </TextureButton>
+          )}
+
+          {/* Wallet Connection */}
+          {mounted && (
+            <div className="btn-luminous h-9 flex items-center !px-0">
+              <WalletMultiButton className="focus-ring !h-9 !px-4 !text-sm !font-medium !tracking-tight !bg-transparent !shadow-none !border-0" />
+            </div>
+          )}
+        </div>
+      </div>
+  {/* Live region for network change announcements */}
+  <span aria-live="polite" className="sr-only">{announce}</span>
     </header>
   )
 }

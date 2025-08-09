@@ -134,6 +134,7 @@ const Expandable = React.forwardRef<HTMLDivElement, ExpandableProps>(
     )
   }
 )
+Expandable.displayName = "Expandable"
 
 // Simplify animation types
 type AnimationPreset = {
@@ -217,13 +218,15 @@ const getAnimationProps = (
   animateIn?: AnimationProps,
   animateOut?: AnimationProps
 ) => {
-  const defaultAnimation = {
+  const defaultAnimation: AnimationPreset = {
     initial: {},
     animate: {},
     exit: {},
   }
 
-  const presetAnimation = preset ? ANIMATION_PRESETS[preset] : defaultAnimation
+  const presetAnimation: AnimationPreset = preset
+    ? ANIMATION_PRESETS[preset] || defaultAnimation
+    : defaultAnimation
 
   return {
     initial: presetAnimation.initial,
@@ -337,6 +340,7 @@ const ExpandableContent = React.forwardRef<
     )
   }
 )
+ExpandableContent.displayName = "ExpandableContent"
 
 interface ExpandableCardProps {
   children: ReactNode
@@ -409,17 +413,24 @@ const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
       }
     }
 
+    // If consumer did not explicitly provide a width in collapsedSize, allow card to be fluid (full width of grid cell)
+    const hasExplicitWidth = typeof collapsedSize.width !== 'undefined'
+    const computedWidth =
+      expandDirection === 'vertical'
+        ? hasExplicitWidth
+          ? collapsedSize.width
+          : '100%'
+        : smoothWidth
+
     return (
       <motion.div
         ref={ref}
         className={cn("cursor-pointer", className)}
         style={{
-          // Set width and height based on expansion direction
-          width:
-            expandDirection === "vertical" ? collapsedSize.width : smoothWidth,
+          width: computedWidth,
           height:
-            expandDirection === "horizontal"
-              ? collapsedSize.height
+            expandDirection === 'horizontal'
+              ? collapsedSize.height || 'auto'
               : smoothHeight,
         }}
         transition={springConfig}
@@ -432,22 +443,22 @@ const ExpandableCard = React.forwardRef<HTMLDivElement, ExpandableCardProps>(
             "grid grid-cols-1 rounded-lg sm:rounded-xl md:rounded-[2rem]",
             "shadow-[inset_0_0_1px_1px_#ffffff4d] sm:shadow-[inset_0_0_2px_1px_#ffffff4d]",
             "ring-1 ring-black/5",
-            "max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-[calc(100%-4rem)]",
-            "mx-auto w-full",
+            "max-w-full",
+            "w-full",
             "transition-all duration-300 ease-in-out"
           )}
         >
           {/* Nested divs purely for styling and layout (the shadow ring around the card) */}
-          <div className="grid grid-cols-1 rounded-lg sm:rounded-xl md:rounded-[2rem] p-1 sm:p-1.5 md:p-2 shadow-md shadow-black/20">
-            <div className="rounded-md sm:rounded-lg md:rounded-3xl bg-gray-900/60 backdrop-blur-md p-2 sm:p-3 md:p-4 shadow-xl ring-1 ring-white/10">
-              <div className="w-full h-full overflow-hidden">
-                {/* Ref for measuring content dimensions (so we can let framer know to animate into the dimensions) */}
-                <div ref={measureRef} className="flex flex-col h-full">
-                  {children}
+            <div className="grid grid-cols-1 rounded-lg sm:rounded-xl md:rounded-[2rem] p-1 sm:p-1.5 md:p-2 shadow-md shadow-black/20">
+              <div className="rounded-md sm:rounded-lg md:rounded-3xl bg-gray-900/60 backdrop-blur-md p-2 sm:p-3 md:p-4 shadow-xl ring-1 ring-white/10">
+                <div className="w-full h-full overflow-hidden">
+                  {/* Ref for measuring content dimensions (so we can let framer know to animate into the dimensions) */}
+                  <div ref={measureRef} className="flex flex-col h-full">
+                    {children}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
         </div>
       </motion.div>
     )

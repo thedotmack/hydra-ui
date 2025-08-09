@@ -27,9 +27,10 @@ const App = ({
     </Head>
     <ThemeProvider
       attribute="class"
-      defaultTheme="system"
-      enableSystem
+      defaultTheme="dark"
+      enableSystem={false}
       disableTransitionOnChange
+      storageKey="hydra-ui-theme"
     >
       <EnvironmentProvider defaultCluster={cluster}>
       <WalletProvider

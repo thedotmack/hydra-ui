@@ -1,4 +1,4 @@
-// DisplayAddress removed
+// DisplayAddress requires WalletIdentity provider, using shortPubKey instead
 import { executeTransaction } from 'common/Transactions'
 import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
@@ -26,6 +26,7 @@ import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { TextureButton } from '@/components/ui/texture-button'
 
 // Reusable StatCard component
 const StatCard = ({
@@ -267,7 +268,21 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-14">
+      <div className="space-y-10">
+        {/* Error State */}
+        {fanoutData.error && (
+          <div className="rounded-xl border border-red-500/30 bg-red-900/20 backdrop-blur p-6 text-center">
+            <h3 className="text-xl font-semibold text-red-300 mb-2">Hydra Wallet Not Found</h3>
+            <TextureButton 
+              onClick={() => router.push(`/${environment.label !== 'mainnet-beta' ? `?cluster=${environment.label}` : ''}`)}
+              variant="secondary"
+              className="mt-4"
+            >
+              Return to Dashboard
+            </TextureButton>
+          </div>
+        )}
+
         {/* Heading */}
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
@@ -330,6 +345,151 @@ const Home: NextPage = () => {
             mounted={mounted}
             value={`${fanoutData.data?.fanout?.totalShares || '--'}`}
           />
+        </div>
+
+        {/* Token Selection & Wallet Details */}
+        <div className="grid gap-8 lg:grid-cols-2">
+          {/* Token Selection */}
+          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-white mb-2">Token Selection</h3>
+              <p className="text-gray-400 text-sm">Choose which token to view and manage</p>
+            </div>
+            <select
+              value={mintId || 'default'}
+              onChange={(e) => selectSplToken(e.target.value)}
+              className="w-full h-12 bg-gray-800/50 border border-gray-700/50 text-white rounded-lg px-4 focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20"
+            >
+              <option value="default">SOL</option>
+              {fanoutMints.data?.map((fanoutMint) => (
+                <option key={fanoutMint.id.toString()} value={fanoutMint.data.mint.toString()}>
+                  {paymentMintConfig[fanoutMint.data.mint.toString()]?.name || shortPubKey(fanoutMint.data.mint.toString())}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Wallet Addresses */}
+          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
+            <div className="mb-4">
+              <h3 className="text-xl font-semibold text-white mb-2">Wallet Addresses</h3>
+              <p className="text-gray-400 text-sm">Key addresses for this treasury</p>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div>
+                <span className="text-gray-400">Fanout Address:</span>
+                <a
+                  href={pubKeyUrl(fanoutData.data?.fanoutId, environment.label)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
+                >
+                  {shortPubKey(fanoutData.data?.fanoutId?.toString())}
+                </a>
+              </div>
+              {selectedFanoutMint ? (
+                <div>
+                  <span className="text-gray-400">{selectedFanoutMint.config.symbol} Token Account:</span>
+                  <a
+                    href={pubKeyUrl(selectedFanoutMint.data.tokenAccount, environment.label)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
+                  >
+                    {shortPubKey(selectedFanoutMint.data.tokenAccount)}
+                  </a>
+                </div>
+              ) : (
+                <div>
+                  <span className="text-gray-400">SOL Wallet:</span>
+                  <a
+                    href={pubKeyUrl(fanoutData.data?.nativeAccount, environment.label)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
+                  >
+                    {shortPubKey(fanoutData.data?.nativeAccount)}
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Members List */}
+        <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-white mb-2">Members</h3>
+            <p className="text-gray-400 text-sm">Wallet members and their share allocations</p>
+          </div>
+          {!fanoutMembershipVouchers.data ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-16 bg-gray-800/40 animate-pulse rounded-lg" />
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {fanoutMembershipVouchers.data.map((voucher, i) => (
+                <div key={voucher.pubkey.toString()} className="flex items-center justify-between p-4 rounded-lg border border-gray-800/50 bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
+                      {String.fromCharCode(65 + (i % 26))}
+                    </div>
+                    <div>
+                      <div className="text-white font-mono text-sm">
+                        {mounted ? shortPubKey(voucher.parsed.membershipKey) : '...'}
+                      </div>
+                      <div className="text-gray-400 text-xs">
+                        {selectedFanoutMint ?
+                          fanoutMembershipMintVouchers.data && fanoutMembershipMintVouchers.data.length > 0 ?
+                            `${Number(getMintNaturalAmountFromDecimal(
+                              Number(fanoutMembershipMintVouchers.data.filter(
+                                (v) => v.pubkey.toString() === voucherMapping[voucher.pubkey.toString()]
+                              )[0]?.parsed.lastInflow),
+                              selectedFanoutMint.info.decimals
+                            )) * (Number(voucher.parsed.shares) / 100)} ${selectedFanoutMint.config.symbol} claimed` :
+                            `0 ${selectedFanoutMint.config.symbol} claimed` :
+                          `${parseInt(voucher.parsed.totalInflow.toString()) / 1e9}◎ claimed`
+                        }
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="inline-block px-3 py-1 bg-purple-900/30 text-purple-300 border border-purple-500/30 rounded-lg text-sm font-medium">
+                      {voucher.parsed.shares.toString()} shares
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex flex-wrap gap-4">
+          <AsyncButton
+            type="button"
+            variant="primary"
+            bgColor="rgb(37 99 235)"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
+            handleClick={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
+            disabled={!wallet.publicKey}
+          >
+            Distribute To All Members
+          </AsyncButton>
+          {fanoutData.data &&
+            fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+            <AsyncButton
+              type="button"
+              variant="primary"
+              bgColor="rgb(75 85 99)"
+              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium border border-gray-500"
+              handleClick={addSplToken}
+            >
+              Add SPL Token
+            </AsyncButton>
+          )}
         </div>
       </div>
     </DashboardLayout>

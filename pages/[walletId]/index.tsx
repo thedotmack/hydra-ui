@@ -224,18 +224,18 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black">
+        <div className="max-w-6xl mx-auto px-8 py-12 space-y-8">
         {fanoutData.error && (
-          <Card className="border-destructive/50 bg-destructive/10">
-            <CardHeader>
-              <CardTitle className="text-destructive">Hydra Wallet Not Found</CardTitle>
-              <CardDescription>
+          <Card className="backdrop-blur-sm bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-500/20 shadow-2xl shadow-red-900/20">
+            <CardHeader className="space-y-4 px-8 py-6">
+              <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">Hydra Wallet Not Found</CardTitle>
+              <CardDescription className="text-red-200/80 text-lg leading-relaxed">
                 The requested wallet could not be found or accessed.
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-8 pb-6">
               <Button
-                variant="outline"
                 onClick={() =>
                   router.push(
                     `/${
@@ -247,6 +247,7 @@ const Home: NextPage = () => {
                     { shallow: true }
                   )
                 }
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 border-0 text-white focus:ring-2 focus:ring-purple-400/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none"
               >
                 Return to Dashboard
               </Button>
@@ -255,68 +256,108 @@ const Home: NextPage = () => {
         )}
 
         {/* Wallet Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
             {fanoutData.data?.fanout.name || (
-              <div className="h-8 w-48 animate-pulse bg-muted rounded-md"></div>
+              <div className="h-10 w-64 animate-pulse bg-gray-700/30 rounded-md mx-auto"></div>
             )}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
             Treasury wallet management and distribution
           </p>
         </div>
 
         {/* Balance and Token Selection */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle>Total Inflow</CardTitle>
-              <CardDescription>Total funds received by this wallet</CardDescription>
+        <div className="grid gap-8 md:grid-cols-4 lg:grid-cols-6">
+          <Card className="md:col-span-2 lg:col-span-2 backdrop-blur-sm bg-gradient-to-br from-green-900/20 to-green-800/30 border border-green-500/20 shadow-xl shadow-green-900/25 hover:shadow-2xl hover:border-green-400/30 transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="pb-4 px-6 pt-6">
+              <CardTitle className="text-lg font-semibold text-green-200">Total Inflow</CardTitle>
+              <CardDescription className="text-green-300/70 leading-relaxed text-sm">Total funds received</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {selectedFanoutMint ? (
-                  `${Number(
-                    getMintNaturalAmountFromDecimal(
-                      Number(selectedFanoutMint.data.totalInflow),
-                      selectedFanoutMint.info.decimals
-                    )
-                  )} ${selectedFanoutMint.config.symbol}`
-                ) : fanoutData.data?.fanout ? (
-                  `${
-                    parseInt(
-                      fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
-                    ) / 1e9
-                  } ◎`
-                ) : (
-                  <div className="h-8 w-20 animate-pulse bg-muted rounded-md"></div>
-                )}
+            <CardContent className="px-6 pb-6">
+              <div className="space-y-2">
+                <div className="text-5xl font-black tracking-tight">
+                  {selectedFanoutMint ? (
+                    <>
+                      <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
+                        {Number(
+                          getMintNaturalAmountFromDecimal(
+                            Number(selectedFanoutMint.data.totalInflow),
+                            selectedFanoutMint.info.decimals
+                          )
+                        )}
+                      </span>
+                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                        {selectedFanoutMint.config.symbol}
+                      </span>
+                    </>
+                  ) : fanoutData.data?.fanout ? (
+                    <>
+                      <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
+                        {(parseInt(
+                          fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
+                        ) / 1e9).toFixed(2)}
+                      </span>
+                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                        SOL
+                      </span>
+                    </>
+                  ) : (
+                    <div className="h-12 w-32 animate-pulse bg-gray-700/30 rounded-md"></div>
+                  )}
+                </div>
+                <div className="text-xs text-green-400 font-medium flex items-center gap-1">
+                  <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                  All-time inflow
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Balance</CardTitle>
-              <CardDescription>Available for distribution</CardDescription>
+          <Card className="md:col-span-2 lg:col-span-2 backdrop-blur-sm bg-gradient-to-br from-blue-900/20 to-blue-800/30 border border-blue-500/20 shadow-xl shadow-blue-900/25 hover:shadow-2xl hover:border-blue-400/30 transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="pb-4 px-6 pt-6">
+              <CardTitle className="text-lg font-semibold text-blue-200">Current Balance</CardTitle>
+              <CardDescription className="text-blue-300/70 leading-relaxed text-sm">Available now</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {selectedFanoutMint
-                  ? `${selectedFanoutMint.balance} ${selectedFanoutMint.config.symbol}`
-                  : `${fanoutData.data?.balance} ◎`}
+            <CardContent className="px-6 pb-6">
+              <div className="space-y-2">
+                <div className="text-5xl font-black tracking-tight">
+                  {selectedFanoutMint ? (
+                    <>
+                      <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+                        {selectedFanoutMint.balance}
+                      </span>
+                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                        {selectedFanoutMint.config.symbol}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+                        {fanoutData.data?.balance || '0'}
+                      </span>
+                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                        SOL
+                      </span>
+                    </>
+                  )}
+                </div>
+                <div className="text-xs text-blue-400 font-medium flex items-center gap-1">
+                  <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                  Available now
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Token Selection</CardTitle>
-              <CardDescription>Choose token to view and distribute</CardDescription>
+          <Card className="md:col-span-4 lg:col-span-2 backdrop-blur-sm bg-gradient-to-br from-orange-900/20 to-orange-800/30 border border-orange-500/20 shadow-xl shadow-orange-900/25 hover:shadow-2xl hover:border-orange-400/30 transition-all duration-300 hover:-translate-y-1">
+            <CardHeader className="pb-4 px-6 pt-6">
+              <CardTitle className="text-lg font-semibold text-orange-200">Token Selection</CardTitle>
+              <CardDescription className="text-orange-300/70 leading-relaxed text-sm">Choose token type</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-6 pb-6">
               <select
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+                className="flex h-12 w-full rounded-lg border border-gray-600/40 bg-gray-800/50 px-4 py-3 text-white focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 focus:outline-none hover:bg-gray-700/50 hover:border-gray-500/50"
                 value={mintId || 'default'}
                 onChange={(e) => selectSplToken(e.target.value)}
               >
@@ -337,18 +378,18 @@ const Home: NextPage = () => {
         </div>
 
         {/* Wallet Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Wallet Information</CardTitle>
-            <CardDescription>Important addresses and member details</CardDescription>
+        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+          <CardHeader className="pb-6 px-8 pt-6">
+            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Information</CardTitle>
+            <CardDescription className="text-gray-300 text-base leading-relaxed">Important addresses and member details</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium">Fanout Address</label>
-                <div className="text-sm text-muted-foreground">
+          <CardContent className="space-y-8 px-8 pb-8">
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-white block">Fanout Address</label>
+                <div className="text-sm">
                   <a
-                    className="hover:text-primary transition-colors"
+                    className="text-purple-400 hover:text-purple-300 transition-colors duration-200 font-mono bg-gray-800/40 px-4 py-3 rounded-lg border border-gray-700/20 block hover:border-purple-400/40 hover:bg-gray-800/60"
                     target="_blank"
                     rel="noopener noreferrer"
                     href={pubKeyUrl(fanoutData.data?.fanoutId, environment.label)}
@@ -358,13 +399,13 @@ const Home: NextPage = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-medium">
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-white block">
                   {selectedFanoutMint ? `${selectedFanoutMint.config.symbol} Token Account` : 'SOL Wallet Address'}
                 </label>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-sm">
                   <a
-                    className="hover:text-primary transition-colors"
+                    className="text-purple-400 hover:text-purple-300 transition-colors duration-200 font-mono bg-gray-800/40 px-4 py-3 rounded-lg border border-gray-700/20 block hover:border-purple-400/40 hover:bg-gray-800/60"
                     target="_blank"
                     rel="noopener noreferrer"
                     href={pubKeyUrl(
@@ -386,17 +427,25 @@ const Home: NextPage = () => {
 
             <Separator />
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium">Total Members</label>
-                <div className="text-2xl font-bold">
+            <div className="grid gap-8 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Total Members</label>
+                <div className="text-4xl font-black bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
                   {fanoutData.data?.fanout?.totalMembers.toString()}
                 </div>
+                <div className="text-xs text-purple-400 font-medium flex items-center gap-1">
+                  <div className="w-1 h-1 bg-purple-400 rounded-full"></div>
+                  Active wallets
+                </div>
               </div>
-              <div>
-                <label className="text-sm font-medium">Total Shares</label>
-                <div className="text-2xl font-bold">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide">Total Shares</label>
+                <div className="text-4xl font-black bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
                   {fanoutData.data?.fanout?.totalShares.toString()}
+                </div>
+                <div className="text-xs text-purple-400 font-medium flex items-center gap-1">
+                  <div className="w-1 h-1 bg-purple-400 rounded-full"></div>
+                  Distribution units
                 </div>
               </div>
             </div>
@@ -404,38 +453,51 @@ const Home: NextPage = () => {
         </Card>
 
         {/* Members List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Members & Distribution</CardTitle>
-            <CardDescription>
+        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+          <CardHeader className="pb-6 px-8 pt-6">
+            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Members & Distribution</CardTitle>
+            <CardDescription className="text-gray-300 text-base leading-relaxed">
               Wallet members, their shares, and claim status
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
+          <CardContent className="px-8 pb-8">
+            <div className="space-y-4">
               {!fanoutMembershipVouchers.data ? (
                 <>
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-12 w-full animate-pulse bg-muted rounded-md"></div>
+                    <div key={i} className="h-16 w-full animate-pulse bg-gray-700/30 rounded-lg"></div>
                   ))}
                 </>
               ) : (
-                fanoutMembershipVouchers.data?.map((voucher) => (
+                fanoutMembershipVouchers.data?.map((voucher, index) => {
+                  const sharePercentage = ((Number(voucher.parsed.shares) / (fanoutData.data?.fanout?.totalShares || 1)) * 100).toFixed(1);
+                  return (
                   <div
                     key={voucher.pubkey.toString()}
-                    className="flex items-center justify-between p-3 rounded-lg border bg-card"
+                    className="flex items-center justify-between p-5 rounded-lg border border-gray-700/20 bg-gray-800/30 hover:bg-gray-800/50 hover:border-gray-600/30 transition-all duration-200 group"
                   >
-                    <div className="flex-1">
-                      <DisplayAddress
-                        connection={connection}
-                        address={voucher.parsed.membershipKey}
-                      />
+                    <div className="flex items-center gap-4 flex-1">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+                        {String.fromCharCode(65 + (index % 26))}
+                      </div>
+                      <div className="flex-1">
+                        <DisplayAddress
+                          connection={connection}
+                          address={voucher.parsed.membershipKey}
+                        />
+                        <div className="text-xs text-gray-400 mt-1">
+                          Member #{index + 1}
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium">
+                    <div className="text-right space-y-2">
+                      <div className="text-2xl font-bold text-white">
+                        {sharePercentage}%
+                      </div>
+                      <div className="text-xs text-gray-400 font-medium">
                         {voucher.parsed.shares.toString()} shares
                       </div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-gray-500">
                         {selectedFanoutMint
                           ? fanoutMembershipMintVouchers.data &&
                             fanoutMembershipMintVouchers.data.length > 0
@@ -458,41 +520,69 @@ const Home: NextPage = () => {
                               parseInt(voucher.parsed.totalInflow.toString()) / 1e9
                             } ◎ claimed`}
                       </div>
+                      <div className="w-16 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-300"
+                          style={{ width: `${Math.min(100, Number(sharePercentage))}%` }}
+                        ></div>
+                      </div>
                     </div>
                   </div>
-                ))
+                  );
+                })
               )}
             </div>
           </CardContent>
         </Card>
 
         {/* Action Buttons */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actions</CardTitle>
-            <CardDescription>Distribute funds or manage wallet settings</CardDescription>
+        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+          <CardHeader className="pb-6 px-8 pt-6">
+            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Actions</CardTitle>
+            <CardDescription className="text-gray-300 text-base leading-relaxed">Distribute funds or manage wallet settings</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="flex gap-4">
-              <Button
-                onClick={() => fanoutData.data && distributeShare(fanoutData.data, true)}
-                disabled={!fanoutData.data}
-              >
-                Distribute To All
-              </Button>
+          <CardContent className="px-8 pb-8">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-400">Primary Actions</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-xs text-green-400 font-medium">Ready</span>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => fanoutData.data && distributeShare(fanoutData.data, true)}
+                  disabled={!fanoutData.data}
+                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 focus:ring-2 focus:ring-purple-400/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-white border-0 h-14 text-base font-semibold focus:outline-none"
+                >
+                  <span>Distribute To All Members</span>
+                  <span className="text-xs opacity-70 ml-2">({fanoutData.data?.fanout?.totalMembers || 0})</span>
+                </Button>
+              </div>
               {fanoutData.data &&
                 fanoutData.data.fanout.authority.toString() ===
                   wallet.publicKey?.toString() && (
-                  <Button
-                    variant="outline"
-                    onClick={() => addSplToken()}
-                  >
-                    Add SPL Token
-                  </Button>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-gray-400">Management</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+                        <span className="text-xs text-orange-400 font-medium">Admin</span>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => addSplToken()}
+                      className="w-full bg-gradient-to-r from-orange-600/80 to-orange-700/80 hover:from-orange-500 hover:to-orange-600 border border-orange-500/30 hover:border-orange-400/50 transition-all duration-200 text-orange-100 hover:text-white h-14 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-orange-400/30 focus:border-transparent"
+                    >
+                      Add SPL Token
+                    </Button>
+                  </div>
                 )}
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </DashboardLayout>
   )

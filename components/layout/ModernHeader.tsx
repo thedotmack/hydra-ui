@@ -47,7 +47,7 @@ export function ModernHeader({ className }: HeaderProps) {
 
   return (
     <header className={cn(
-      "flex items-center justify-between px-6 py-4 border-b border-primary/20 bg-card/50 backdrop-blur-xl",
+      "flex items-center justify-between px-6 py-4 border-b border-gray-700/50 bg-gray-900/50 backdrop-blur-xl",
       className
     )}>
       <div className="flex items-center gap-4">
@@ -56,9 +56,9 @@ export function ModernHeader({ className }: HeaderProps) {
           variant="outline"
           size="sm"
           onClick={updateNetwork}
-          className="gap-2 glass-morphism hover:glow-accent transition-all duration-300"
+          className="gap-2 bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 hover:border-purple-400 transition-all duration-200"
         >
-          <Network className="h-4 w-4 text-crypto-blue" />
+          <Network className="h-4 w-4 text-purple-400" />
           <span className="capitalize font-medium">{ctx.environment.label}</span>
         </Button>
       </div>
@@ -70,17 +70,17 @@ export function ModernHeader({ className }: HeaderProps) {
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="hover:glow-gold transition-all duration-300"
+            className="hover:bg-gray-800/50 hover:text-purple-400 transition-all duration-200"
           >
-            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-crypto-gold" />
-            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-crypto-purple" />
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-gray-300" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-gray-300" />
             <span className="sr-only">Toggle theme</span>
           </Button>
         )}
 
         {/* Wallet Connection */}
         {mounted && (
-          <div className="hover:glow-primary transition-all duration-300 rounded-lg">
+          <div className="transition-all duration-200 rounded-lg">
             <WalletMultiButton
               style={{
                 fontSize: '14px',

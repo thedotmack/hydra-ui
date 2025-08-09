@@ -15,14 +15,15 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="max-w-6xl mx-auto px-6 py-8 gradient-primary pattern-dots min-h-screen space-rhythm-large">
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black">
+        <div className="max-w-6xl mx-auto px-8 py-12">
         
         {/* Header */}
         <div className="mb-12 text-center">
-          <h1 className="text-5xl font-bold mb-4 text-gradient">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
             Treasury Management
           </h1>
-          <p className="text-slate-300 text-xl leading-relaxed max-w-3xl mx-auto text-enhanced">
+          <p className="text-gray-400 text-lg leading-relaxed mt-3 max-w-2xl mx-auto">
             Manage multi-party revenue sharing wallets on Solana. Load an existing wallet or create a new one to get started.
           </p>
         </div>
@@ -32,12 +33,12 @@ const Home: NextPage = () => {
           
           {/* Load Wallet - Primary */}
           <div className="lg:col-span-2">
-            <Card className="glass-morphism hover:glow-accent hover-lift shadow-enhanced">
+            <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 shadow-2xl shadow-gray-900/20 hover:shadow-3xl hover:border-gray-600/50 transition-all duration-300 hover:-translate-y-1">
               <CardHeader className="pb-6">
-                <CardTitle className="text-3xl text-gradient font-bold mb-3 text-glow">
+                <CardTitle className="text-2xl font-semibold mb-4 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                   Load Existing Wallet
                 </CardTitle>
-                <CardDescription className="text-slate-300 text-lg leading-relaxed text-enhanced">
+                <CardDescription className="text-gray-300 leading-relaxed mb-8">
                   Access your existing Hydra wallet to view balances, manage distributions, and track member activity.
                 </CardDescription>
               </CardHeader>
@@ -57,8 +58,8 @@ const Home: NextPage = () => {
                   }}
                   className="space-y-6"
                 >
-                  <div className="space-rhythm-small">
-                    <label className="text-lg font-semibold text-neon-cyan block mb-4 text-glow">
+                  <div className="space-y-4">
+                    <label className="text-lg font-semibold text-white block mb-4">
                       Wallet Name
                     </label>
                     <Input
@@ -68,16 +69,16 @@ const Home: NextPage = () => {
                         setWalletName(e.target.value)
                       }}
                       value={walletName}
-                      className="input-enhanced h-14 text-white text-lg"
+                      className="bg-gray-800/50 border-gray-600 focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 placeholder-gray-500 h-14 text-white text-lg focus:outline-none focus:border-transparent"
                       autoFocus
                     />
-                    <p className="text-sm text-slate-400 mt-3 text-enhanced">
+                    <p className="text-sm text-gray-400 mt-3">
                       Currently supports Hydra wallets with membership model &quot;Wallet&quot;
                     </p>
                   </div>
                   <Button 
                     type="submit" 
-                    className="gradient-accent button-enhanced hover-glow-intense hover-lift text-white h-14 text-lg"
+                    className="bg-gray-700/50 hover:bg-gray-600/50 border border-gray-600 hover:border-gray-500 transition-all duration-200 text-gray-200 hover:text-white h-14 text-lg focus:outline-none focus:ring-2 focus:ring-purple-400/50 focus:border-transparent"
                     disabled={!walletName.trim()}
                   >
                     Load Wallet
@@ -89,19 +90,19 @@ const Home: NextPage = () => {
 
           {/* Create Wallet - Secondary */}
           <div className="lg:col-span-1">
-            <Card className="glass hover:glow-gold hover-lift shadow-glow h-full">
+            <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 shadow-2xl shadow-gray-900/20 hover:shadow-3xl hover:border-gray-600/50 transition-all duration-300 hover:-translate-y-1 h-full">
               <CardHeader className="text-center pb-8">
-                <CardTitle className="text-2xl text-neon-gold font-bold mb-4 text-glow">
+                <CardTitle className="text-2xl font-semibold mb-4 bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">
                   Create New Wallet
                 </CardTitle>
-                <CardDescription className="text-slate-300 text-base leading-relaxed text-enhanced">
+                <CardDescription className="text-gray-300 leading-relaxed mb-8">
                   Set up a new treasury with custom member shares and distribution rules.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-col justify-center items-center space-rhythm-small">
+              <CardContent className="flex flex-col justify-center items-center space-y-4">
                 <Button 
                   variant="outline"
-                  className="border-gradient-hover glass-morphism text-neon-gold hover:text-white button-enhanced interactive-element h-12 px-8 text-lg"
+                  className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 focus:ring-2 focus:ring-purple-400/50 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-white h-12 px-8 text-lg focus:outline-none focus:border-transparent"
                   onClick={() => {
                     router.push(
                       `/create${
@@ -114,7 +115,7 @@ const Home: NextPage = () => {
                 >
                   Create Wallet
                 </Button>
-                <p className="text-sm text-slate-400 mt-4 text-center text-enhanced">
+                <p className="text-sm text-gray-400 mt-4 text-center">
                   Configure members & shares
                 </p>
               </CardContent>
@@ -124,11 +125,14 @@ const Home: NextPage = () => {
         </div>
 
         {/* Status */}
-        <div className="mt-16 flex items-center justify-center gap-3 text-sm">
-          <div className="w-3 h-3 bg-neon-green rounded-full animate-glow shadow-neon"></div>
-          <span className="text-neon-green text-enhanced">Network: {ctx.environment.label}</span>
+        <div className="mt-16 flex items-center justify-center">
+          <div className="bg-gray-800/30 border border-gray-700/50 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium flex items-center gap-3">
+            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+            <span className="text-green-400">Network: {ctx.environment.label}</span>
+          </div>
         </div>
 
+        </div>
       </div>
     </DashboardLayout>
   )

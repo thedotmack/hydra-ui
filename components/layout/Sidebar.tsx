@@ -30,31 +30,26 @@ const sidebarItems = [
     title: "Treasury",
     href: "/",
     icon: Home,
-    color: "text-neon-cyan",
   },
   {
     title: "Create",
     href: "/create",
     icon: Plus,
-    color: "text-neon-green",
   },
   {
     title: "Wallets",
     href: "/wallets",
     icon: Wallet,
-    color: "text-neon-purple",
   },
   {
     title: "Members",
     href: "/memberships",
     icon: Users,
-    color: "text-neon-cyan",
   },
   {
     title: "Analytics",
     href: "/analytics",
     icon: TrendingUp,
-    color: "text-neon-green",
   },
 ]
 
@@ -72,16 +67,16 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
   return (
     <div
       className={cn(
-        "flex flex-col h-full glass border-r border-neon-cyan/20 transition-all duration-300",
+        "flex flex-col h-full bg-gray-900/50 backdrop-blur-sm border-r border-gray-700/50 transition-all duration-300",
         collapsed ? "w-16" : "w-72",
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-neon-cyan/20">
+      <div className="flex items-center justify-between p-6 border-b border-gray-700/50">
         {!collapsed && (
-          <div className="font-bold text-xl text-neon-cyan flex items-center gap-3">
-            <div className="w-2 h-2 bg-neon-cyan rounded-full animate-glow"></div>
+          <div className="font-bold text-xl text-white flex items-center gap-3">
+            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
             HYDRA
           </div>
         )}
@@ -89,7 +84,7 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
           variant="ghost"
           size="icon"
           onClick={onToggle}
-          className="h-8 w-8 hover:bg-muted/50 hover:text-neon-cyan transition-colors"
+          className="h-8 w-8 hover:bg-gray-800/50 hover:text-purple-400 transition-colors"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </Button>
@@ -107,19 +102,19 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
                 <Button
                   variant="ghost"
                   className={cn(
-                    "w-full justify-start gap-4 h-12 font-medium transition-all duration-300 rounded-lg",
+                    "w-full justify-start gap-4 h-12 font-medium transition-all duration-200 rounded-lg group",
                     collapsed && "px-3 justify-center",
                     isActive 
-                      ? "bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/30 glow-cyan" 
-                      : "hover:bg-muted/30 hover:text-foreground text-muted-foreground"
+                      ? "bg-purple-900/30 text-purple-400 border border-purple-400/30 shadow-lg" 
+                      : "hover:bg-gray-800/50 hover:border-r-2 hover:border-purple-400 text-gray-300 hover:text-white"
                   )}
                 >
                   <Icon className={cn(
-                    "h-5 w-5 shrink-0 transition-colors",
-                    isActive ? "text-neon-cyan" : item.color
+                    "h-5 w-5 shrink-0 transition-colors duration-200",
+                    isActive ? "text-purple-400" : "text-gray-400 group-hover:text-purple-400"
                   )} />
                   {!collapsed && (
-                    <span className={isActive ? "text-neon-cyan" : ""}>
+                    <span className={isActive ? "text-purple-400" : "group-hover:text-white"}>
                       {item.title}
                     </span>
                   )}
@@ -132,9 +127,9 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
 
       {/* Footer Status */}
       {!collapsed && (
-        <div className="p-4 border-t border-neon-cyan/20">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <div className="w-1.5 h-1.5 bg-neon-green rounded-full animate-glow"></div>
+        <div className="p-4 border-t border-gray-700/50">
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
             <span>{environment.label}</span>
           </div>
         </div>

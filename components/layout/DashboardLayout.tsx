@@ -13,7 +13,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
-    <div className="flex h-screen gradient-primary pattern-grid">
+    <div className="flex h-screen bg-gray-950">
       {/* Sidebar */}
       <Sidebar 
         collapsed={sidebarCollapsed} 

@@ -72,7 +72,7 @@ const Home: NextPage = () => {
                       autoFocus
                     />
                     <p className="text-sm text-slate-400 mt-3 text-enhanced">
-                      Currently supports Hydra wallets with membership model "Wallet"
+                      Currently supports Hydra wallets with membership model &quot;Wallet&quot;
                     </p>
                   </div>
                   <Button 

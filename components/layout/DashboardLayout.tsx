@@ -13,7 +13,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-950 text-gray-100 overflow-hidden">
+    <div className="flex min-h-screen w-full bg-[radial-gradient(circle_at_top,_rgba(60,60,70,0.15),_transparent_70%)] bg-gray-950 text-gray-100 overflow-hidden">
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -21,22 +21,22 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
       />
 
       {/* Main Content Wrapper */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        {/* Vertical divider overlay for clearer separation */}
+        <div className="pointer-events-none absolute left-0 top-0 h-full w-px bg-gradient-to-b from-transparent via-gray-800 to-transparent" />
         {/* Header (sticky) */}
         <div className="sticky top-0 z-30">
           <ModernHeader />
         </div>
 
         {/* Page Content */}
-        <main
-          className={cn(
-            "flex-1 min-h-[calc(100vh-4rem)] w-full px-0 pb-12 overflow-x-hidden",
-            // Allow natural page scroll instead of nested scroll areas when content is taller
-            // Parent uses min-h-screen so body scroll is fine
-            className
-          )}
-        >
-          {children}
+        <main className={cn(
+          "flex-1 min-h-[calc(100vh-4rem)] w-full pb-16 overflow-x-hidden",
+          className
+        )}>
+          <div className="max-w-7xl mx-auto w-full px-6 md:px-8 pt-10">
+            {children}
+          </div>
         </main>
       </div>
     </div>

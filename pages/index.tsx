@@ -1,4 +1,4 @@
-import { Header } from 'common/Header'
+// Removed legacy Header usage in favor of ModernHeader inside layout
 import type { NextPage } from 'next'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
@@ -15,119 +15,105 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="p-8 max-w-7xl mx-auto">
-        
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent mb-4">
-            Treasury Management
-          </h1>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Manage multi-party revenue sharing wallets on Solana. Load an existing wallet or create a new one to get started.
-          </p>
-        </div>
+      {/* Section Heading */}
+      <div className="space-y-4 text-center mb-10">
+        <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+          Treasury Management
+        </h1>
+        <p className="text-gray-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          Manage multi-party revenue sharing wallets on Solana. Load an existing wallet or create a new one to get started.
+        </p>
+      </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-          
-          {/* Load Wallet */}
-          <div className="lg:col-span-2">
-            <ExpandableCard className="h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 shadow-xl hover:shadow-2xl hover:border-gray-600/50 transition-all duration-300">
-              <ExpandableCardHeader className="p-8">
-                <h2 className="text-2xl font-semibold mb-4 text-white">
-                  Load Existing Wallet
-                </h2>
-                <p className="text-gray-300 mb-8">
-                  Access your existing Hydra wallet to view balances, manage distributions, and track member activity.
+      {/* Primary + Secondary Actions Layout */}
+      <div className="grid gap-8 md:gap-10 grid-cols-1 lg:grid-cols-5 items-start mb-12">
+        {/* Load Wallet (Primary) */}
+        <div className="lg:col-span-3 order-2 lg:order-1 flex">
+          <div className="flex flex-col rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md shadow-xl w-full p-8 md:p-10">
+            <div className="space-y-5 mb-6">
+              <h2 className="text-2xl font-semibold text-white">Load Existing Wallet</h2>
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+                Access your existing Hydra wallet to view balances, manage distributions, and track member activity.
+              </p>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                router.push(
+                  `/${walletName}${
+                    ctx.environment.label !== 'mainnet-beta'
+                      ? `?cluster=${ctx.environment.label}`
+                      : ''
+                  }`
+                )
+              }}
+              className="space-y-6 flex-1 flex flex-col"
+            >
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-white">Wallet Name</label>
+                <Input
+                  type="text"
+                  placeholder="hydra-wallet"
+                  onChange={(e) => setWalletName(e.target.value)}
+                  value={walletName}
+                  className="h-12 text-base"
+                  autoFocus
+                />
+                <p className="text-xs text-gray-500">
+                  Supports membership model <span className="text-gray-300 font-medium">Wallet</span>
                 </p>
-              </ExpandableCardHeader>
-              <ExpandableCardContent className="px-8 pb-8">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault()
-                    router.push(
-                      `/${walletName}${
-                        ctx.environment.label !== 'mainnet-beta'
-                          ? `?cluster=${ctx.environment.label}`
-                          : ''
-                      }`
-                    )
-                  }}
-                  className="space-y-6"
-                >
-                  <div>
-                    <label className="block text-sm font-medium text-white mb-3">
-                      Wallet Name
-                    </label>
-                    <Input
-                      type="text"
-                      placeholder="hydra-wallet"
-                      onChange={(e) => setWalletName(e.target.value)}
-                      value={walletName}
-                      className="h-12 text-base"
-                      autoFocus
-                    />
-                    <p className="text-sm text-gray-400 mt-2">
-                      Currently supports Hydra wallets with membership model "Wallet"
-                    </p>
-                  </div>
-                  <TextureButton 
-                    type="submit" 
-                    variant="primary"
-                    className="w-full h-12 text-base font-semibold"
-                    disabled={!walletName.trim()}
-                  >
-                    Load Wallet
-                  </TextureButton>
-                </form>
-              </ExpandableCardContent>
-            </ExpandableCard>
-          </div>
-
-          {/* Create Wallet */}
-          <div className="lg:col-span-1">
-            <ExpandableCard className="h-full bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 shadow-xl hover:shadow-2xl hover:border-gray-600/50 transition-all duration-300">
-              <ExpandableCardHeader className="p-8 text-center">
-                <h2 className="text-2xl font-semibold mb-4 text-white">
-                  Create New Wallet
-                </h2>
-                <p className="text-gray-300 mb-8">
-                  Set up a new treasury with custom member shares and distribution rules.
-                </p>
-              </ExpandableCardHeader>
-              <ExpandableCardContent className="px-8 pb-8 flex flex-col items-center">
-                <TextureButton 
+              </div>
+              <div className="mt-auto ">
+                <TextureButton
+                  type="submit"
                   variant="accent"
-                  className="w-full h-12 text-base font-semibold mb-4"
-                  onClick={() => {
-                    router.push(
-                      `/create${
-                        ctx.environment.label !== 'mainnet-beta'
-                          ? `?cluster=${ctx.environment.label}`
-                          : ''
-                      }`
-                    )
-                  }}
+                  className="w-full h-12 text-base font-semibold"
+                  disabled={!walletName.trim()}
                 >
-                  Create Wallet
+                  Load Wallet
                 </TextureButton>
-                <p className="text-sm text-gray-400 text-center">
-                  Configure members & shares
-                </p>
-              </ExpandableCardContent>
-            </ExpandableCard>
-          </div>
-
-        </div>
-
-        {/* Network Status */}
-        <div className="flex justify-center">
-          <div className="bg-gray-800/30 border border-gray-700/50 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium flex items-center gap-3">
-            <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-            <span className="text-green-400">Network: {ctx.environment.label}</span>
+              </div>
+            </form>
           </div>
         </div>
 
+        {/* Create Wallet (Secondary) */}
+        <div className="lg:col-span-2 order-1 lg:order-2 flex">
+          <div className="flex flex-col rounded-2xl border border-gray-800/60 bg-gray-900/50 backdrop-blur md shadow-lg w-full p-8 md:p-10">
+            <div className="space-y-5 mb-6">
+              <h2 className="text-2xl font-semibold text-white">Create New Wallet</h2>
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+                Set up a new treasury with custom member shares and distribution rules.
+              </p>
+            </div>
+            <div className="mt-auto space-y-4">
+              <TextureButton
+                variant="secondary"
+                className="w-full h-12 text-base font-semibold"
+                onClick={() => {
+                  router.push(
+                    `/create${
+                      ctx.environment.label !== 'mainnet-beta'
+                        ? `?cluster=${ctx.environment.label}`
+                        : ''
+                    }`
+                  )
+                }}
+              >
+                Create Wallet
+              </TextureButton>
+              <p className="text-xs text-gray-500 text-center">Configure members & shares</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Inline Meta Status Row */}
+      <div className="flex flex-wrap items-center justify-center gap-4">
+        <div className="flex items-center gap-2 bg-gray-800/40 border border-gray-700/50 px-4 py-2 rounded-full text-xs font-medium">
+          <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-40" /><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400" /></span>
+          <span className="text-green-400">{ctx.environment.label}</span>
+        </div>
       </div>
     </DashboardLayout>
   )

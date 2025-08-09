@@ -47,10 +47,11 @@ export function ModernHeader({ className }: HeaderProps) {
 
   return (
     <header className={cn(
-      "flex items-center justify-between px-6 py-4 border-b border-gray-700/50 bg-gray-900/50 backdrop-blur-xl",
+      "border-b border-gray-800/60 bg-gray-900/60 backdrop-blur-xl px-4 md:px-6",
       className
     )}>
-      <div className="flex items-center gap-4">
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-6">
+      <div className="flex items-center gap-3">
         {/* Network Switcher */}
         <TextureButton
           variant="secondary"
@@ -62,7 +63,7 @@ export function ModernHeader({ className }: HeaderProps) {
         </TextureButton>
       </div>
 
-      <div className="flex items-center gap-4">
+  <div className="flex items-center gap-2 md:gap-4">
         {/* Theme Toggle */}
         {mounted && (
           <TextureButton
@@ -92,7 +93,8 @@ export function ModernHeader({ className }: HeaderProps) {
             />
           </div>
         )}
-      </div>
+  </div>
+  </div>
     </header>
   )
 }

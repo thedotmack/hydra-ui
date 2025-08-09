@@ -3,7 +3,7 @@ import { Wallet } from '@saberhq/solana-contrib'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { Transaction } from '@solana/web3.js'
 import { AsyncButton } from 'common/Button'
-import { Header } from 'common/Header'
+// Legacy Header removed; ModernHeader used via DashboardLayout
 import { notify } from 'common/Notification'
 import { executeTransaction } from 'common/Transactions'
 import { getPriorityFeeIx, tryPublicKey } from 'common/utils'
@@ -117,52 +117,48 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black">
-        <div className="max-w-4xl mx-auto px-8 py-12 space-y-12">
-          <div className="text-center space-y-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-              Create Hydra Wallet
-            </h1>
-            <p className="text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto">
-              Set up a new treasury wallet with member shares and distribution rules.
-            </p>
+      {/* Heading */}
+      <div className="text-center mb-12 space-y-4">
+        <h1 className="text-4xl font-semibold bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+          Create Hydra Wallet
+        </h1>
+        <p className="text-gray-400 text-lg max-w-3xl mx-auto leading-relaxed">
+          Set up a new treasury wallet with member shares and distribution rules.
+        </p>
+      </div>
+
+      {success && (
+        <div className="mb-10 rounded-xl border border-green-500/30 bg-green-900/20 backdrop-blur p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-lg shadow-green-900/20">
+          <div className="text-green-300 text-xl font-semibold flex items-center gap-2">
+            <span>✅</span>
+            Wallet Created Successfully
           </div>
+          <div className="text-green-200/90 text-sm md:text-base leading-relaxed">
+            Access it at{' '}
+            <a
+              href={`/${walletName}${window.location.search ?? ''}`}
+              className="font-semibold underline hover:no-underline text-green-300 hover:text-green-200 transition-colors"
+            >
+              /{walletName}
+            </a>
+          </div>
+        </div>
+      )}
 
-        {success && (
-          <Expandable>
-            <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-green-900/30 to-green-800/30 border border-green-500/25 shadow-2xl shadow-green-900/20">
-              <ExpandableCardHeader className="space-y-4 px-8 py-6">
-                <div className="text-2xl font-semibold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent flex items-center gap-3">
-                  <span className="text-green-400">✅</span> Wallet Created Successfully
-                </div>
-                <div className="text-green-200/90 text-lg leading-relaxed">
-                  Your wallet is ready to use. Access it at{' '}
-                  <a
-                    href={`/${walletName}${window.location.search ?? ''}`}
-                    className="font-semibold underline hover:no-underline text-green-300 hover:text-green-200 transition-colors duration-200"
-                  >
-                    /{walletName}
-                  </a>
-                </div>
-              </ExpandableCardHeader>
-            </ExpandableCard>
-          </Expandable>
-        )}
-
-        <Expandable>
-          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-            <ExpandableCardHeader className="space-y-4 pb-6 px-8 pt-6">
-              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Configuration</div>
-              <div className="text-gray-300 text-base leading-relaxed">
-                Configure your wallet name and total shares for distribution
-              </div>
-            </ExpandableCardHeader>
-            <ExpandableCardContent className="space-y-8 px-8 pb-8">
-            <div className="grid gap-8 md:grid-cols-5">
-              <div className="md:col-span-3 space-y-3">
-                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">
-                  Hydra Wallet Name
-                </label>
+      {/* Configuration + Members layout */}
+      <div className="grid gap-10 lg:gap-12 grid-cols-1 xl:grid-cols-12 mb-20">
+        {/* Configuration Panel */}
+        <div className="xl:col-span-5 space-y-8">
+          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-8 md:p-10 shadow-xl">
+            <div className="space-y-5 mb-6">
+              <h2 className="text-2xl font-semibold text-white">Wallet Configuration</h2>
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed">
+                Configure your wallet name and total shares for distribution.
+              </p>
+            </div>
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">Hydra Wallet Name</label>
                 <Input
                   type="text"
                   placeholder="my-treasury-wallet"
@@ -171,179 +167,148 @@ const Home: NextPage = () => {
                     setSuccess(false)
                   }}
                   value={walletName}
-                  className="h-14 bg-gray-800/50 border-gray-600/40 text-white text-lg placeholder:text-gray-500 focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 focus:outline-none focus:border-transparent rounded-lg font-mono"
+                  className="h-12 bg-gray-800/50 border-gray-700/50 text-white text-base placeholder:text-gray-500 focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 rounded-lg font-mono"
                 />
-                <div className="text-xs text-gray-400 flex items-center gap-2">
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                  This will be your wallet's unique identifier
-                </div>
+                <p className="text-xs text-gray-500">Used as the wallet&apos;s unique identifier (no spaces).</p>
               </div>
-              <div className="md:col-span-2 space-y-3">
-                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">
-                  Total Shares
-                </label>
-                <div className="relative">
-                  <Input
-                    type="number"
-                    onChange={(e) => {
-                      setTotalShares(parseInt(e.target.value))
-                    }}
-                    value={totalShares}
-                    className="h-14 bg-gray-800/50 border-gray-600/40 text-white text-2xl font-bold placeholder:text-gray-500 focus:border-orange-400/60 focus:ring-2 focus:ring-orange-400/20 transition-all duration-200 focus:outline-none focus:border-transparent rounded-lg text-center"
-                  />
-                  <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-orange-400 font-medium">
-                    Distribution units
-                  </div>
-                </div>
+              <div className="space-y-3">
+                <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">Total Shares</label>
+                <Input
+                  type="number"
+                  onChange={(e) => setTotalShares(parseInt(e.target.value))}
+                  value={totalShares}
+                  className="h-12 bg-gray-800/50 border-gray-700/50 text-white text-xl font-semibold placeholder:text-gray-500 focus:border-orange-400/60 focus:ring-2 focus:ring-orange-400/20 rounded-lg text-center"
+                />
+                <p className="text-xs text-orange-400 font-medium">Distribution units (must match allocation sum)</p>
+              </div>
+              <div className="rounded-lg bg-gray-800/40 border border-gray-700/40 p-4">
+                <p className="text-gray-200 text-sm mb-2">⚙️ Tips</p>
+                <ul className="space-y-1 text-xs text-gray-400">
+                  <li>• Use descriptive names</li>
+                  <li>• Plan for future members</li>
+                  <li>• Test with a devnet wallet first</li>
+                </ul>
               </div>
             </div>
-            </ExpandableCardContent>
-            <ExpandableContent preset="slide-up">
-              <div className="px-8 pb-6">
-                <div className="bg-gray-800/40 border border-gray-600/30 rounded-lg p-4">
-                  <p className="text-gray-200 text-sm mb-3">⚙️ Configuration Tips:</p>
-                  <ul className="space-y-1 text-xs text-gray-300">
-                    <li>• Use clear, descriptive names (no spaces)</li>
-                    <li>• Share totals must match member allocations</li>
-                    <li>• Consider future expansion needs</li>
-                    <li>• Test with small amounts first</li>
-                  </ul>
-                </div>
-              </div>
-            </ExpandableContent>
-          </ExpandableCard>
-        </Expandable>
+          </div>
+          <div className="rounded-2xl border border-purple-500/30 bg-purple-900/20 backdrop-blur p-6 shadow-md">
+            <p className="text-sm font-medium text-purple-200 mb-2">💡 Allocation Summary</p>
+            <p className="text-xs text-purple-200/80">Members defined: <span className="font-semibold">{hydraWalletMembers.length}</span></p>
+            <p className="text-xs text-purple-200/80">Total shares target: <span className="font-semibold">{totalShares}</span></p>
+          </div>
+        </div>
 
-        <Expandable>
-          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-            <ExpandableCardHeader className="space-y-4 pb-6 px-8 pt-6">
-              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Members</div>
-              <div className="text-gray-300 text-base leading-relaxed">
+        {/* Members Panel */}
+        <div className="xl:col-span-7 space-y-8">
+          <div className="rounded-2xl border border-gray-800/60 bg-gray-900/50 backdrop-blur p-8 md:p-10 shadow-lg">
+            <div className="space-y-5 mb-6">
+              <h2 className="text-2xl font-semibold text-white">Wallet Members</h2>
+              <p className="text-gray-300 text-sm md:text-base leading-relaxed">
                 Add members and their corresponding shares. Total shares must equal <span className="text-purple-400 font-semibold">{totalShares || 100}</span>.
-              </div>
-            </ExpandableCardHeader>
-            <ExpandableCardContent className="space-y-6 px-8 pb-8">
-            {hydraWalletMembers.map((member, i) => {
-              const sharePercentage = member.shares && totalShares ? ((member.shares / totalShares) * 100).toFixed(1) : '0';
-              return (
-              <div key={i} className="grid gap-6 md:grid-cols-6 p-6 bg-gray-800/40 border border-gray-700/20 rounded-lg hover:bg-gray-800/60 hover:border-gray-600/30 transition-all duration-200 group">
-                <div className="flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-lg font-bold">
-                    {String.fromCharCode(65 + (i % 26))}
+              </p>
+            </div>
+            <div className="space-y-6">
+              {hydraWalletMembers.map((member, i) => {
+                const sharePercentage = member.shares && totalShares ? ((member.shares / totalShares) * 100).toFixed(1) : '0'
+                return (
+                  <div key={i} className="grid gap-6 md:grid-cols-6 p-5 rounded-xl border border-gray-800/70 bg-gray-800/40 hover:bg-gray-800/60 transition-colors group">
+                    <div className="flex items-center justify-center">
+                      <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold shadow-inner shadow-black/30">
+                        {String.fromCharCode(65 + (i % 26))}
+                      </div>
+                    </div>
+                    <div className="md:col-span-3 space-y-2">
+                      <label className="text-[10px] font-medium text-gray-400 uppercase tracking-wide block">Member Wallet Address</label>
+                      <Input
+                        type="text"
+                        placeholder="Enter Solana wallet address..."
+                        onChange={(e) => {
+                          const walletMembers = hydraWalletMembers
+                          walletMembers[i]!.memberKey = e.target.value
+                          setHydraWalletMembers([...walletMembers])
+                        }}
+                        value={member.memberKey}
+                        className="h-11 bg-gray-900/50 border-gray-700/50 text-white placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-400/20 font-mono rounded-md text-xs"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-medium text-gray-400 uppercase tracking-wide block">Shares</label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        onChange={(e) => {
+                          const walletMembers = hydraWalletMembers
+                          walletMembers[i]!.shares = parseInt(e.target.value)
+                          setHydraWalletMembers([...walletMembers])
+                        }}
+                        value={member.shares}
+                        className="h-11 bg-gray-900/50 border-gray-700/50 text-white text-sm font-semibold placeholder:text-gray-500 focus:border-green-400/60 focus:ring-2 focus:ring-green-400/20 rounded-md text-center"
+                      />
+                    </div>
+                    <div className="flex flex-col justify-center items-center space-y-1">
+                      <div className="text-lg font-bold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">{sharePercentage}%</div>
+                      <div className="w-10 h-1 bg-gray-700 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all"
+                          style={{ width: `${Math.min(100, Number(sharePercentage))}%` }}
+                        />
+                      </div>
+                      <div className="text-[10px] text-gray-400 font-medium text-center">of total</div>
+                    </div>
                   </div>
-                </div>
-                <div className="md:col-span-3 space-y-3">
-                  <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">
-                    Member Wallet Address
-                  </label>
-                  <Input
-                    type="text"
-                    placeholder="Enter Solana wallet address..."
-                    onChange={(e) => {
-                      const walletMembers = hydraWalletMembers
-                      walletMembers[i]!.memberKey = e.target.value
-                      setHydraWalletMembers([...walletMembers])
-                    }}
-                    value={member.memberKey}
-                    className="h-12 bg-gray-800/50 border-gray-600/40 text-white placeholder:text-gray-500 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-400/20 transition-all duration-200 focus:outline-none focus:border-transparent font-mono rounded-lg text-sm"
-                  />
-                </div>
-                <div className="space-y-3">
-                  <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">
-                    Shares
-                  </label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    onChange={(e) => {
-                      const walletMembers = hydraWalletMembers
-                      walletMembers[i]!.shares = parseInt(e.target.value)
-                      setHydraWalletMembers([...walletMembers])
-                    }}
-                    value={member.shares}
-                    className="h-12 bg-gray-800/50 border-gray-600/40 text-white text-lg font-bold placeholder:text-gray-500 focus:border-green-400/60 focus:ring-2 focus:ring-green-400/20 transition-all duration-200 focus:outline-none focus:border-transparent rounded-lg text-center"
-                  />
-                </div>
-                <div className="flex flex-col justify-center items-center space-y-2">
-                  <div className="text-2xl font-black bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent">
-                    {sharePercentage}%
-                  </div>
-                  <div className="w-8 h-1 bg-gray-700 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full transition-all duration-300"
-                      style={{ width: `${Math.min(100, Number(sharePercentage))}%` }}
-                    ></div>
-                  </div>
-                  <div className="text-xs text-gray-400 font-medium text-center">
-                    of total
-                  </div>
-                </div>
-              </div>
-              );
-            })}
-
-            <div className="grid gap-4 md:grid-cols-2 pt-6">
-              <TextureButton
-                type="button"
-                onClick={() =>
-                  setHydraWalletMembers([
-                    ...hydraWalletMembers,
-                    {
-                      memberKey: undefined,
-                      shares: undefined,
-                    },
-                  ])
-                }
-                variant="accent"
-                className="h-12 px-6 font-semibold"
-              >
-                + Add Member
-              </TextureButton>
-              {hydraWalletMembers.length > 1 && (
+                )
+              })}
+              <div className="flex flex-wrap gap-4 pt-2">
                 <TextureButton
                   type="button"
                   onClick={() =>
-                    setHydraWalletMembers(
-                      hydraWalletMembers.filter(
-                        (item, index) => index !== hydraWalletMembers.length - 1
-                      )
-                    )
+                    setHydraWalletMembers([
+                      ...hydraWalletMembers,
+                      { memberKey: undefined, shares: undefined },
+                    ])
                   }
-                  variant="destructive"
-                  className="h-12 px-6 font-semibold"
+                  variant="accent"
+                  className="h-10 px-5 font-medium"
                 >
-                  - Remove Last
+                  + Add Member
                 </TextureButton>
-              )}
-            </div>
-
-            <div className="pt-8 border-t border-gray-700/30">
-              <TextureButton
-                type="button"
-                variant="primary"
-                className="h-12 px-8 font-semibold text-base"
-                onClick={() => validateAndCreateWallet()}
-                disabled={!wallet.publicKey}
-              >
-                Create Hydra Wallet
-              </TextureButton>
-            </div>
-            </ExpandableCardContent>
-            <ExpandableContent preset="slide-up">
-              <div className="px-8 pb-6">
-                <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-4">
-                  <p className="text-purple-200 text-sm mb-3">💫 Member Management:</p>
-                  <ul className="space-y-1 text-xs text-purple-300">
-                    <li>• Each member needs a valid Solana address</li>
-                    <li>• Share percentages calculated automatically</li>
-                    <li>• Maximum 9 members per wallet</li>
-                    <li>• Shares must sum to exact total</li>
-                  </ul>
-                </div>
+                {hydraWalletMembers.length > 1 && (
+                  <TextureButton
+                    type="button"
+                    onClick={() =>
+                      setHydraWalletMembers(
+                        hydraWalletMembers.filter((_, index) => index !== hydraWalletMembers.length - 1)
+                      )
+                    }
+                    variant="destructive"
+                    className="h-10 px-5 font-medium"
+                  >
+                    - Remove Last
+                  </TextureButton>
+                )}
               </div>
-            </ExpandableContent>
-          </ExpandableCard>
-        </Expandable>
+              <div className="pt-6 border-t border-gray-800/60">
+                <TextureButton
+                  type="button"
+                  variant="accent"
+                  className="h-12 px-8 font-semibold text-base w-full md:w-auto"
+                  onClick={() => validateAndCreateWallet()}
+                  disabled={!wallet.publicKey}
+                >
+                  Create Hydra Wallet
+                </TextureButton>
+              </div>
+              <div className="rounded-lg bg-purple-900/15 border border-purple-500/20 p-4 mt-2">
+                <p className="text-purple-200 text-sm mb-2">💫 Member Management</p>
+                <ul className="space-y-1 text-xs text-purple-300">
+                  <li>• Valid Solana address required</li>
+                  <li>• Share percentages auto-calculated</li>
+                  <li>• Max 9 members</li>
+                  <li>• Shares must sum exactly</li>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>

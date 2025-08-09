@@ -1,4 +1,4 @@
-import { DisplayAddress } from 'common/DisplayAddress'
+// DisplayAddress removed
 import { executeTransaction } from 'common/Transactions'
 import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
@@ -21,6 +21,7 @@ import { useFanoutMembershipMintVouchers } from 'hooks/useFanoutMembershipMintVo
 import { useFanoutMembershipVouchers } from 'hooks/useFanoutMembershipVouchers'
 import { useFanoutMints } from 'hooks/useFanoutMints'
 import type { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
@@ -28,6 +29,7 @@ import { useEffect, useState } from 'react'
 const Home: NextPage = () => {
   const router = useRouter()
   const [mintId, setMintId] = useState<string | undefined>()
+  const [mounted, setMounted] = useState(false)
   const fanoutMembershipVouchers = useFanoutMembershipVouchers()
   const fanoutMints = useFanoutMints()
   const wallet = useWallet()
@@ -77,6 +79,10 @@ const Home: NextPage = () => {
     }
     setMapping()
   }, [fanoutMembershipVouchers.data, selectedFanoutMint, mintId])
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   async function addSplToken() {
     if (fanoutData.data?.fanoutId) {
@@ -368,10 +374,7 @@ const Home: NextPage = () => {
                     className="relative font-bold uppercase tracking-wide text-md mb-1"
                   >
                     <div className="flex">
-                      <DisplayAddress
-                        connection={connection}
-                        address={voucher.parsed.membershipKey}
-                      />
+                      {mounted ? shortPubKey(voucher.parsed.membershipKey) : '...'}
                       <span className="ml-2 hover:text-blue-500 transition">
                         <>
                           {`(${voucher.parsed.shares.toString()} shares, `}
@@ -444,4 +447,6 @@ const Home: NextPage = () => {
   )
 }
 
-export default Home
+export default dynamic(() => Promise.resolve(Home), {
+  ssr: false
+})

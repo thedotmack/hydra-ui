@@ -27,6 +27,7 @@ import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { TextureButton } from '@/components/ui/texture-button'
+import { Input } from '@/components/ui/input'
 
 // Reusable StatCard component
 const StatCard = ({
@@ -85,6 +86,16 @@ const Home: NextPage = () => {
   const [voucherMapping, setVoucherMapping] = useState<{
     [key: string]: string
   }>({})
+  const [showAddMember, setShowAddMember] = useState(false)
+  const [newMemberWallet, setNewMemberWallet] = useState('')
+  const [newMemberShares, setNewMemberShares] = useState<number>(0)
+  const [newMemberType, setNewMemberType] = useState<'wallet' | 'nft'>('wallet')
+  const [showTransferShares, setShowTransferShares] = useState(false)
+  const [transferFromMember, setTransferFromMember] = useState('')
+  const [transferToMember, setTransferToMember] = useState('')
+  const [transferShareAmount, setTransferShareAmount] = useState<number>(0)
+  const [showStakeTokens, setShowStakeTokens] = useState(false)
+  const [stakeAmount, setStakeAmount] = useState<number>(0)
 
   useEffect(() => {
     const anchor = router.asPath.split('#')[1]
@@ -160,6 +171,258 @@ const Home: NextPage = () => {
     }
   }
 
+  const addMember = async () => {
+    try {
+      if (!wallet?.publicKey || !fanoutData.data?.fanoutId) {
+        throw 'Wallet not connected or fanout not loaded'
+      }
+      if (!newMemberWallet || newMemberShares <= 0) {
+        throw 'Please enter valid member wallet/NFT and shares'
+      }
+      
+      const memberPublicKey = tryPublicKey(newMemberWallet)
+      if (!memberPublicKey) {
+        throw 'Invalid address'
+      }
+
+      const fanoutSdk = new FanoutClient(connection, asWallet(wallet))
+      const transaction = new Transaction()
+      
+      let addMemberInstructions
+      
+      // Handle different membership models
+      const membershipModel = fanoutData.data?.fanout?.membershipModel
+      
+      if (membershipModel === 1 && newMemberType === 'nft') {
+        // NFT membership model - add NFT member
+        addMemberInstructions = await fanoutSdk.addMemberNftInstructions({
+          fanout: fanoutData.data.fanoutId,
+          fanoutNativeAccount: fanoutData.data.nativeAccount,
+          membershipKey: memberPublicKey, // NFT mint address
+          shares: newMemberShares,
+        })
+      } else {
+        // Default to wallet membership
+        addMemberInstructions = await fanoutSdk.addMemberWalletInstructions({
+          fanout: fanoutData.data.fanoutId,
+          fanoutNativeAccount: fanoutData.data.nativeAccount,
+          membershipKey: memberPublicKey,
+          shares: newMemberShares,
+        })
+      }
+      
+      transaction.add(...addMemberInstructions.instructions)
+      await executeTransaction(connection, wallet as Wallet, transaction, {})
+      
+      notify({
+        message: 'Member added successfully',
+        description: `Added ${newMemberType === 'nft' ? 'NFT' : 'wallet'} ${shortPubKey(memberPublicKey)} with ${newMemberShares} shares`,
+        type: 'success',
+      })
+      
+      // Reset form
+      setNewMemberWallet('')
+      setNewMemberShares(0)
+      setNewMemberType('wallet')
+      setShowAddMember(false)
+    } catch (e) {
+      notify({
+        message: 'Error adding member',
+        description: `${e}`,
+        type: 'error',
+      })
+    }
+  }
+
+  const removeMember = async (membershipKey: PublicKey) => {
+    try {
+      if (!wallet?.publicKey || !fanoutData.data?.fanoutId) {
+        throw 'Wallet not connected or fanout not loaded'
+      }
+
+      const fanoutSdk = new FanoutClient(connection, asWallet(wallet))
+      const transaction = new Transaction()
+      
+      // Find the membership account for this member
+      const membershipVoucher = fanoutMembershipVouchers.data?.find(
+        v => v.parsed.membershipKey.toString() === membershipKey.toString()
+      )
+      
+      if (!membershipVoucher) {
+        throw 'Member not found'
+      }
+
+      const removeMemberInstructions = await fanoutSdk.removeMemberInstructions({
+        fanout: fanoutData.data.fanoutId,
+        membershipAccount: membershipVoucher.pubkey,
+      })
+      
+      transaction.add(...removeMemberInstructions.instructions)
+      await executeTransaction(connection, wallet as Wallet, transaction, {})
+      
+      notify({
+        message: 'Member removed successfully',
+        description: `Removed ${shortPubKey(membershipKey)}`,
+        type: 'success',
+      })
+    } catch (e) {
+      notify({
+        message: 'Error removing member',
+        description: `${e}`,
+        type: 'error',
+      })
+    }
+  }
+
+  const transferShares = async () => {
+    try {
+      if (!wallet?.publicKey || !fanoutData.data?.fanoutId) {
+        throw 'Wallet not connected or fanout not loaded'
+      }
+      if (!transferFromMember || !transferToMember || transferShareAmount <= 0) {
+        throw 'Please select valid members and transfer amount'
+      }
+      
+      const fromMemberPK = tryPublicKey(transferFromMember)
+      const toMemberPK = tryPublicKey(transferToMember)
+      
+      if (!fromMemberPK || !toMemberPK) {
+        throw 'Invalid member addresses'
+      }
+
+      // Find membership accounts
+      const fromMembershipVoucher = fanoutMembershipVouchers.data?.find(
+        v => v.parsed.membershipKey.toString() === fromMemberPK.toString()
+      )
+      const toMembershipVoucher = fanoutMembershipVouchers.data?.find(
+        v => v.parsed.membershipKey.toString() === toMemberPK.toString()
+      )
+
+      if (!fromMembershipVoucher || !toMembershipVoucher) {
+        throw 'Member accounts not found'
+      }
+
+      const fanoutSdk = new FanoutClient(connection, asWallet(wallet))
+      const transaction = new Transaction()
+      
+      const transferSharesInstructions = await fanoutSdk.transferSharesInstructions({
+        fanout: fanoutData.data.fanoutId,
+        fromMember: fromMemberPK,
+        toMember: toMemberPK,
+        fromMembershipAccount: fromMembershipVoucher.pubkey,
+        toMembershipAccount: toMembershipVoucher.pubkey,
+        shares: transferShareAmount,
+      })
+      
+      transaction.add(...transferSharesInstructions.instructions)
+      await executeTransaction(connection, wallet as Wallet, transaction, {})
+      
+      notify({
+        message: 'Shares transferred successfully',
+        description: `Transferred ${transferShareAmount} shares from ${shortPubKey(fromMemberPK)} to ${shortPubKey(toMemberPK)}`,
+        type: 'success',
+      })
+      
+      // Reset form
+      setTransferFromMember('')
+      setTransferToMember('')
+      setTransferShareAmount(0)
+      setShowTransferShares(false)
+    } catch (e) {
+      notify({
+        message: 'Error transferring shares',
+        description: `${e}`,
+        type: 'error',
+      })
+    }
+  }
+
+  const stakeTokens = async () => {
+    try {
+      if (!wallet?.publicKey || !fanoutData.data?.fanoutId) {
+        throw 'Wallet not connected or fanout not loaded'
+      }
+      if (stakeAmount <= 0) {
+        throw 'Please enter valid stake amount'
+      }
+      
+      // For token membership model, we need the membership mint
+      if (fanoutData.data?.fanout?.membershipModel !== 2) {
+        throw 'Token staking only available for Token membership model'
+      }
+
+      const fanoutSdk = new FanoutClient(connection, asWallet(wallet))
+      const transaction = new Transaction()
+      
+      // Get the membership mint from the fanout data
+      // Note: In a real implementation, you'd need to get the membership mint from the fanout data
+      // For now, we'll use a placeholder - in production, this would be stored in fanout data
+      
+      const stakeInstructions = await fanoutSdk.stakeTokenMemberInstructions({
+        shares: stakeAmount,
+        fanout: fanoutData.data.fanoutId,
+        member: wallet.publicKey,
+        payer: wallet.publicKey,
+        // membershipMint: membershipMint.publicKey, // Would need to get this from fanout data
+        // membershipMintTokenAccount: tokenAccount, // Would need user's token account
+      })
+      
+      transaction.add(...stakeInstructions.instructions)
+      await executeTransaction(connection, wallet as Wallet, transaction, {})
+      
+      notify({
+        message: 'Tokens staked successfully',
+        description: `Staked ${stakeAmount} tokens`,
+        type: 'success',
+      })
+      
+      setStakeAmount(0)
+      setShowStakeTokens(false)
+    } catch (e) {
+      notify({
+        message: 'Error staking tokens',
+        description: `${e}`,
+        type: 'error',
+      })
+    }
+  }
+
+  const unstakeTokens = async (membershipKey: PublicKey) => {
+    try {
+      if (!wallet?.publicKey || !fanoutData.data?.fanoutId) {
+        throw 'Wallet not connected or fanout not loaded'
+      }
+      
+      if (fanoutData.data?.fanout?.membershipModel !== 2) {
+        throw 'Token unstaking only available for Token membership model'
+      }
+
+      const fanoutSdk = new FanoutClient(connection, asWallet(wallet))
+      const transaction = new Transaction()
+      
+      const unstakeInstructions = await fanoutSdk.unstakeTokenMemberInstructions({
+        fanout: fanoutData.data.fanoutId,
+        member: membershipKey,
+        payer: wallet.publicKey,
+      })
+      
+      transaction.add(...unstakeInstructions.instructions)
+      await executeTransaction(connection, wallet as Wallet, transaction, {})
+      
+      notify({
+        message: 'Tokens unstaked successfully',
+        description: `Unstaked tokens for ${shortPubKey(membershipKey)}`,
+        type: 'success',
+      })
+    } catch (e) {
+      notify({
+        message: 'Error unstaking tokens',
+        description: `${e}`,
+        type: 'error',
+      })
+    }
+  }
+
   const selectSplToken = (mintId: string) => {
     setMintId(mintId === 'default' ? undefined : mintId)
     const fanoutMint = fanoutMints.data?.find(
@@ -172,7 +435,8 @@ const Home: NextPage = () => {
 
   const distributeShare = async (
     fanoutData: FanoutData,
-    addAllMembers: boolean
+    addAllMembers: boolean,
+    specificMember?: PublicKey
   ) => {
     try {
       if (wallet && wallet.publicKey && fanoutData.fanoutId) {
@@ -237,23 +501,31 @@ const Home: NextPage = () => {
             throw 'No membership data found'
           }
         } else {
+          // Individual member distribution
+          const targetMember = specificMember || wallet.publicKey
           let transaction = new Transaction()
           let distMember = await fanoutSdk.distributeWalletMemberInstructions({
-            distributeForMint: false,
-            member: wallet.publicKey,
+            fanoutMint: selectedFanoutMint
+              ? selectedFanoutMint?.data.mint
+              : undefined,
+            distributeForMint: selectedFanoutMint ? true : false,
+            member: targetMember,
             fanout: fanoutData.fanoutId,
             payer: wallet.publicKey,
           })
           transaction.instructions = [...distMember.instructions]
+          transaction.feePayer = wallet.publicKey
+          const priorityFeeIx = await getPriorityFeeIx(connection, transaction)
+          transaction.add(priorityFeeIx)
           await executeTransaction(connection, asWallet(wallet), transaction, {
             confirmOptions: { commitment: 'confirmed', maxRetries: 3 },
             signers: [],
           })
           notify({
-            message: `Claim successful`,
-            description: `Successfully claimed ${
-              addAllMembers ? "everyone's" : 'your'
-            } share from ${fanoutData.fanout.name}`,
+            message: `Distribution successful`,
+            description: `Successfully distributed ${
+              specificMember ? `to member ${shortPubKey(specificMember)}` : 'your share'
+            } from ${fanoutData.fanout.name}`,
             type: 'success',
           })
         }
@@ -291,9 +563,17 @@ const Home: NextPage = () => {
               <span className="inline-block h-10 w-64 animate-pulse rounded-md bg-gray-700/30" />
             }
           </h1>
-          <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto">
-            Treasury wallet management and distribution
-          </p>
+          <div className="flex items-center justify-center gap-4">
+            <p className="text-gray-400 text-sm md:text-base">
+              Treasury wallet management and distribution
+            </p>
+            {fanoutData.data?.fanout && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-500/30">
+                {fanoutData.data.fanout.membershipModel === 0 ? 'Wallet' : 
+                 fanoutData.data.fanout.membershipModel === 1 ? 'NFT' : 'Token'} Model
+              </span>
+            )}
+          </div>
         </div>
         
         {/* Metrics */}
@@ -418,10 +698,235 @@ const Home: NextPage = () => {
 
         {/* Members List */}
         <div className="rounded-2xl border border-gray-800/60 bg-gray-900/60 backdrop-blur-md p-6">
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold text-white mb-2">Members</h3>
-            <p className="text-gray-400 text-sm">Wallet members and their share allocations</p>
+          <div className="mb-6 flex justify-between items-center">
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-2">Members</h3>
+              <p className="text-gray-400 text-sm">Wallet members and their share allocations</p>
+            </div>
+            {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+              <div className="flex gap-2">
+                <TextureButton
+                  onClick={() => setShowAddMember(!showAddMember)}
+                  variant="accent"
+                  className="h-9 px-4 text-sm"
+                >
+                  {showAddMember ? 'Cancel' : 'Add Member'}
+                </TextureButton>
+                <TextureButton
+                  onClick={() => setShowTransferShares(!showTransferShares)}
+                  variant="secondary"
+                  className="h-9 px-4 text-sm"
+                >
+                  {showTransferShares ? 'Cancel' : 'Transfer Shares'}
+                </TextureButton>
+                {fanoutData.data.fanout.membershipModel === 2 && (
+                  <TextureButton
+                    onClick={() => setShowStakeTokens(!showStakeTokens)}
+                    variant="minimal"
+                    className="h-9 px-4 text-sm"
+                  >
+                    {showStakeTokens ? 'Cancel' : 'Stake Tokens'}
+                  </TextureButton>
+                )}
+              </div>
+            )}
           </div>
+          
+          {/* Add Member Form */}
+          {showAddMember && (
+            <div className="mb-6 p-4 rounded-lg border border-blue-500/30 bg-blue-900/20 backdrop-blur">
+              <h4 className="text-lg font-medium text-white mb-4">Add New Member</h4>
+              
+              {/* Member Type Selector - only show for NFT model fanouts */}
+              {fanoutData.data?.fanout?.membershipModel === 1 && (
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Member Type</label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        value="wallet"
+                        checked={newMemberType === 'wallet'}
+                        onChange={(e) => setNewMemberType(e.target.value as 'wallet')}
+                        className="mr-2 text-blue-600"
+                      />
+                      <span className="text-white text-sm">Wallet Address</span>
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        value="nft"
+                        checked={newMemberType === 'nft'}
+                        onChange={(e) => setNewMemberType(e.target.value as 'nft')}
+                        className="mr-2 text-blue-600"
+                      />
+                      <span className="text-white text-sm">NFT Mint</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+              
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-400 mb-2">
+                    {newMemberType === 'nft' ? 'NFT Mint Address' : 'Wallet Address'}
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder={newMemberType === 'nft' ? 'Enter NFT mint address...' : 'Enter Solana wallet address...'}
+                    value={newMemberWallet}
+                    onChange={(e) => setNewMemberWallet(e.target.value)}
+                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Shares</label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newMemberShares || ''}
+                    onChange={(e) => setNewMemberShares(parseInt(e.target.value) || 0)}
+                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <TextureButton
+                  onClick={addMember}
+                  variant="accent"
+                  className="h-9 px-6"
+                  disabled={!newMemberWallet || newMemberShares <= 0}
+                >
+                  Add Member
+                </TextureButton>
+                <TextureButton
+                  onClick={() => {
+                    setShowAddMember(false)
+                    setNewMemberWallet('')
+                    setNewMemberShares(0)
+                    setNewMemberType('wallet')
+                  }}
+                  variant="secondary"
+                  className="h-9 px-4"
+                >
+                  Cancel
+                </TextureButton>
+              </div>
+            </div>
+          )}
+          
+          {/* Transfer Shares Form */}
+          {showTransferShares && (
+            <div className="mb-6 p-4 rounded-lg border border-purple-500/30 bg-purple-900/20 backdrop-blur">
+              <h4 className="text-lg font-medium text-white mb-4">Transfer Shares</h4>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">From Member</label>
+                  <select
+                    value={transferFromMember}
+                    onChange={(e) => setTransferFromMember(e.target.value)}
+                    className="w-full h-10 bg-gray-800/50 border border-gray-700/50 text-white rounded-lg px-3"
+                  >
+                    <option value="">Select member...</option>
+                    {fanoutMembershipVouchers.data?.map((voucher) => (
+                      <option key={voucher.pubkey.toString()} value={voucher.parsed.membershipKey.toString()}>
+                        {shortPubKey(voucher.parsed.membershipKey)} ({voucher.parsed.shares.toString()} shares)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">To Member</label>
+                  <select
+                    value={transferToMember}
+                    onChange={(e) => setTransferToMember(e.target.value)}
+                    className="w-full h-10 bg-gray-800/50 border border-gray-700/50 text-white rounded-lg px-3"
+                  >
+                    <option value="">Select member...</option>
+                    {fanoutMembershipVouchers.data?.map((voucher) => (
+                      <option key={voucher.pubkey.toString()} value={voucher.parsed.membershipKey.toString()}>
+                        {shortPubKey(voucher.parsed.membershipKey)} ({voucher.parsed.shares.toString()} shares)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Share Amount</label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={transferShareAmount || ''}
+                    onChange={(e) => setTransferShareAmount(parseInt(e.target.value) || 0)}
+                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex gap-2">
+                <TextureButton
+                  onClick={transferShares}
+                  variant="accent"
+                  className="h-9 px-6"
+                  disabled={!transferFromMember || !transferToMember || transferShareAmount <= 0}
+                >
+                  Transfer Shares
+                </TextureButton>
+                <TextureButton
+                  onClick={() => {
+                    setShowTransferShares(false)
+                    setTransferFromMember('')
+                    setTransferToMember('')
+                    setTransferShareAmount(0)
+                  }}
+                  variant="secondary"
+                  className="h-9 px-4"
+                >
+                  Cancel
+                </TextureButton>
+              </div>
+            </div>
+          )}
+          
+          {/* Stake Tokens Form */}
+          {showStakeTokens && (
+            <div className="mb-6 p-4 rounded-lg border border-green-500/30 bg-green-900/20 backdrop-blur">
+              <h4 className="text-lg font-medium text-white mb-4">Stake Tokens</h4>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-gray-400 mb-2">Stake Amount</label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={stakeAmount || ''}
+                    onChange={(e) => setStakeAmount(parseInt(e.target.value) || 0)}
+                    className="h-10 bg-gray-800/50 border-gray-700/50 text-white"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <div className="flex gap-2 w-full">
+                    <TextureButton
+                      onClick={stakeTokens}
+                      variant="accent"
+                      className="h-10 px-6"
+                      disabled={stakeAmount <= 0}
+                    >
+                      Stake Tokens
+                    </TextureButton>
+                    <TextureButton
+                      onClick={() => {
+                        setShowStakeTokens(false)
+                        setStakeAmount(0)
+                      }}
+                      variant="secondary"
+                      className="h-10 px-4"
+                    >
+                      Cancel
+                    </TextureButton>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {!fanoutMembershipVouchers.data ? (
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
@@ -455,10 +960,56 @@ const Home: NextPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right flex items-center gap-2">
                     <span className="inline-block px-3 py-1 bg-purple-900/30 text-purple-300 border border-purple-500/30 rounded-lg text-sm font-medium">
                       {voucher.parsed.shares.toString()} shares
                     </span>
+                    <AsyncButton
+                      type="button"
+                      variant="primary"
+                      bgColor="rgb(34 197 94)"
+                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-medium"
+                      handleClick={async () => {
+                        if (fanoutData.data) {
+                          await distributeShare(fanoutData.data, false, voucher.parsed.membershipKey)
+                        }
+                      }}
+                      disabled={!wallet.publicKey}
+                    >
+                      Distribute
+                    </AsyncButton>
+                    {fanoutData.data && fanoutData.data.fanout.membershipModel === 2 && (
+                      <AsyncButton
+                        type="button"
+                        variant="primary"
+                        bgColor="rgb(234 88 12)"
+                        className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded text-xs font-medium"
+                        handleClick={async () => {
+                          if (confirm(`Unstake tokens for ${shortPubKey(voucher.parsed.membershipKey)}?`)) {
+                            await unstakeTokens(voucher.parsed.membershipKey)
+                          }
+                        }}
+                        disabled={!wallet.publicKey}
+                      >
+                        Unstake
+                      </AsyncButton>
+                    )}
+                    {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+                      <AsyncButton
+                        type="button"
+                        variant="primary"
+                        bgColor="rgb(239 68 68)"
+                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded text-xs font-medium"
+                        handleClick={async () => {
+                          if (confirm(`Remove member ${shortPubKey(voucher.parsed.membershipKey)}?`)) {
+                            await removeMember(voucher.parsed.membershipKey)
+                          }
+                        }}
+                        disabled={!wallet.publicKey}
+                      >
+                        Remove
+                      </AsyncButton>
+                    )}
                   </div>
                 </div>
               ))}

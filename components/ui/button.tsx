@@ -10,13 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-neon-cyan to-neon-cyan/80 text-background border border-neon-cyan/50 hover:glow-cyan hover:-translate-y-1 shadow-lg",
+          "bg-linear-to-r from-neon-cyan to-neon-cyan/80 text-background border border-neon-cyan/50 hover:glow-cyan hover:-translate-y-1 shadow-lg",
         destructive:
-          "bg-gradient-to-r from-red-600 to-red-500 text-white border border-red-500/50 hover:glow-purple shadow-lg hover:-translate-y-1",
+          "bg-linear-to-r from-red-600 to-red-500 text-white border border-red-500/50 hover:glow-purple shadow-lg hover:-translate-y-1",
         outline:
           "border border-muted-foreground/30 bg-background/10 backdrop-blur-sm hover:bg-muted/20 hover:border-neon-cyan/50 hover:text-neon-cyan transition-all duration-300",
         secondary:
-          "bg-gradient-to-r from-neon-green to-neon-green/80 text-background border border-neon-green/50 hover:glow-green hover:-translate-y-1 shadow-lg",
+          "bg-linear-to-r from-neon-green to-neon-green/80 text-background border border-neon-green/50 hover:glow-green hover:-translate-y-1 shadow-lg",
         ghost:
           "hover:bg-muted/20 hover:text-foreground backdrop-blur-sm transition-all duration-300",
         link: "text-neon-cyan underline-offset-4 hover:underline hover:text-neon-purple hover:glow-cyan",

@@ -3,7 +3,7 @@ import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { useTheme } from "next-themes"
 import { Moon, Sun, Network } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { TextureButton } from "@/components/ui/texture-button"
 import { useEnvironmentCtx, ENVIRONMENTS } from 'providers/EnvironmentProvider'
 import { Cluster } from '@solana/web3.js'
 import { cn } from "@/lib/utils"
@@ -52,30 +52,28 @@ export function ModernHeader({ className }: HeaderProps) {
     )}>
       <div className="flex items-center gap-4">
         {/* Network Switcher */}
-        <Button
-          variant="outline"
-          size="sm"
+        <TextureButton
+          variant="secondary"
           onClick={updateNetwork}
           className="gap-2 bg-gray-800/50 border-gray-600 hover:bg-gray-700/50 hover:border-purple-400 transition-all duration-200"
         >
           <Network className="h-4 w-4 text-purple-400" />
           <span className="capitalize font-medium">{ctx.environment.label}</span>
-        </Button>
+        </TextureButton>
       </div>
 
       <div className="flex items-center gap-4">
         {/* Theme Toggle */}
         {mounted && (
-          <Button
-            variant="ghost"
-            size="icon"
+          <TextureButton
+            variant="minimal"
             onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            className="hover:bg-gray-800/50 hover:text-purple-400 transition-all duration-200"
+            className="hover:bg-gray-800/50 hover:text-purple-400 transition-all duration-200 h-9 w-9"
           >
             <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 text-gray-300" />
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-gray-300" />
             <span className="sr-only">Toggle theme</span>
-          </Button>
+          </TextureButton>
         )}
 
         {/* Wallet Connection */}

@@ -12,8 +12,8 @@ import type { NextPage } from 'next'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { TextureButton } from '@/components/ui/texture-button'
+import { Expandable, ExpandableCard, ExpandableContent, ExpandableCardHeader, ExpandableCardContent } from '@/components/ui/expandable'
 import { Input } from '@/components/ui/input'
 
 const Home: NextPage = () => {
@@ -129,32 +129,35 @@ const Home: NextPage = () => {
           </div>
 
         {success && (
-          <Card className="backdrop-blur-sm bg-gradient-to-br from-green-900/30 to-green-800/30 border border-green-500/25 shadow-2xl shadow-green-900/20">
-            <CardHeader className="space-y-4 px-8 py-6">
-              <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent flex items-center gap-3">
-                <span className="text-green-400">✅</span> Wallet Created Successfully
-              </CardTitle>
-              <CardDescription className="text-green-200/90 text-lg leading-relaxed">
-                Your wallet is ready to use. Access it at{' '}
-                <a
-                  href={`/${walletName}${window.location.search ?? ''}`}
-                  className="font-semibold underline hover:no-underline text-green-300 hover:text-green-200 transition-colors duration-200"
-                >
-                  /{walletName}
-                </a>
-              </CardDescription>
-            </CardHeader>
-          </Card>
+          <Expandable>
+            <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-green-900/30 to-green-800/30 border border-green-500/25 shadow-2xl shadow-green-900/20">
+              <ExpandableCardHeader className="space-y-4 px-8 py-6">
+                <div className="text-2xl font-semibold bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent flex items-center gap-3">
+                  <span className="text-green-400">✅</span> Wallet Created Successfully
+                </div>
+                <div className="text-green-200/90 text-lg leading-relaxed">
+                  Your wallet is ready to use. Access it at{' '}
+                  <a
+                    href={`/${walletName}${window.location.search ?? ''}`}
+                    className="font-semibold underline hover:no-underline text-green-300 hover:text-green-200 transition-colors duration-200"
+                  >
+                    /{walletName}
+                  </a>
+                </div>
+              </ExpandableCardHeader>
+            </ExpandableCard>
+          </Expandable>
         )}
 
-        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-          <CardHeader className="space-y-4 pb-6 px-8 pt-6">
-            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Configuration</CardTitle>
-            <CardDescription className="text-gray-300 text-base leading-relaxed">
-              Configure your wallet name and total shares for distribution
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8 px-8 pb-8">
+        <Expandable>
+          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+            <ExpandableCardHeader className="space-y-4 pb-6 px-8 pt-6">
+              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Configuration</div>
+              <div className="text-gray-300 text-base leading-relaxed">
+                Configure your wallet name and total shares for distribution
+              </div>
+            </ExpandableCardHeader>
+            <ExpandableCardContent className="space-y-8 px-8 pb-8">
             <div className="grid gap-8 md:grid-cols-5">
               <div className="md:col-span-3 space-y-3">
                 <label className="text-xs font-medium text-gray-400 uppercase tracking-wide block">
@@ -194,17 +197,32 @@ const Home: NextPage = () => {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            </ExpandableCardContent>
+            <ExpandableContent preset="slide-up">
+              <div className="px-8 pb-6">
+                <div className="bg-gray-800/40 border border-gray-600/30 rounded-lg p-4">
+                  <p className="text-gray-200 text-sm mb-3">⚙️ Configuration Tips:</p>
+                  <ul className="space-y-1 text-xs text-gray-300">
+                    <li>• Use clear, descriptive names (no spaces)</li>
+                    <li>• Share totals must match member allocations</li>
+                    <li>• Consider future expansion needs</li>
+                    <li>• Test with small amounts first</li>
+                  </ul>
+                </div>
+              </div>
+            </ExpandableContent>
+          </ExpandableCard>
+        </Expandable>
 
-        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-          <CardHeader className="space-y-4 pb-6 px-8 pt-6">
-            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Members</CardTitle>
-            <CardDescription className="text-gray-300 text-base leading-relaxed">
-              Add members and their corresponding shares. Total shares must equal <span className="text-purple-400 font-semibold">{totalShares || 100}</span>.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6 px-8 pb-8">
+        <Expandable>
+          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+            <ExpandableCardHeader className="space-y-4 pb-6 px-8 pt-6">
+              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Members</div>
+              <div className="text-gray-300 text-base leading-relaxed">
+                Add members and their corresponding shares. Total shares must equal <span className="text-purple-400 font-semibold">{totalShares || 100}</span>.
+              </div>
+            </ExpandableCardHeader>
+            <ExpandableCardContent className="space-y-6 px-8 pb-8">
             {hydraWalletMembers.map((member, i) => {
               const sharePercentage = member.shares && totalShares ? ((member.shares / totalShares) * 100).toFixed(1) : '0';
               return (
@@ -265,7 +283,7 @@ const Home: NextPage = () => {
             })}
 
             <div className="grid gap-4 md:grid-cols-2 pt-6">
-              <Button
+              <TextureButton
                 type="button"
                 onClick={() =>
                   setHydraWalletMembers([
@@ -276,12 +294,13 @@ const Home: NextPage = () => {
                     },
                   ])
                 }
-                className="h-12 px-6 bg-gradient-to-r from-green-600/80 to-green-700/80 hover:from-green-500 hover:to-green-600 border border-green-500/30 hover:border-green-400/50 transition-all duration-200 text-green-100 hover:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-green-400/30 focus:border-transparent"
+                variant="accent"
+                className="h-12 px-6 font-semibold"
               >
                 + Add Member
-              </Button>
+              </TextureButton>
               {hydraWalletMembers.length > 1 && (
-                <Button
+                <TextureButton
                   type="button"
                   onClick={() =>
                     setHydraWalletMembers(
@@ -290,25 +309,41 @@ const Home: NextPage = () => {
                       )
                     )
                   }
-                  className="h-12 px-6 bg-gradient-to-r from-red-600/80 to-red-700/80 hover:from-red-500 hover:to-red-600 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 text-red-100 hover:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-red-400/30 focus:border-transparent"
+                  variant="destructive"
+                  className="h-12 px-6 font-semibold"
                 >
                   - Remove Last
-                </Button>
+                </TextureButton>
               )}
             </div>
 
             <div className="pt-8 border-t border-gray-700/30">
-              <Button
+              <TextureButton
                 type="button"
-                className="h-12 px-8 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 focus:ring-2 focus:ring-purple-400/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-white font-semibold text-base border-0 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                variant="primary"
+                className="h-12 px-8 font-semibold text-base"
                 onClick={() => validateAndCreateWallet()}
                 disabled={!wallet.publicKey}
               >
                 Create Hydra Wallet
-              </Button>
+              </TextureButton>
             </div>
-          </CardContent>
-        </Card>
+            </ExpandableCardContent>
+            <ExpandableContent preset="slide-up">
+              <div className="px-8 pb-6">
+                <div className="bg-purple-900/20 border border-purple-500/20 rounded-lg p-4">
+                  <p className="text-purple-200 text-sm mb-3">💫 Member Management:</p>
+                  <ul className="space-y-1 text-xs text-purple-300">
+                    <li>• Each member needs a valid Solana address</li>
+                    <li>• Share percentages calculated automatically</li>
+                    <li>• Maximum 9 members per wallet</li>
+                    <li>• Shares must sum to exact total</li>
+                  </ul>
+                </div>
+              </div>
+            </ExpandableContent>
+          </ExpandableCard>
+        </Expandable>
         </div>
       </div>
     </DashboardLayout>

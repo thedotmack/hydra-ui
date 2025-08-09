@@ -15,8 +15,7 @@ import {
   Shield
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { TextureButton } from "@/components/ui/texture-button"
 import { useEnvironmentCtx } from "providers/EnvironmentProvider"
 
 interface SidebarProps {
@@ -80,14 +79,13 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
             HYDRA
           </div>
         )}
-        <Button
-          variant="ghost"
-          size="icon"
+        <TextureButton
+          variant="minimal"
           onClick={onToggle}
           className="h-8 w-8 hover:bg-gray-800/50 hover:text-purple-400 transition-colors"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
+        </TextureButton>
       </div>
 
       {/* Navigation */}
@@ -99,8 +97,8 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
 
             return (
               <Link key={item.href} href={getHref(item.href)}>
-                <Button
-                  variant="ghost"
+                <TextureButton
+                  variant="minimal"
                   className={cn(
                     "w-full justify-start gap-4 h-12 font-medium transition-all duration-200 rounded-lg group",
                     collapsed && "px-3 justify-center",
@@ -118,7 +116,7 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
                       {item.title}
                     </span>
                   )}
-                </Button>
+                </TextureButton>
               </Link>
             )
           })}

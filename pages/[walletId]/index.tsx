@@ -25,9 +25,8 @@ import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
+import { TextureButton } from '@/components/ui/texture-button'
+import { Expandable, ExpandableCard, ExpandableContent, ExpandableCardHeader, ExpandableCardContent } from '@/components/ui/expandable'
 
 const Home: NextPage = () => {
   const router = useRouter()
@@ -224,35 +223,39 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-gray-900 to-black">
-        <div className="max-w-6xl mx-auto px-8 py-12 space-y-8">
+      <div className="space-y-8 p-8">
         {fanoutData.error && (
-          <Card className="backdrop-blur-sm bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-500/20 shadow-2xl shadow-red-900/20">
-            <CardHeader className="space-y-4 px-8 py-6">
-              <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">Hydra Wallet Not Found</CardTitle>
-              <CardDescription className="text-red-200/80 text-lg leading-relaxed">
-                The requested wallet could not be found or accessed.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="px-8 pb-6">
-              <Button
-                onClick={() =>
-                  router.push(
-                    `/${
-                      environment.label !== 'mainnet-beta'
-                        ? `?cluster=${environment.label}`
-                        : ''
-                    }`,
-                    undefined,
-                    { shallow: true }
-                  )
-                }
-                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 border-0 text-white focus:ring-2 focus:ring-purple-400/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 focus:outline-none"
-              >
-                Return to Dashboard
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="max-w-4xl mx-auto">
+            <Expandable>
+              <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-red-900/20 to-red-800/20 border border-red-500/20 shadow-2xl shadow-red-900/20">
+                <ExpandableCardHeader className="space-y-4 px-8 py-6">
+                  <div className="text-2xl font-semibold bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent">Hydra Wallet Not Found</div>
+                  <div className="text-red-200/80 text-lg leading-relaxed">
+                    The requested wallet could not be found or accessed.
+                  </div>
+                </ExpandableCardHeader>
+                <ExpandableCardContent className="px-8 pb-6">
+                  <TextureButton
+                  onClick={() =>
+                    router.push(
+                      `/${
+                        environment.label !== 'mainnet-beta'
+                          ? `?cluster=${environment.label}`
+                          : ''
+                      }`,
+                      undefined,
+                      { shallow: true }
+                    )
+                  }
+                  variant="primary"
+                  className="h-12"
+                >
+                  Return to Dashboard
+                </TextureButton>
+                </ExpandableCardContent>
+              </ExpandableCard>
+            </Expandable>
+          </div>
         )}
 
         {/* Wallet Header */}
@@ -268,94 +271,125 @@ const Home: NextPage = () => {
         </div>
 
         {/* Balance and Token Selection */}
-        <div className="grid gap-8 md:grid-cols-4 lg:grid-cols-6">
-          <Card className="md:col-span-2 lg:col-span-2 backdrop-blur-sm bg-gradient-to-br from-green-900/20 to-green-800/30 border border-green-500/20 shadow-xl shadow-green-900/25 hover:shadow-2xl hover:border-green-400/30 transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="pb-4 px-6 pt-6">
-              <CardTitle className="text-lg font-semibold text-green-200">Total Inflow</CardTitle>
-              <CardDescription className="text-green-300/70 leading-relaxed text-sm">Total funds received</CardDescription>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              <div className="space-y-2">
-                <div className="text-5xl font-black tracking-tight">
-                  {selectedFanoutMint ? (
-                    <>
-                      <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
-                        {Number(
-                          getMintNaturalAmountFromDecimal(
-                            Number(selectedFanoutMint.data.totalInflow),
-                            selectedFanoutMint.info.decimals
-                          )
-                        )}
-                      </span>
-                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
-                        {selectedFanoutMint.config.symbol}
-                      </span>
-                    </>
-                  ) : fanoutData.data?.fanout ? (
-                    <>
-                      <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
-                        {(parseInt(
-                          fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
-                        ) / 1e9).toFixed(2)}
-                      </span>
-                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
-                        SOL
-                      </span>
-                    </>
-                  ) : (
-                    <div className="h-12 w-32 animate-pulse bg-gray-700/30 rounded-md"></div>
-                  )}
+        <div className="grid gap-6 grid-cols-1 lg:grid-cols-3">
+          <Expandable>
+            <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-green-900/20 to-green-800/30 border border-green-500/20 shadow-xl shadow-green-900/25 hover:shadow-2xl hover:border-green-400/30 transition-all duration-300 hover:-translate-y-1">
+              <ExpandableCardHeader className="pb-4 px-6 pt-6">
+                <div className="text-lg font-semibold text-green-200">Total Inflow</div>
+                <div className="text-green-300/70 leading-relaxed text-sm">Total funds received</div>
+              </ExpandableCardHeader>
+              <ExpandableCardContent className="px-6 pb-6">
+                <div className="space-y-2">
+                  <div className="text-5xl font-black tracking-tight">
+                    {selectedFanoutMint ? (
+                      <>
+                        <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
+                          {Number(
+                            getMintNaturalAmountFromDecimal(
+                              Number(selectedFanoutMint.data.totalInflow),
+                              selectedFanoutMint.info.decimals
+                            )
+                          )}
+                        </span>
+                        <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                          {selectedFanoutMint.config.symbol}
+                        </span>
+                      </>
+                    ) : fanoutData.data?.fanout ? (
+                      <>
+                        <span className="bg-gradient-to-r from-green-400 to-green-300 bg-clip-text text-transparent">
+                          {(parseInt(
+                            fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
+                          ) / 1e9).toFixed(2)}
+                        </span>
+                        <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                          SOL
+                        </span>
+                      </>
+                    ) : (
+                      <div className="h-12 w-32 animate-pulse bg-gray-700/30 rounded-md"></div>
+                    )}
+                  </div>
+                  <div className="text-xs text-green-400 font-medium flex items-center gap-1">
+                    <div className="w-1 h-1 bg-green-400 rounded-full"></div>
+                    All-time inflow
+                  </div>
                 </div>
-                <div className="text-xs text-green-400 font-medium flex items-center gap-1">
-                  <div className="w-1 h-1 bg-green-400 rounded-full"></div>
-                  All-time inflow
+              </ExpandableCardContent>
+              <ExpandableContent preset="slide-up">
+                <div className="px-6 pb-6">
+                  <div className="bg-green-900/30 border border-green-500/30 rounded-lg p-4">
+                    <p className="text-green-200 text-xs mb-2">💰 Revenue Insights:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="text-green-300">• Peak inflow tracking</div>
+                      <div className="text-green-300">• Historical trends</div>
+                      <div className="text-green-300">• Member contributions</div>
+                      <div className="text-green-300">• Token analytics</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </ExpandableContent>
+            </ExpandableCard>
+          </Expandable>
 
-          <Card className="md:col-span-2 lg:col-span-2 backdrop-blur-sm bg-gradient-to-br from-blue-900/20 to-blue-800/30 border border-blue-500/20 shadow-xl shadow-blue-900/25 hover:shadow-2xl hover:border-blue-400/30 transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="pb-4 px-6 pt-6">
-              <CardTitle className="text-lg font-semibold text-blue-200">Current Balance</CardTitle>
-              <CardDescription className="text-blue-300/70 leading-relaxed text-sm">Available now</CardDescription>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
-              <div className="space-y-2">
-                <div className="text-5xl font-black tracking-tight">
-                  {selectedFanoutMint ? (
-                    <>
-                      <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
-                        {selectedFanoutMint.balance}
-                      </span>
-                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
-                        {selectedFanoutMint.config.symbol}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
-                        {fanoutData.data?.balance || '0'}
-                      </span>
-                      <span className="text-2xl text-gray-400 ml-2 font-semibold">
-                        SOL
-                      </span>
-                    </>
-                  )}
+          <Expandable>
+            <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-blue-900/20 to-blue-800/30 border border-blue-500/20 shadow-xl shadow-blue-900/25 hover:shadow-2xl hover:border-blue-400/30 transition-all duration-300 hover:-translate-y-1">
+              <ExpandableCardHeader className="pb-4 px-6 pt-6">
+                <div className="text-lg font-semibold text-blue-200">Current Balance</div>
+                <div className="text-blue-300/70 leading-relaxed text-sm">Available now</div>
+              </ExpandableCardHeader>
+              <ExpandableCardContent className="px-6 pb-6">
+                <div className="space-y-2">
+                  <div className="text-5xl font-black tracking-tight">
+                    {selectedFanoutMint ? (
+                      <>
+                        <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+                          {selectedFanoutMint.balance}
+                        </span>
+                        <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                          {selectedFanoutMint.config.symbol}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent">
+                          {fanoutData.data?.balance || '0'}
+                        </span>
+                        <span className="text-2xl text-gray-400 ml-2 font-semibold">
+                          SOL
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div className="text-xs text-blue-400 font-medium flex items-center gap-1">
+                    <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
+                    Available now
+                  </div>
                 </div>
-                <div className="text-xs text-blue-400 font-medium flex items-center gap-1">
-                  <div className="w-1 h-1 bg-blue-400 rounded-full"></div>
-                  Available now
+              </ExpandableCardContent>
+              <ExpandableContent preset="slide-up">
+                <div className="px-6 pb-6">
+                  <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-4">
+                    <p className="text-blue-200 text-xs mb-2">⚡ Balance Details:</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="text-blue-300">• Ready for distribution</div>
+                      <div className="text-blue-300">• Real-time updates</div>
+                      <div className="text-blue-300">• Multi-token tracking</div>
+                      <div className="text-blue-300">• Instant access</div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </ExpandableContent>
+            </ExpandableCard>
+          </Expandable>
 
-          <Card className="md:col-span-4 lg:col-span-2 backdrop-blur-sm bg-gradient-to-br from-orange-900/20 to-orange-800/30 border border-orange-500/20 shadow-xl shadow-orange-900/25 hover:shadow-2xl hover:border-orange-400/30 transition-all duration-300 hover:-translate-y-1">
-            <CardHeader className="pb-4 px-6 pt-6">
-              <CardTitle className="text-lg font-semibold text-orange-200">Token Selection</CardTitle>
-              <CardDescription className="text-orange-300/70 leading-relaxed text-sm">Choose token type</CardDescription>
-            </CardHeader>
-            <CardContent className="px-6 pb-6">
+          <Expandable>
+            <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-orange-900/20 to-orange-800/30 border border-orange-500/20 shadow-xl shadow-orange-900/25 hover:shadow-2xl hover:border-orange-400/30 transition-all duration-300 hover:-translate-y-1">
+              <ExpandableCardHeader className="pb-4 px-6 pt-6">
+                <div className="text-lg font-semibold text-orange-200">Token Selection</div>
+                <div className="text-orange-300/70 leading-relaxed text-sm">Choose token type</div>
+              </ExpandableCardHeader>
+              <ExpandableCardContent className="px-6 pb-6">
               <select
                 className="flex h-12 w-full rounded-lg border border-gray-600/40 bg-gray-800/50 px-4 py-3 text-white focus:border-purple-400/60 focus:ring-2 focus:ring-purple-400/20 transition-all duration-200 focus:outline-none hover:bg-gray-700/50 hover:border-gray-500/50"
                 value={mintId || 'default'}
@@ -373,17 +407,20 @@ const Home: NextPage = () => {
                   </option>
                 ))}
               </select>
-            </CardContent>
-          </Card>
+              </ExpandableCardContent>
+            </ExpandableCard>
+          </Expandable>
         </div>
 
         {/* Wallet Information */}
-        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-          <CardHeader className="pb-6 px-8 pt-6">
-            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Information</CardTitle>
-            <CardDescription className="text-gray-300 text-base leading-relaxed">Important addresses and member details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-8 px-8 pb-8">
+        <div className="max-w-6xl mx-auto">
+        <Expandable>
+          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+            <ExpandableCardHeader className="pb-6 px-8 pt-6">
+              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Wallet Information</div>
+              <div className="text-gray-300 text-base leading-relaxed">Important addresses and member details</div>
+            </ExpandableCardHeader>
+            <ExpandableCardContent className="space-y-8 px-8 pb-8">
             <div className="grid gap-8 md:grid-cols-2">
               <div className="space-y-3">
                 <label className="text-sm font-semibold text-white block">Fanout Address</label>
@@ -425,7 +462,7 @@ const Home: NextPage = () => {
               </div>
             </div>
 
-            <Separator />
+            <div className="border-t border-gray-700/30 my-4"></div>
 
             <div className="grid gap-8 md:grid-cols-2">
               <div className="space-y-2">
@@ -449,18 +486,22 @@ const Home: NextPage = () => {
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+            </ExpandableCardContent>
+          </ExpandableCard>
+        </Expandable>
+        </div>
 
         {/* Members List */}
-        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-          <CardHeader className="pb-6 px-8 pt-6">
-            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Members & Distribution</CardTitle>
-            <CardDescription className="text-gray-300 text-base leading-relaxed">
-              Wallet members, their shares, and claim status
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="px-8 pb-8">
+        <div className="max-w-6xl mx-auto">
+        <Expandable>
+          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+            <ExpandableCardHeader className="pb-6 px-8 pt-6">
+              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Members & Distribution</div>
+              <div className="text-gray-300 text-base leading-relaxed">
+                Wallet members, their shares, and claim status
+              </div>
+            </ExpandableCardHeader>
+            <ExpandableCardContent className="px-8 pb-8">
             <div className="space-y-4">
               {!fanoutMembershipVouchers.data ? (
                 <>
@@ -532,16 +573,20 @@ const Home: NextPage = () => {
                 })
               )}
             </div>
-          </CardContent>
-        </Card>
+            </ExpandableCardContent>
+          </ExpandableCard>
+        </Expandable>
+        </div>
 
         {/* Action Buttons */}
-        <Card className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
-          <CardHeader className="pb-6 px-8 pt-6">
-            <CardTitle className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Actions</CardTitle>
-            <CardDescription className="text-gray-300 text-base leading-relaxed">Distribute funds or manage wallet settings</CardDescription>
-          </CardHeader>
-          <CardContent className="px-8 pb-8">
+        <div className="max-w-4xl mx-auto">
+        <Expandable>
+          <ExpandableCard className="backdrop-blur-sm bg-gradient-to-br from-gray-800/40 to-gray-900/60 border border-gray-700/20 shadow-xl shadow-gray-900/25 hover:shadow-2xl hover:border-gray-600/30 transition-all duration-300">
+            <ExpandableCardHeader className="pb-6 px-8 pt-6">
+              <div className="text-2xl font-semibold bg-gradient-to-r from-white to-gray-200 bg-clip-text text-transparent">Actions</div>
+              <div className="text-gray-300 text-base leading-relaxed">Distribute funds or manage wallet settings</div>
+            </ExpandableCardHeader>
+            <ExpandableCardContent className="px-8 pb-8">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -551,14 +596,15 @@ const Home: NextPage = () => {
                     <span className="text-xs text-green-400 font-medium">Ready</span>
                   </div>
                 </div>
-                <Button
+                <TextureButton
                   onClick={() => fanoutData.data && distributeShare(fanoutData.data, true)}
                   disabled={!fanoutData.data}
-                  className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-500 hover:to-purple-600 focus:ring-2 focus:ring-purple-400/30 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 text-white border-0 h-14 text-base font-semibold focus:outline-none"
+                  variant="accent"
+                  className="w-full h-14 text-base font-semibold"
                 >
                   <span>Distribute To All Members</span>
                   <span className="text-xs opacity-70 ml-2">({fanoutData.data?.fanout?.totalMembers || 0})</span>
-                </Button>
+                </TextureButton>
               </div>
               {fanoutData.data &&
                 fanoutData.data.fanout.authority.toString() ===
@@ -571,17 +617,19 @@ const Home: NextPage = () => {
                         <span className="text-xs text-orange-400 font-medium">Admin</span>
                       </div>
                     </div>
-                    <Button
+                    <TextureButton
                       onClick={() => addSplToken()}
-                      className="w-full bg-gradient-to-r from-orange-600/80 to-orange-700/80 hover:from-orange-500 hover:to-orange-600 border border-orange-500/30 hover:border-orange-400/50 transition-all duration-200 text-orange-100 hover:text-white h-14 text-base font-semibold focus:outline-none focus:ring-2 focus:ring-orange-400/30 focus:border-transparent"
+                      variant="secondary"
+                      className="w-full h-14 text-base font-semibold"
                     >
                       Add SPL Token
-                    </Button>
+                    </TextureButton>
                   </div>
                 )}
             </div>
-          </CardContent>
-        </Card>
+            </ExpandableCardContent>
+          </ExpandableCard>
+        </Expandable>
         </div>
       </div>
     </DashboardLayout>

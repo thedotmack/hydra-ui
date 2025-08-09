@@ -96,3 +96,4 @@ The project recently underwent a major UI transformation to a modern dashboard l
 - Use the modern component library (shadcn/ui)
 - Maintain consistency with the new design system
 - we are always running a dev server, u dont need to run or build, its with pm2, you can list, view logs with --nostream, don't build or restart without human permission
+- never run BUILD we are running pm2 u fart

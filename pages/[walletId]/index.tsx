@@ -25,6 +25,47 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
+import { DashboardLayout } from '@/components/layout/DashboardLayout'
+
+// Reusable StatCard component
+const StatCard = ({
+  title,
+  subtitle,
+  value,
+  unit,
+  color,
+  mounted = true
+}: {
+  title: string
+  subtitle: string
+  value: any
+  unit?: string
+  color: 'green' | 'blue' | 'orange'
+  mounted?: boolean
+}) => {
+  const colorMap: Record<string, string> = {
+    green: 'from-emerald-900/25 to-emerald-800/10 border-emerald-500/25',
+    blue: 'from-blue-900/25 to-blue-800/10 border-blue-500/25',
+    orange: 'from-orange-900/25 to-orange-800/10 border-orange-500/25',
+  }
+
+  const displayValue = typeof value === 'string' ? value : String(value)
+
+  return (
+    <div className={`rounded-2xl border ${colorMap[color]} bg-gradient-to-br backdrop-blur-md p-6 shadow-sm hover:shadow-md transition-shadow`}>        
+      <div className="mb-4 space-y-1">
+        <div className="text-sm font-medium text-white/90 tracking-wide">{String(title)}</div>
+        <div className="text-xs text-gray-400">{String(subtitle)}</div>
+      </div>
+      <div className="flex items-end gap-2">
+        <div className="text-3xl font-semibold leading-none bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+          {mounted ? displayValue : <span className="h-6 w-20 bg-gray-700/40 animate-pulse rounded" />}
+        </div>
+        {unit && <span className="text-sm text-gray-400 pb-1 font-medium">{unit}</span>}
+      </div>
+    </div>
+  )
+}
 
 const Home: NextPage = () => {
   const router = useRouter()
@@ -225,225 +266,73 @@ const Home: NextPage = () => {
   }
 
   return (
-    <div className="bg-white h-screen max-h-screen">
-      <Header />
-      <main className="h-[80%] py-16 flex flex-1 flex-col justify-center items-center">
-        <div className="text-gray-700 w-full max-w-xl py-3 md:px-0 px-10 mb-10">
-          {fanoutData.error && (
-            <div className="text-gray-700 bg-red-300 w-full text-center py-3 mb-10">
-              <div className="font-bold uppercase tracking-wide">
-                Hydra Wallet not found
-              </div>
-              <div
-                className="cursor-pointer"
-                onClick={() =>
-                  router.push(
-                    `/${
-                      environment.label !== 'mainnet-beta'
-                        ? `?cluster=${environment.label}`
-                        : ''
-                    }`,
-                    undefined,
-                    { shallow: true }
-                  )
-                }
-              >
-                Retry
-              </div>
-            </div>
-          )}
-
-          <div className="mb-5 border-b-2">
-            <div className="font-bold uppercase tracking-wide text-2xl mb-1">
-              {fanoutData.data?.fanout.name ? (
-                fanoutData.data?.fanout.name
-              ) : (
-                <div className="animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></div>
-              )}
-            </div>
-            <div className="flex justify-between">
-              <div className="flex-col">
-                <div className="font-bold uppercase tracking-wide text-lg mb-1 flex items-center gap-1">
-                  Total Inflow:{' '}
-                  {selectedFanoutMint ? (
-                    `${Number(
-                      getMintNaturalAmountFromDecimal(
-                        Number(selectedFanoutMint.data.totalInflow),
-                        selectedFanoutMint.info.decimals
-                      )
-                    )} ${selectedFanoutMint.config.symbol}`
-                  ) : fanoutData.data?.fanout ? (
-                    `${
-                      parseInt(
-                        fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
-                      ) / 1e9
-                    } ◎`
-                  ) : (
-                    <div className="animate h-6 w-10 animate-pulse bg-gray-200 rounded-md"></div>
-                  )}
-                </div>
-                <p className="font-bold uppercase tracking-wide text-lg mb-1">
-                  Balance:{' '}
-                  {selectedFanoutMint
-                    ? `${selectedFanoutMint.balance} ${selectedFanoutMint.config.symbol}`
-                    : `${fanoutData.data?.balance}◎`}
-                </p>
-              </div>
-
-              <div className="">
-                <select
-                  className="w-min-content bg-gray-700 text-white px-4 py-3 border-r-transparent border-r-8 rounded-md"
-                  value={mintId}
-                  onChange={(e) => {
-                    selectSplToken(e.target.value)
-                  }}
-                >
-                  <option value={'default'}>SOL</option>
-                  {fanoutMints.data?.map((fanoutMint) => (
-                    <option
-                      key={fanoutMint.id.toString()}
-                      value={fanoutMint.data.mint.toString()}
-                    >
-                      {paymentMintConfig[fanoutMint.data.mint.toString()]
-                        ? paymentMintConfig[fanoutMint.data.mint.toString()]
-                            ?.name
-                        : shortPubKey(fanoutMint.data.mint.toString())}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div className="mb-5">
-            <p className="font-bold uppercase tracking-wide text-md mb-1">
-              Fanout Address:{' '}
-              <a
-                className="hover:text-blue-500 transition"
-                target="_blank"
-                rel="noopener noreferrer"
-                href={pubKeyUrl(fanoutData.data?.fanoutId, environment.label)}
-              >
-                {shortPubKey(fanoutData.data?.fanoutId.toString())}
-              </a>
-            </p>
-            {selectedFanoutMint ? (
-              <p className="font-bold uppercase tracking-wide text-md mb-1">
-                {selectedFanoutMint.config.symbol} Wallet Token Account:{' '}
-                <a
-                  className="hover:text-blue-500 transition"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={pubKeyUrl(
-                    selectedFanoutMint.data.tokenAccount,
-                    environment.label
-                  )}
-                >
-                  {shortPubKey(selectedFanoutMint.data.tokenAccount)}
-                </a>
-              </p>
-            ) : (
-              <p className="font-bold uppercase tracking-wide text-md mb-1">
-                Sol Wallet Address:{' '}
-                <a
-                  className="hover:text-blue-500 transition"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={pubKeyUrl(
-                    fanoutData.data?.nativeAccount,
-                    environment.label
-                  )}
-                >
-                  {shortPubKey(fanoutData.data?.nativeAccount)}
-                </a>
-              </p>
-            )}
-            <p className="font-bold uppercase tracking-wide text-md mb-1">
-              Total Members: {fanoutData.data?.fanout?.totalMembers.toString()}
-            </p>
-            <ul className="list-disc ml-6">
-              {!fanoutMembershipVouchers.data ? (
-                <>
-                  <li className="mb-1 animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></li>
-                  <li className="mb-1 animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></li>
-                  <li className="mb-1 animate h-6 w-24 animate-pulse bg-gray-200 rounded-md"></li>
-                </>
-              ) : (
-                fanoutMembershipVouchers.data?.map((voucher, i) => (
-                  <li
-                    key={voucher.pubkey.toString()}
-                    className="relative font-bold uppercase tracking-wide text-md mb-1"
-                  >
-                    <div className="flex">
-                      {mounted ? shortPubKey(voucher.parsed.membershipKey) : '...'}
-                      <span className="ml-2 hover:text-blue-500 transition">
-                        <>
-                          {`(${voucher.parsed.shares.toString()} shares, `}
-                          {selectedFanoutMint
-                            ? fanoutMembershipMintVouchers.data &&
-                              fanoutMembershipMintVouchers.data.length > 0
-                              ? `${
-                                  Number(
-                                    getMintNaturalAmountFromDecimal(
-                                      Number(
-                                        fanoutMembershipMintVouchers.data.filter(
-                                          (v) =>
-                                            v.pubkey.toString() ===
-                                            voucherMapping[
-                                              voucher.pubkey.toString()
-                                            ]
-                                        )[0]?.parsed.lastInflow
-                                      ),
-                                      selectedFanoutMint.info.decimals
-                                    )
-                                  ) *
-                                  (Number(voucher.parsed.shares) / 100)
-                                } ${selectedFanoutMint.config.symbol} claimed)`
-                              : `0 ${selectedFanoutMint.config.symbol} claimed)`
-                            : `${
-                                parseInt(
-                                  voucher.parsed.totalInflow.toString()
-                                ) / 1e9
-                              }◎ claimed)`}
-                        </>
-                      </span>
-                    </div>
-                  </li>
-                ))
-              )}
-            </ul>
-            <p className="font-bold uppercase tracking-wide text-md mb-1">
-              Total Shares: {fanoutData.data?.fanout?.totalShares.toString()}
-            </p>
-          </div>
-          <div className="flex">
-            <AsyncButton
-              type="button"
-              variant="primary"
-              bgColor="rgb(96 165 250)"
-              className="bg-blue-400 text-white hover:bg-blue-500 px-3 py-2 rounded-md mr-2"
-              handleClick={async () =>
-                fanoutData.data && distributeShare(fanoutData.data, true)
-              }
-            >
-              Distribute To All
-            </AsyncButton>
-            {fanoutData.data &&
-              fanoutData.data.fanout.authority.toString() ===
-                wallet.publicKey?.toString() && (
-                <AsyncButton
-                  type="button"
-                  variant="primary"
-                  bgColor="rgb(156 163 175)"
-                  className="bg-gray-400 text-white hover:bg-blue-500 px-3 py-2 rounded-md "
-                  handleClick={async () => addSplToken()}
-                >
-                  Add SPL Token
-                </AsyncButton>
-              )}
-          </div>
+    <DashboardLayout>
+      <div className="space-y-14">
+        {/* Heading */}
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-semibold tracking-tight bg-gradient-to-r from-white via-gray-200 to-gray-400 bg-clip-text text-transparent">
+            {mounted && fanoutData.data?.fanout?.name ? 
+              String(fanoutData.data.fanout.name) : 
+              <span className="inline-block h-10 w-64 animate-pulse rounded-md bg-gray-700/30" />
+            }
+          </h1>
+          <p className="text-gray-400 text-sm md:text-base max-w-2xl mx-auto">
+            Treasury wallet management and distribution
+          </p>
         </div>
-      </main>
-    </div>
+        
+        {/* Metrics */}
+        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            title="Total Inflow"
+            subtitle="All-time received"
+            color="green"
+            mounted={mounted}
+            value={selectedFanoutMint ? (
+              `${Number(
+                getMintNaturalAmountFromDecimal(
+                  Number(selectedFanoutMint.data.totalInflow),
+                  selectedFanoutMint.info.decimals
+                )
+              )}`
+            ) : fanoutData.data?.fanout ? (
+              `${parseInt(
+                fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
+              ) / 1e9}`
+            ) : (
+              '--'
+            )}
+            unit={selectedFanoutMint ? selectedFanoutMint.config.symbol : 'SOL'}
+          />
+          <StatCard
+            title="Current Balance"
+            subtitle="Available now"
+            color="blue"
+            mounted={mounted}
+            value={selectedFanoutMint ? (
+              `${selectedFanoutMint.balance}`
+            ) : (
+              `${fanoutData.data?.balance || '--'}`
+            )}
+            unit={selectedFanoutMint ? selectedFanoutMint.config.symbol : 'SOL'}
+          />
+          <StatCard
+            title="Members"
+            subtitle="Active wallets"
+            color="orange"
+            mounted={mounted}
+            value={`${fanoutData.data?.fanout?.totalMembers || '--'}`}
+          />
+          <StatCard
+            title="Total Shares"
+            subtitle="Distribution units"
+            color="orange"
+            mounted={mounted}
+            value={`${fanoutData.data?.fanout?.totalShares || '--'}`}
+          />
+        </div>
+      </div>
+    </DashboardLayout>
   )
 }
 

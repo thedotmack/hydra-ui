@@ -3,6 +3,7 @@ import { useState } from "react"
 import { Sidebar } from "./Sidebar"
 import { ModernHeader } from "./ModernHeader"
 import { cn } from "@/lib/utils"
+import { SiteFooter } from "./SiteFooter"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -13,7 +14,7 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   return (
-    <div className="flex min-h-screen w-full bg-[radial-gradient(circle_at_top,_rgba(60,60,70,0.15),_transparent_70%)] bg-gray-950 text-gray-100 overflow-hidden">
+  <div className="flex min-h-screen w-full bg-[radial-gradient(circle_at_top,_rgba(60,60,70,0.15),_transparent_70%)] bg-gray-950 text-gray-100 overflow-hidden font-body">
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -31,12 +32,13 @@ export function DashboardLayout({ children, className }: DashboardLayoutProps) {
 
         {/* Page Content */}
         <main className={cn(
-          "flex-1 min-h-[calc(100vh-4rem)] w-full pb-16 overflow-x-hidden",
+          "flex-1 min-h-[calc(100vh-4rem)] w-full pb-10 overflow-x-hidden flex flex-col",
           className
         )}>
-          <div className="max-w-7xl mx-auto w-full px-6 md:px-8 pt-10">
+          <div className="flex-1 max-w-7xl mx-auto w-full px-6 md:px-8 pt-10">
             {children}
           </div>
+          <SiteFooter />
         </main>
       </div>
     </div>

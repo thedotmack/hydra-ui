@@ -5,6 +5,9 @@
 Defined in `pages/styles.css`:
 - --color-accent / --color-accent-ring: Primary accent (purple glow)
 - --glass-bg / --glass-bg-alt: Core translucent backgrounds
+#### 2025-08 Accent Update
+- Primary accent switched to gold (`--color-accent`) aligning with docs visual language; legacy purple moved to `--color-accent-alt`. Luminous gradient & legacy accent buttons now reference `--color-accent-alt*`; new solid / outline styles use gold primary.
+
 - --glass-border: Subtle inner/outer stroke color
 - --glow-accent: Shadow/glow color for accent focus / active states
 - Surface legacy (surface-1/2/3) retained for fallback; prefer glass-panel going forward.
@@ -33,6 +36,10 @@ Class utilities (in global stylesheet) provide composable visual primitives:
 `luminous` (animated gradient CTA)
 `glass` (neutral translucent container button)
 `secondary`, `minimal`, `icon`, `destructive` (legacy/edge cases)
+
+New (2025-08):
+`primarySolid` (gold filled, high emphasis)
+`secondaryOutline` (gold outline on glass / transparent)
 
 Prefer: luminous -> primary action; glass -> secondary / idle; icon -> compact control; destructive -> irreversible.
 

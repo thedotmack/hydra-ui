@@ -4,9 +4,7 @@ import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey, Transaction } from '@solana/web3.js'
-import { AsyncButton } from 'common/Button'
 import { AsyncTextureButton } from '@/components/ui/async-texture-button'
-import { Header } from 'common/Header'
 import { notify } from 'common/Notification'
 import {
   getMintNaturalAmountFromDecimal,
@@ -29,6 +27,11 @@ import React, { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { TextureButton } from '@/components/ui/texture-button'
 import { Input } from '@/components/ui/input'
+import { KPIGrid } from '@/components/dashboard/kpi-grid'
+import { MemberList } from '@/components/dashboard/member-list'
+import { AnalyticsProvider } from '@/hooks/useAnalytics'
+import { LoadWalletPanel } from '@/components/wallet/LoadWalletPanel'
+import { CreateWalletPanel } from '@/components/wallet/CreateWalletPanel'
 
 // Reusable StatCard component
 const StatCard = ({
@@ -541,9 +544,67 @@ const Home: NextPage = () => {
     }
   }
 
+  const routeWalletId = router.query.walletId as string | undefined
+  const noWalletProvided = !routeWalletId || routeWalletId.trim().length === 0
+  const fanoutMissing = !noWalletProvided && !fanoutData.data && fanoutData.loaded && !fanoutData.refreshing
+
+  // Inline wallet load form reused from landing page (simplified)
+  const LoadWalletInline: React.FC = () => {
+    const [name, setName] = React.useState("")
+    return (
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          if(!name.trim()) return
+          router.push(`/${name.trim()}${environment.label !== 'mainnet-beta' ? `?cluster=${environment.label}` : ''}`)
+        }}
+        className="space-y-5 flex-1 flex flex-col"
+      >
+        <div className="space-y-3">
+          <label className="form-label block text-[13px] font-medium" htmlFor="walletInline">Wallet Name</label>
+          <Input
+            id="walletInline"
+            type="text"
+            placeholder="hydra-wallet"
+            value={name}
+            onChange={(e)=>setName(e.target.value)}
+            className="h-12 text-base"
+            data-focus-ring="true"
+          />
+          <p className="text-xs text-gray-500">Same name you used when creating the wallet.</p>
+        </div>
+        <TextureButton
+          type="submit"
+          variant={name.trim() ? "primarySolid" : "glass"}
+          className={"h-12 text-base font-semibold w-full" + (!name.trim() ? " btn-disabled text-gray-400" : "")}
+          disabled={!name.trim()}
+          data-focus-ring="true"
+        >
+          Load Wallet
+        </TextureButton>
+      </form>
+    )
+  }
+
   return (
+    <AnalyticsProvider>
     <DashboardLayout>
-      <div className="space-y-10">
+  <div className="space-y-10 page-offset-top">
+        {(noWalletProvided) && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 items-start mb-4">
+            <div className="lg:col-span-7 xl:col-span-6 order-2 lg:order-1 flex"><LoadWalletPanel autoFocus /></div>
+            <div className="lg:col-span-5 xl:col-span-4 order-1 lg:order-2 flex"><CreateWalletPanel /></div>
+          </div>
+        )}
+        {fanoutMissing && !noWalletProvided && (
+          <div className="glass-panel rounded-[var(--radius-xl)] p-8 md:p-10 space-y-6" data-elev="2">
+            <div>
+              <h2 className="text-2xl font-semibold mb-2 text-red-300">Wallet Not Found</h2>
+              <p className="text-sm text-gray-300">We couldn&apos;t resolve that wallet. Double-check the name or load another below.</p>
+            </div>
+            <div className="max-w-md"><LoadWalletPanel variant="compact" /></div>
+          </div>
+        )}
         {/* Error State */}
         {fanoutData.error && (
           <div className="glass-panel rounded-[var(--radius-xl)] p-6 text-center" data-elev="2">
@@ -579,69 +640,37 @@ const Home: NextPage = () => {
           </div>
         </div>
         
-        {/* Metrics */}
-        <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard
-            title="Total Inflow"
-            subtitle="All-time received"
-            color="green"
-            mounted={mounted}
-            value={selectedFanoutMint ? (
-              `${Number(
-                getMintNaturalAmountFromDecimal(
-                  Number(selectedFanoutMint.data.totalInflow),
-                  selectedFanoutMint.info.decimals
-                )
-              )}`
-            ) : fanoutData.data?.fanout ? (
-              `${parseInt(
-                fanoutData.data?.fanout?.totalInflow.toString() ?? '0'
-              ) / 1e9}`
-            ) : (
-              '--'
-            )}
-            unit={selectedFanoutMint ? selectedFanoutMint.config.symbol : 'SOL'}
-          />
-          <StatCard
-            title="Current Balance"
-            subtitle="Available now"
-            color="blue"
-            mounted={mounted}
-            value={selectedFanoutMint ? (
-              `${selectedFanoutMint.balance}`
-            ) : (
-              `${fanoutData.data?.balance || '--'}`
-            )}
-            unit={selectedFanoutMint ? selectedFanoutMint.config.symbol : 'SOL'}
-          />
-          <StatCard
-            title="Members"
-            subtitle="Active wallets"
-            color="orange"
-            mounted={mounted}
-            value={`${fanoutData.data?.fanout?.totalMembers || '--'}`}
-          />
-          <StatCard
-            title="Total Shares"
-            subtitle="Distribution units"
-            color="orange"
-            mounted={mounted}
-            value={`${fanoutData.data?.fanout?.totalShares || '--'}`}
-          />
-        </div>
+  {/* Unified Metrics (reuse KPIGrid) */}
+  <KPIGrid
+          data={fanoutData.data ? {
+            totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
+            currentBalance: selectedFanoutMint ? Number(selectedFanoutMint.balance) : Number(fanoutData.data?.balance || 0),
+            members: fanoutData.data?.fanout?.totalMembers ? Number(fanoutData.data.fanout.totalMembers) : 0,
+            totalShares: fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0,
+            lastUpdated: Date.now(),
+            topHolderPct: undefined,
+            unclaimed: undefined,
+          } : undefined}
+          loading={!fanoutData.data}
+        />
+        {fanoutData.data?.fanoutId && (
+          <script dangerouslySetInnerHTML={{ __html: `(()=>{try{const k='hydra_recent_wallets';const list=JSON.parse(localStorage.getItem(k)||'[]');const id='${fanoutData.data.fanoutId.toString()}';const name='${fanoutData.data.fanout.name?.replace(/'/g,"\'")||''}';const existing=list.filter((w)=>w.id!==id);existing.unshift({id,name});localStorage.setItem(k,JSON.stringify(existing.slice(0,12)));}catch(e){}})();` }} />
+        )}
 
         {/* Token Selection & Wallet Details */}
         <div className="grid gap-8 lg:grid-cols-2">
           {/* Token Selection */}
           <div className="glass-panel rounded-2xl p-6" data-elev="1">
               <div className="mb-4">
-                <h3 className="text-xl font-semibold text-white mb-2">Token Selection</h3>
+                <div className="eyebrow mb-2">Token</div>
+                <h3 className="text-xl font-semibold text-white tracking-tight">Token Selection</h3>
                 <p className="text-gray-400 text-sm">Choose which token to view and manage</p>
             </div>
             <select
               value={mintId || 'default'}
               onChange={(e) => selectSplToken(e.target.value)}
               className="w-full h-12 input-glass rounded-lg px-4"
+              data-focus-ring="true"
             >
               <option value="default">SOL</option>
               {fanoutMints.data?.map((fanoutMint) => (
@@ -655,7 +684,8 @@ const Home: NextPage = () => {
           {/* Wallet Addresses */}
           <div className="glass-panel rounded-2xl p-6" data-elev="1">
             <div className="mb-4">
-              <h3 className="text-xl font-semibold text-white mb-2">Wallet Addresses</h3>
+              <div className="eyebrow mb-2">Addresses</div>
+              <h3 className="text-xl font-semibold text-white tracking-tight mb-2">Wallet Addresses</h3>
               <p className="text-gray-400 text-sm">Key addresses for this treasury</p>
             </div>
             <div className="space-y-3 text-sm">
@@ -699,19 +729,16 @@ const Home: NextPage = () => {
           </div>
         </div>
 
-        {/* Members List */}
-  <div className="glass-panel rounded-2xl p-6" data-elev="2">
-          <div className="mb-6 flex justify-between items-center">
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-2">Members</h3>
-              <p className="text-gray-400 text-sm">Wallet members and their share allocations</p>
-            </div>
+        {/* Members List & Management */}
+        <div className="space-y-6">
+          <div className="flex flex-wrap gap-2 items-center">
             {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-              <div className="flex gap-2">
+              <>
                 <TextureButton
                   onClick={() => setShowAddMember(!showAddMember)}
                   variant={showAddMember ? 'glass' : 'luminous'}
                   className="h-9 px-4 text-sm"
+                  data-focus-ring="true"
                 >
                   {showAddMember ? 'Cancel' : 'Add Member'}
                 </TextureButton>
@@ -719,6 +746,7 @@ const Home: NextPage = () => {
                   onClick={() => setShowTransferShares(!showTransferShares)}
                   variant={showTransferShares ? 'glass' : 'glass'}
                   className="h-9 px-4 text-sm"
+                  data-focus-ring="true"
                 >
                   {showTransferShares ? 'Cancel' : 'Transfer Shares'}
                 </TextureButton>
@@ -727,11 +755,12 @@ const Home: NextPage = () => {
                     onClick={() => setShowStakeTokens(!showStakeTokens)}
                     variant={showStakeTokens ? 'glass' : 'glass'}
                     className="h-9 px-4 text-sm"
+                    data-focus-ring="true"
                   >
                     {showStakeTokens ? 'Cancel' : 'Stake Tokens'}
                   </TextureButton>
                 )}
-              </div>
+              </>
             )}
           </div>
           
@@ -780,6 +809,7 @@ const Home: NextPage = () => {
                     value={newMemberWallet}
                     onChange={(e) => setNewMemberWallet(e.target.value)}
                     className="h-10 input-glass text-white"
+                    data-focus-ring="true"
                   />
                 </div>
                 <div>
@@ -790,6 +820,7 @@ const Home: NextPage = () => {
                     value={newMemberShares || ''}
                     onChange={(e) => setNewMemberShares(parseInt(e.target.value) || 0)}
                     className="h-10 input-glass"
+                    data-focus-ring="true"
                   />
                 </div>
               </div>
@@ -799,6 +830,7 @@ const Home: NextPage = () => {
                   variant={(!newMemberWallet || newMemberShares <= 0) ? 'glass' : 'luminous'}
                   className="h-9 px-6"
                   disabled={!newMemberWallet || newMemberShares <= 0}
+                  data-focus-ring="true"
                 >
                   Add Member
                 </TextureButton>
@@ -811,6 +843,7 @@ const Home: NextPage = () => {
                   }}
                   variant="glass"
                   className="h-9 px-4"
+                  data-focus-ring="true"
                 >
                   Cancel
                 </TextureButton>
@@ -829,6 +862,7 @@ const Home: NextPage = () => {
                     value={transferFromMember}
                     onChange={(e) => setTransferFromMember(e.target.value)}
                     className="w-full h-10 input-glass rounded-lg px-3"
+                    data-focus-ring="true"
                   >
                     <option value="">Select member...</option>
                     {fanoutMembershipVouchers.data?.map((voucher) => (
@@ -844,6 +878,7 @@ const Home: NextPage = () => {
                     value={transferToMember}
                     onChange={(e) => setTransferToMember(e.target.value)}
                     className="w-full h-10 input-glass rounded-lg px-3"
+                    data-focus-ring="true"
                   >
                     <option value="">Select member...</option>
                     {fanoutMembershipVouchers.data?.map((voucher) => (
@@ -861,6 +896,7 @@ const Home: NextPage = () => {
                     value={transferShareAmount || ''}
                     onChange={(e) => setTransferShareAmount(parseInt(e.target.value) || 0)}
                     className="h-10 input-glass"
+                    data-focus-ring="true"
                   />
                 </div>
               </div>
@@ -870,6 +906,7 @@ const Home: NextPage = () => {
                   variant={(!transferFromMember || !transferToMember || transferShareAmount <= 0) ? 'glass' : 'luminous'}
                   className="h-9 px-6"
                   disabled={!transferFromMember || !transferToMember || transferShareAmount <= 0}
+                  data-focus-ring="true"
                 >
                   Transfer Shares
                 </TextureButton>
@@ -882,6 +919,7 @@ const Home: NextPage = () => {
                   }}
                   variant="glass"
                   className="h-9 px-4"
+                  data-focus-ring="true"
                 >
                   Cancel
                 </TextureButton>
@@ -911,6 +949,7 @@ const Home: NextPage = () => {
                       variant={stakeAmount > 0 ? "luminous" : "glass"}
                       className="h-10 px-6"
                       disabled={stakeAmount <= 0}
+                      data-focus-ring="true"
                     >
                       Stake Tokens
                     </TextureButton>
@@ -921,6 +960,7 @@ const Home: NextPage = () => {
                       }}
                       variant="glass"
                       className="h-10 px-4"
+                      data-focus-ring="true"
                     >
                       Cancel
                     </TextureButton>
@@ -930,91 +970,21 @@ const Home: NextPage = () => {
             </div>
           )}
           
-          {!fanoutMembershipVouchers.data ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-gray-800/40 animate-pulse rounded-lg" />
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {fanoutMembershipVouchers.data.map((voucher, i) => (
-                <div key={voucher.pubkey.toString()} className="flex items-center justify-between p-4 rounded-lg glass-panel" data-elev="1">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white text-sm font-semibold">
-                      {String.fromCharCode(65 + (i % 26))}
-                    </div>
-                    <div>
-                      <div className="text-white font-mono text-sm">
-                        {mounted ? shortPubKey(voucher.parsed.membershipKey) : '...'}
-                      </div>
-                      <div className="text-gray-400 text-xs">
-                        {selectedFanoutMint ?
-                          fanoutMembershipMintVouchers.data && fanoutMembershipMintVouchers.data.length > 0 ?
-                            `${Number(getMintNaturalAmountFromDecimal(
-                              Number(fanoutMembershipMintVouchers.data.filter(
-                                (v) => v.pubkey.toString() === voucherMapping[voucher.pubkey.toString()]
-                              )[0]?.parsed.lastInflow),
-                              selectedFanoutMint.info.decimals
-                            )) * (Number(voucher.parsed.shares) / 100)} ${selectedFanoutMint.config.symbol} claimed` :
-                            `0 ${selectedFanoutMint.config.symbol} claimed` :
-                          `${parseInt(voucher.parsed.totalInflow.toString()) / 1e9}◎ claimed`
-                        }
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right flex items-center gap-2">
-                    <span className="inline-block px-3 py-1 bg-purple-900/30 text-purple-300 border border-purple-500/30 rounded-lg text-sm font-medium">
-                      {voucher.parsed.shares.toString()} shares
-                    </span>
-                    <AsyncTextureButton
-                      variant="luminous"
-                      size="sm"
-                      className="h-8 px-3 text-xs font-medium"
-                      onAction={async () => {
-                        if (fanoutData.data) {
-                          await distributeShare(fanoutData.data, false, voucher.parsed.membershipKey)
-                        }
-                      }}
-                      disabled={!wallet.publicKey}
-                    >
-                      Distribute
-                    </AsyncTextureButton>
-                    {fanoutData.data && fanoutData.data.fanout.membershipModel === 2 && (
-                      <AsyncTextureButton
-                        variant="glass"
-                        size="sm"
-                        className="h-8 px-3 text-xs font-medium"
-                        onAction={async () => {
-                          if (confirm(`Unstake tokens for ${shortPubKey(voucher.parsed.membershipKey)}?`)) {
-                            await unstakeTokens(voucher.parsed.membershipKey)
-                          }
-                        }}
-                        disabled={!wallet.publicKey}
-                      >
-                        Unstake
-                      </AsyncTextureButton>
-                    )}
-                    {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-                      <AsyncTextureButton
-                        variant="glass"
-                        size="sm"
-                        className="h-8 px-3 text-xs font-medium text-red-300 hover:text-red-200"
-                        onAction={async () => {
-                          if (confirm(`Remove member ${shortPubKey(voucher.parsed.membershipKey)}?`)) {
-                            await removeMember(voucher.parsed.membershipKey)
-                          }
-                        }}
-                        disabled={!wallet.publicKey}
-                      >
-                        Remove
-                      </AsyncTextureButton>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <MemberList
+            loading={!fanoutMembershipVouchers.data}
+            members={fanoutMembershipVouchers.data?.map(v => ({
+              id: v.pubkey.toString(),
+              address: v.parsed.membershipKey.toString(),
+              shares: Number(v.parsed.shares),
+              claimed: selectedFanoutMint ? 0 : parseInt(v.parsed.totalInflow.toString()) / 1e9, // simplified
+              totalClaimable: 0,
+              lastClaim: undefined,
+            })) || []}
+            totalShares={fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0}
+            onDistributeMember={(m) => {
+              if (fanoutData.data) distributeShare(fanoutData.data, false, new PublicKey(m.address))
+            }}
+          />
         </div>
 
         {/* Actions */}
@@ -1024,6 +994,7 @@ const Home: NextPage = () => {
             className="px-6 py-3 rounded-lg font-medium"
             onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
             disabled={!wallet.publicKey}
+            data-focus-ring="true"
           >
             Distribute To All Members
           </AsyncTextureButton>
@@ -1034,13 +1005,15 @@ const Home: NextPage = () => {
               className="px-6 py-3 rounded-lg font-medium border border-[var(--glass-border)]"
               onAction={addSplToken}
               disabled={!wallet.publicKey}
+              data-focus-ring="true"
             >
               Add SPL Token
             </AsyncTextureButton>
           )}
         </div>
       </div>
-    </DashboardLayout>
+  </DashboardLayout>
+  </AnalyticsProvider>
   )
 }
 

@@ -105,12 +105,7 @@ Members stake your custom token to participate. Shares are calculated based on t
 
 ## 🔗 Useful Links
 
-- **Mainnet App**: https://hydra.metaplex.com
-- **Devnet App**: https://hydra.metaplex.com?cluster=devnet  
-- **Developer Docs**: https://developers.metaplex.com/hydra
-- **Technical Documentation**: https://github.com/metaplex-foundation/mpl-hydra
 
----
 
 ## For Developers
 
@@ -122,6 +117,22 @@ cd hydra-ui
 yarn install
 yarn dev
 ```
+
+### Typography / Design Language (August 2025 Update)
+
+The application now uses the Google fonts Lexend (headings) and Inter (body) loaded via `next/font` for optimal performance. Implementation details:
+
+- Fonts declared in `_app.tsx` with CSS variables `--font-lexend` & `--font-inter`.
+- Tailwind config maps `fontFamily.heading` and extends `fontFamily.sans` to reference those variables.
+- Global stylesheet (`pages/styles.css`) applies `var(--font-heading)` to all `h1`–`h6` elements and `var(--font-body)` to body text; utility classes `.font-heading` / `.font-body` are available.
+- Remove any legacy font imports – they were cleaned out of `_document.tsx`.
+
+Heading scale (clamp-based for responsiveness):
+H1 ~ 2.4–3.25rem, H2 ~ 1.9–2.4rem, H3 ~ 1.55–1.9rem, H4 1.35rem, H5 1.15rem, H6 0.95rem (uppercase / tracking).
+
+Body base size: 15px / 1.55 line-height; use `text-sm`, `text-base`, `md:text-lg` utilities as needed per Tailwind.
+
+For accent hero headings include the existing `hero-title` class for underline flourish.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

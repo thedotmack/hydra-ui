@@ -31,9 +31,12 @@
 	--border-strong: rgba(160,160,185,0.28);
 
 	/* Brand / accent */
-	--color-accent: oklch(0.72 0.16 300);
-	--color-accent-hover: oklch(0.72 0.16 300 / 0.85);
-	--color-accent-ring: oklch(0.78 0.15 300 / 0.55);
+	--color-accent: oklch(0.82 0.16 90); /* Gold primary */
+	--color-accent-hover: oklch(0.82 0.16 90 / 0.88);
+	--color-accent-active: oklch(0.78 0.15 90 / 1);
+	--color-accent-ring: oklch(0.88 0.15 90 / 0.55);
+	--color-accent-alt: oklch(0.72 0.16 300); /* Legacy purple now alt */
+	--color-accent-alt-ring: oklch(0.78 0.15 300 / 0.55);
 	--color-danger: oklch(0.65 0.21 25);
 
 	/* Focus */
@@ -59,6 +62,12 @@
 
 		/* Embedded noise (tiny SVG) */
 		--noise-data: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8' stitchTiles='stitch' type='fractalNoise'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+
+		/* Typography tokens (font-family vars populated by next/font in _app.tsx) */
+		--font-body: var(--font-inter), system-ui, sans-serif;
+		--font-heading: var(--font-lexend), system-ui, sans-serif;
+		--text-color: oklch(.85 .03 250 / 0.92);
+		--text-color-muted: oklch(.72 .02 250 / 0.72);
 }
 
 .dark {
@@ -117,7 +126,11 @@
 
 /* Glass Panel Utilities */
 .glass-panel { position:relative; background:var(--glass-bg); border:1px solid var(--glass-border); backdrop-filter:blur(28px) saturate(140%); border-radius:var(--radius-base); box-shadow:var(--shadow-soft); overflow:hidden; }
-.glass-panel[data-elev="primary"] { background:var(--glass-bg-alt); border-color:var(--glass-border-strong); }
+/* Unified elevation scale */
+.glass-panel[data-elev="1"] { background:var(--glass-bg); box-shadow:var(--shadow-softer); }
+.glass-panel[data-elev="2"] { background:var(--glass-bg-alt); box-shadow:var(--shadow-soft); }
+.glass-panel[data-elev="3"] { background:var(--glass-bg-alt); box-shadow:0 4px 32px -6px rgba(0,0,0,.65), 0 2px 8px -2px rgba(0,0,0,.55); }
+.glass-panel[data-state="disabled"] { opacity:.6; }
 .glass-panel::before { content:""; position:absolute; inset:0; background:var(--glass-inner-highlight); pointer-events:none; }
 .glass-panel::after { content:""; position:absolute; inset:0; background:var(--noise-data); mix-blend-mode:overlay; opacity:.03; pointer-events:none; }
 
@@ -150,7 +163,7 @@
 
 /* Hero underline */
 .hero-title { position:relative; display:inline-block; }
-.hero-title::after { content:""; position:absolute; left:0; bottom:-8px; height:3px; width:42%; background:linear-gradient(90deg,var(--glow-accent), transparent); border-radius:3px; filter:drop-shadow(0 0 4px var(--glow-accent-soft)); }
+.hero-title::after { content:""; position:absolute; left:0; bottom:-8px; height:3px; width:42%; background:linear-gradient(90deg,var(--color-accent), transparent); border-radius:3px; filter:drop-shadow(0 0 4px var(--glow-accent-soft)); }
 
 /* Vignette (optional attach on root wrapper) */
 .page-vignette::before { content:""; position:fixed; inset:0; pointer-events:none; background:radial-gradient(circle at 50% 20%, rgba(255,255,255,.05), transparent 60%), radial-gradient(circle at 80% 70%, rgba(255,255,255,.04), transparent 65%); mix-blend-mode:overlay; }
@@ -158,5 +171,53 @@
 @media (prefers-reduced-motion: reduce) {
 	.btn-luminous:hover { animation:none; }
 	.btn-luminous:hover::before { animation:none; }
+}
+
+/* Base typography */
+html, body { font-family: var(--font-body); color: var(--text-color); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+::selection { background: var(--glow-accent-soft); color:#fff; }
+
+p, ul, ol, blockquote { color: var(--text-color); }
+small, .text-muted { color: var(--text-color-muted); }
+
+/* Utility font classes (optional) */
+.font-heading { font-family: var(--font-heading); }
+.font-body { font-family: var(--font-body); }
+
+/* Eyebrow label utility */
+.eyebrow { font-family: var(--font-heading); font-size: .625rem; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 600; color: var(--text-color-muted); }
+
+/* Soft divider fade */
+.divider-fade { position:relative; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,0.18),transparent); }
+
+/* Panel top subtle highlight */
+.panel-gradient-top { position:relative; }
+.panel-gradient-top::before { content:""; position:absolute; left:0; right:0; top:0; height:42px; background:linear-gradient(180deg,rgba(255,255,255,0.07),rgba(255,255,255,0)); pointer-events:none; }
+
+/* Disabled hatch pattern */
+.disabled-hatch { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 6px, rgba(255,255,255,0.02) 6px 12px); }
+
+/* Error / validation text */
+.form-error { font-size:.65rem; color: oklch(.72 .15 25); font-weight:500; }
+.form-hint { font-size:.65rem; color: var(--text-color-muted); }
+
+/* Micro progress bar */
+.micro-progress { position:relative; height:6px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; }
+.micro-progress > span, .micro-progress > div { position:absolute; left:0; top:0; bottom:0; width:0; background:linear-gradient(90deg,var(--color-accent),var(--color-accent-hover)); border-radius:inherit; transition:width .45s var(--ease-out); }
+
+/* Disabled button clarity */
+.btn-disabled { opacity:.55 !important; cursor:not-allowed !important; position:relative; }
+.btn-disabled::after { content:""; position:absolute; inset:0; background:repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 6px, rgba(255,255,255,0.02) 6px 12px); mix-blend-mode:overlay; pointer-events:none; border-radius:inherit; }
+.btn-disabled > * { opacity:.85; }
+
+/* Page top offset helper (for consistent H1 baseline under fixed header) */
+.page-offset-top { padding-top:calc(var(--space-12) + 1.5rem); }
+
+/* Screen reader only utility */
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+
+@media (prefers-reduced-motion: reduce) {
+	.micro-progress > span, .micro-progress > div { transition:none; }
 }
 

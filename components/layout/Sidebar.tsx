@@ -71,14 +71,8 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
         className
       )}
     >
-      {/* Header */}
-  <div className="flex items-center justify-between p-6 border-b border-gray-700/40">
-        {!collapsed && (
-          <div className="font-bold text-xl text-white flex items-center gap-3">
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-            HYDRA
-          </div>
-        )}
+      {/* Header (logo moved to fixed ModernHeader) */}
+      <div className="flex items-center justify-end p-6 border-b border-gray-700/40">
         <TextureButton
           variant="glass"
           onClick={onToggle}
@@ -99,24 +93,24 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
             const Icon = item.icon
 
             return (
-              <Link key={item.href} href={getHref(item.href)}>
+              <Link key={item.href} href={getHref(item.href)} aria-current={isActive ? 'page' : undefined}>
                 <TextureButton
                   variant="glass"
                   className={cn(
                     "relative w-full justify-start gap-3 h-11 font-medium transition-colors duration-150 rounded-[var(--radius-md)] group text-sm tracking-tight pl-4 pr-3 overflow-hidden",
                     collapsed && "px-0 justify-center pl-0",
                     isActive
-                      ? "nav-item-active text-purple-200"
+                      ? "nav-item-active text-[var(--color-accent)]"
                       : "text-gray-300 hover:text-white"
                   )}
                   data-focus-ring="true"
                 >
                   <Icon className={cn(
                     "h-5 w-5 shrink-0 transition-colors duration-150 relative z-10",
-                    isActive ? "text-purple-200" : "text-gray-400 group-hover:text-purple-200"
+                    isActive ? "text-[var(--color-accent)]" : "text-gray-400 group-hover:text-[var(--color-accent)]"
                   )} />
                   {!collapsed && (
-                  <span className={cn("relative z-10", isActive ? "text-purple-200" : "group-hover:text-white") }>
+                    <span className={cn("relative z-10", isActive ? "text-[var(--color-accent)]" : "group-hover:text-white") }>
                       {item.title}
                     </span>
                   )}

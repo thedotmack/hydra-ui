@@ -1,5 +1,6 @@
 import * as React from "react";
 import { KPICard } from "./kpi-card";
+import { formatAmount } from "@/common/format";
 // Path adjusted to match actual file name (case-sensitive environments)
 import { useDataFreshness } from "@/hooks";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,13 +19,27 @@ const KPI_META: Record<string, { help?: string }> = {
 
 export const KPIGrid: React.FC<{ data?: KPIData | null; loading?: boolean; tokenSymbol?: string }> = ({ data, loading, tokenSymbol = 'SOL' }) => {
   const freshness = useDataFreshness(data?.lastUpdated ?? null);
+  // Empty state (no data yet but not loading)
+  if (!loading && !data) {
+    return (
+      <section className="flex flex-col gap-4" aria-label="Overview">
+        <div className="flex items-center justify-between px-1">
+          <h2 className="eyebrow">Overview</h2>
+        </div>
+        <div className="glass-panel rounded-xl p-6 text-sm text-[var(--text-color-muted)]" data-elev={1}>
+          <p className="font-medium text-white mb-1">No treasury metrics yet</p>
+          <p>Load or create a wallet to see balances, inflow, members, and distribution stats.</p>
+        </div>
+      </section>
+    )
+  }
   const cards: Array<{ key: string; value: React.ReactNode; sub: string; emphasis?: boolean }> = [
-    { key: 'Available', value: loading || !data ? <Skeleton className="h-7 w-20" /> : `${data.currentBalance.toFixed(6)} ${tokenSymbol}`, sub: 'Ready to distribute', emphasis: true },
-    { key: 'Total Received', value: loading || !data ? <Skeleton className="h-7 w-24" /> : `${data.totalInflow.toFixed(6)} ${tokenSymbol}`, sub: 'All-time' },
+  { key: 'Available', value: loading || !data ? <Skeleton className="h-7 w-20" /> : `${formatAmount(data.currentBalance)} ${tokenSymbol}`, sub: 'Ready to distribute', emphasis: true },
+  { key: 'Total Received', value: loading || !data ? <Skeleton className="h-7 w-24" /> : `${formatAmount(data.totalInflow)} ${tokenSymbol}`, sub: 'All-time' },
     { key: 'Members', value: loading || !data ? <Skeleton className="h-7 w-10" /> : data.members, sub: 'Active wallets' },
     { key: 'Share Units', value: loading || !data ? <Skeleton className="h-7 w-10" /> : data.totalShares, sub: 'Total defined' },
-    { key: 'Top Holder', value: loading || !data ? <Skeleton className="h-7 w-14" /> : `${(data.topHolderPct ?? 0).toFixed(2)}%`, sub: 'Largest single share' },
-    { key: 'Undistributed', value: loading || !data ? <Skeleton className="h-7 w-16" /> : `${(data.unclaimed ?? 0).toFixed(6)} ${tokenSymbol}`, sub: 'Awaiting send' },
+  { key: 'Top Holder', value: loading || !data ? <Skeleton className="h-7 w-14" /> : `${formatAmount(data.topHolderPct ?? 0, { maxSig: 2, minSig: 2 })}%`, sub: 'Largest single share' },
+  { key: 'Undistributed', value: loading || !data ? <Skeleton className="h-7 w-16" /> : <span>{formatAmount(data.unclaimed ?? 0)} {tokenSymbol} <Tooltip><TooltipTrigger asChild><span className="ml-1 inline-block align-middle text-[10px] px-1 py-0.5 rounded bg-white/10 text-[var(--text-color-muted)] cursor-help" aria-describedby="undistributed-desc">Approx</span></TooltipTrigger><TooltipContent className="max-w-xs">Approximate until precise per-member accrual tracking is implemented.</TooltipContent></Tooltip><span id="undistributed-desc" className="sr-only">Approximate value</span></span>, sub: 'Awaiting send' },
   ];
   return (
     <section className="flex flex-col gap-4" aria-label="Overview">

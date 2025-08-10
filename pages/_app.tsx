@@ -8,11 +8,13 @@ import {
   getInitialProps,
 } from 'providers/EnvironmentProvider'
 import { ThemeProvider } from 'providers/ThemeProvider'
-import { useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { ToastContainer } from 'common/Notification'
 import Head from 'next/head'
 import { Inter, Lexend } from 'next/font/google'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { AnalyticsProvider, useAnalytics } from '@/hooks/useAnalytics'
+import { useRouter } from 'next/router'
 
 // Load fonts with CSS variable strategy so Tailwind & globals can consume
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter', display: 'swap' })
@@ -33,13 +35,28 @@ const App = ({
       html.classList.remove(inter.variable, lexend.variable)
     }
   }, [])
+  const router = useRouter()
+  // We'll access analytics after provider mount by rendering a nested tracker component.
+  const PageViewTracker: React.FC = () => {
+    const { track } = useAnalytics()
+    const lastPathRef = React.useRef<string | null>(null)
+    useEffect(() => {
+      if (lastPathRef.current !== router.asPath) {
+        lastPathRef.current = router.asPath
+        track({ name: 'page_view', page: router.asPath } as any)
+      }
+    })
+    return null
+  }
+
   return (
     <>
   <Head>
     <title>Hydra UI</title>
     <meta name="font-usage" content="Inter body, Lexend headings" />
   </Head>
-    <ThemeProvider
+  <AnalyticsProvider>
+  <ThemeProvider
       attribute="class"
       defaultTheme="dark"
       enableSystem={false}
@@ -56,8 +73,9 @@ const App = ({
               <ToastContainer />
               <TooltipProvider delayDuration={120} disableHoverableContent>
                 {/* Attach font CSS vars to a wrapper div */}
-                <div className={`${inter.variable} ${lexend.variable} font-sans`}> 
+                <div className={`${inter.variable} ${lexend.variable} font-sans`}>
                   <Component {...pageProps} />
+                  <PageViewTracker />
                 </div>
               </TooltipProvider>
             </>
@@ -65,7 +83,8 @@ const App = ({
 {/*         </WalletIdentityProvider>
  */}      </WalletProvider>
       </EnvironmentProvider>
-    </ThemeProvider>
+  </ThemeProvider>
+  </AnalyticsProvider>
     </>
   )
 }

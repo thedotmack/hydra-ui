@@ -2,17 +2,13 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { 
-  Home, 
-  Wallet, 
-  Users, 
-  Plus, 
-  BarChart3, 
-  Settings,
+  Home,
+  Plus,
   ChevronLeft,
   ChevronRight,
-  Coins,
-  TrendingUp,
-  Shield
+  Users,
+  ActivityIcon as Activity,
+  Settings
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { TextureButton } from "@/components/ui/texture-button"
@@ -24,32 +20,10 @@ interface SidebarProps {
   onToggle?: () => void
 }
 
-const sidebarItems = [
-  {
-    title: "Treasury",
-    href: "/",
-    icon: Home,
-  },
-  {
-    title: "Create",
-    href: "/create",
-    icon: Plus,
-  },
-  {
-    title: "Wallets",
-    href: "/wallets",
-    icon: Wallet,
-  },
-  {
-    title: "Members",
-    href: "/memberships",
-    icon: Users,
-  },
-  {
-    title: "Analytics",
-    href: "/analytics",
-    icon: TrendingUp,
-  },
+// New streamlined IA: Dashboard, Create, (contextual wallet anchors rendered dynamically when on wallet page)
+const baseNav = [
+  { title: 'Dashboard', href: '/', icon: Home },
+  { title: 'Create Wallet', href: '/create', icon: Plus },
 ]
 
 export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps) {
@@ -88,7 +62,7 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
 
       {/* Navigation */}
   <nav className="flex flex-col gap-1 px-3 py-2">
-          {sidebarItems.map((item) => {
+          {baseNav.map((item) => {
             const isActive = router.pathname === item.href
             const Icon = item.icon
 
@@ -120,13 +94,14 @@ export function Sidebar({ className, collapsed = false, onToggle }: SidebarProps
           })}
       </nav>
 
-      {/* Footer Status */}
+      {/* Footer: network + version */}
       {!collapsed && (
-  <div className="p-4 border-t border-gray-700/40">
+        <div className="mt-auto p-4 border-t border-gray-700/40 space-y-2">
           <div className="flex items-center gap-2 text-xs text-gray-400" aria-label={`Network: ${environment.label}`}>
             <span className="status-pulse" />
             <span className="capitalize">{environment.label}</span>
           </div>
+          <div className="text-[10px] text-gray-500">v0.1 IA</div>
         </div>
       )}
     </div>

@@ -5,26 +5,15 @@ export type AnalyticsEvent =
 	| { name: "page_view"; page: string }
 	| { name: "copied_value"; valueType: string }
 	| { name: "distribution_initiated"; scope: "all" | "member"; memberId?: string }
-	| { name: "members_search"; queryLength: number }
-	// Legacy events (to be removed)
-	| { name: "dashboard_mount" }
-	| { name: "copy_address"; addressType: string }
-	| { name: "distribute_click"; scope: "global" | "member"; memberId?: string }
-	| { name: "search_members"; queryLength: number };
+	| { name: "distribution_success"; scope: "all" | "member"; txCount: number; totalAmount?: number }
+	| { name: "distribution_failure"; scope: "all" | "member"; reason?: string; memberId?: string }
+	| { name: "members_search"; queryLength: number };
 interface AnalyticsContextValue { track: (e: AnalyticsEvent) => void }
 const AnalyticsContext = React.createContext<AnalyticsContextValue | null>(null);
 export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const track = React.useCallback((e: AnalyticsEvent) => {
-		// Emit normalized mirror for legacy events
-		let normalized: AnalyticsEvent | null = null
-		switch (e.name) {
-			case 'dashboard_mount': normalized = { name: 'page_view', page: 'home' }; break;
-			case 'copy_address': normalized = { name: 'copied_value', valueType: e.addressType }; break;
-			case 'distribute_click': normalized = { name: 'distribution_initiated', scope: e.scope === 'global' ? 'all' : 'member', memberId: e.memberId }; break;
-			case 'search_members': normalized = { name: 'members_search', queryLength: e.queryLength }; break;
-		}
+		// Directly emit new schema only (legacy removed)
 		console.debug('[analytics]', e)
-		if (normalized) console.debug('[analytics-normalized]', normalized)
 	}, [])
 	return (<AnalyticsContext.Provider value={{ track }}>{children}</AnalyticsContext.Provider>)
 };

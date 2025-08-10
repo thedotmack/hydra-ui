@@ -26,10 +26,13 @@ import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import React, { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { TextureButton } from '@/components/ui/texture-button'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
+import { IconChevronDown } from '@tabler/icons-react'
 import { Input } from '@/components/ui/input'
 import { KPIGrid } from '@/components/dashboard/kpi-grid'
 import { MemberList } from '@/components/dashboard/member-list'
-import { AnalyticsProvider } from '@/hooks/useAnalytics'
+import { ActivityTimeline } from '@/components/dashboard/activity-timeline'
+import { useAnalytics } from '@/hooks/useAnalytics'
 import { LoadWalletPanel } from '@/components/wallet/LoadWalletPanel'
 import { CreateWalletPanel } from '@/components/wallet/CreateWalletPanel'
 
@@ -101,6 +104,30 @@ const Home: NextPage = () => {
   const [transferShareAmount, setTransferShareAmount] = useState<number>(0)
   const [showStakeTokens, setShowStakeTokens] = useState(false)
   const [stakeAmount, setStakeAmount] = useState<number>(0)
+  const { track } = useAnalytics()
+
+  // Derived metrics (memoized): top holder percent & undistributed
+  const topHolderPct = React.useMemo(() => {
+    if (!fanoutMembershipVouchers.data?.length || !fanoutData.data?.fanout?.totalShares) return 0
+    const topShares = Math.max(...fanoutMembershipVouchers.data.map(v => parseInt(v.parsed.shares.toString())))
+    const totalShares = Number(fanoutData.data.fanout.totalShares)
+    return totalShares ? (topShares / totalShares) * 100 : 0
+  }, [fanoutMembershipVouchers.data, fanoutData.data?.fanout?.totalShares])
+
+  // For SOL: undistributed = (total inflow - total claimed across vouchers) heuristically using voucher.totalInflow field.
+  // NOTE: This is an interim approximation until precise per-member claim tracking is implemented.
+  const undistributed = React.useMemo(() => {
+    if (!fanoutData.data?.fanout) return 0
+    // totalInflow for SOL path (lamports) -> convert to SOL
+    const totalInflowLamports = fanoutData.data.fanout.totalInflow ? Number(fanoutData.data.fanout.totalInflow) : 0
+    const totalInflowSol = totalInflowLamports / 1e9
+    // Sum of member claimed (voucher.totalInflow represents historical? placeholder) convert lamports
+    const memberClaimedSol = fanoutMembershipVouchers.data?.reduce((acc, v) => acc + (parseInt(v.parsed.totalInflow.toString()) / 1e9), 0) || 0
+    const bal = fanoutData.data.balance || 0
+    // Use min of remaining based on balance and difference to avoid negative
+    const remaining = Math.max(0, Math.min(bal, totalInflowSol - memberClaimedSol))
+    return remaining
+  }, [fanoutData.data?.fanout, fanoutData.data?.balance, fanoutMembershipVouchers.data])
 
   // Hoisted function for stable reference in effects
   const selectSplToken = React.useCallback((mintId: string) => {
@@ -149,6 +176,24 @@ const Home: NextPage = () => {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  // Persist this wallet in "recently accessed" list (replaces prior inline <script>)
+  useEffect(() => {
+    if (!fanoutData.data?.fanoutId) return
+    try {
+      const STORAGE_KEY = 'hydra_recent_wallets'
+      type RecentWallet = { id: string; name: string }
+      const raw = localStorage.getItem(STORAGE_KEY)
+      const list: RecentWallet[] = raw ? JSON.parse(raw) : []
+      const id = fanoutData.data.fanoutId.toString()
+      const name = (fanoutData.data.fanout?.name || '').toString()
+      const deduped = list.filter((w) => w.id !== id)
+      deduped.unshift({ id, name })
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(deduped.slice(0, 12)))
+    } catch (e) {
+      // Non-fatal; ignore persistence errors (e.g., private mode)
+    }
+  }, [fanoutData.data?.fanoutId, fanoutData.data?.fanout?.name])
 
   async function addSplToken() {
     if (fanoutData.data?.fanoutId) {
@@ -438,6 +483,9 @@ const Home: NextPage = () => {
     }
   }
 
+  const [distTotal, setDistTotal] = React.useState<number | null>(null)
+  const [distDone, setDistDone] = React.useState(0)
+  const [distInFlight, setDistInFlight] = React.useState(false)
 
   const distributeShare = async (
     fanoutData: FanoutData,
@@ -451,6 +499,10 @@ const Home: NextPage = () => {
           if (fanoutMembershipVouchers.data) {
             const distributionMemberSize = 5
             const vouchers = fanoutMembershipVouchers.data
+            setDistTotal(vouchers.length)
+            setDistDone(0)
+            setDistInFlight(true)
+            let successfulTx = 0
             for (let i = 0; i < vouchers.length; i += distributionMemberSize) {
               let transaction = new Transaction()
               const chunk = vouchers.slice(i, i + distributionMemberSize)
@@ -489,6 +541,7 @@ const Home: NextPage = () => {
               console.info('Tx sig:', signature)
 
               await connection.confirmTransaction(signature, 'confirmed')
+              successfulTx += 1
 
               const numTransactions = Math.ceil(vouchers.length / 5)
               notify({
@@ -502,10 +555,15 @@ const Home: NextPage = () => {
                 } / ${vouchers.length} from ${fanoutData.fanout.name}`,
                 type: 'success',
               })
+        setDistDone(() => Math.min(vouchers.length, i + distributionMemberSize))
             }
+            // Analytics success for all-members distribution
+            track({ name: 'distribution_success', scope: 'all', txCount: successfulTx } as any)
           } else {
             throw 'No membership data found'
           }
+      setDistInFlight(false)
+      setTimeout(()=>{ setDistTotal(null); setDistDone(0); }, 4000)
         } else {
           // Individual member distribution
           const targetMember = specificMember || wallet.publicKey
@@ -534,13 +592,16 @@ const Home: NextPage = () => {
             } from ${fanoutData.fanout.name}`,
             type: 'success',
           })
+          track({ name: 'distribution_success', scope: 'member', txCount: 1, memberId: specificMember?.toString() || wallet.publicKey.toString() } as any)
         }
       }
     } catch (e) {
+  track({ name: 'distribution_failure', scope: addAllMembers ? 'all' : 'member', reason: String(e), memberId: specificMember?.toString() } as any)
       notify({
         message: `Error claiming your share: ${e}`,
         type: 'error',
       })
+  setDistInFlight(false)
     }
   }
 
@@ -587,9 +648,10 @@ const Home: NextPage = () => {
   }
 
   return (
-    <AnalyticsProvider>
     <DashboardLayout>
   <div className="space-y-10 page-offset-top">
+  {/* Live status region for screen readers (distribution progress, etc.) */}
+  <div aria-live="polite" className="sr-only" id="live-status" />
         {(noWalletProvided) && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 items-start mb-4">
             <div className="lg:col-span-7 xl:col-span-6 order-2 lg:order-1 flex"><LoadWalletPanel autoFocus /></div>
@@ -648,14 +710,24 @@ const Home: NextPage = () => {
             members: fanoutData.data?.fanout?.totalMembers ? Number(fanoutData.data.fanout.totalMembers) : 0,
             totalShares: fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0,
             lastUpdated: Date.now(),
-            topHolderPct: undefined,
-            unclaimed: undefined,
+            topHolderPct,
+            unclaimed: undistributed,
           } : undefined}
           loading={!fanoutData.data}
         />
-        {fanoutData.data?.fanoutId && (
-          <script dangerouslySetInnerHTML={{ __html: `(()=>{try{const k='hydra_recent_wallets';const list=JSON.parse(localStorage.getItem(k)||'[]');const id='${fanoutData.data.fanoutId.toString()}';const name='${fanoutData.data.fanout.name?.replace(/'/g,"\'")||''}';const existing=list.filter((w)=>w.id!==id);existing.unshift({id,name});localStorage.setItem(k,JSON.stringify(existing.slice(0,12)));}catch(e){}})();` }} />
-        )}
+  {distInFlight && distTotal !== null && (
+    <div className="glass-panel rounded-xl p-4 flex flex-col gap-3" data-elev={1} aria-live="polite">
+      <div className="flex items-center justify-between text-xs text-[var(--text-color-muted)]">
+        <span>Distribution in progress</span>
+        <span>{distDone} / {distTotal}</span>
+      </div>
+      <div className="micro-progress" aria-hidden>
+        <span style={{ width: `${distTotal > 0 ? Math.min(100, (distDone / distTotal) * 100) : 0}%` }} />
+      </div>
+      <p className="text-[11px] text-[var(--text-color-muted)]">Processing batched transactions. Safe to keep browsing.</p>
+    </div>
+  )}
+  {/* Recent wallet persistence handled via useEffect above */}
 
         {/* Token Selection & Wallet Details */}
         <div className="grid gap-8 lg:grid-cols-2">
@@ -696,6 +768,7 @@ const Home: NextPage = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
+                  aria-label={`Fanout address ${fanoutData.data?.fanoutId?.toString()}`}
                 >
                   {shortPubKey(fanoutData.data?.fanoutId?.toString())}
                 </a>
@@ -708,6 +781,7 @@ const Home: NextPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
+                    aria-label={`${selectedFanoutMint.config.symbol} token account ${selectedFanoutMint.data.tokenAccount}`}
                   >
                     {shortPubKey(selectedFanoutMint.data.tokenAccount)}
                   </a>
@@ -720,6 +794,7 @@ const Home: NextPage = () => {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
+                    aria-label={`Native SOL account ${fanoutData.data?.nativeAccount?.toString()}`}
                   >
                     {shortPubKey(fanoutData.data?.nativeAccount)}
                   </a>
@@ -731,38 +806,30 @@ const Home: NextPage = () => {
 
         {/* Members List & Management */}
         <div className="space-y-6">
-          <div className="flex flex-wrap gap-2 items-center">
-            {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-              <>
-                <TextureButton
-                  onClick={() => setShowAddMember(!showAddMember)}
-                  variant={showAddMember ? 'glass' : 'luminous'}
-                  className="h-9 px-4 text-sm"
-                  data-focus-ring="true"
-                >
-                  {showAddMember ? 'Cancel' : 'Add Member'}
-                </TextureButton>
-                <TextureButton
-                  onClick={() => setShowTransferShares(!showTransferShares)}
-                  variant={showTransferShares ? 'glass' : 'glass'}
-                  className="h-9 px-4 text-sm"
-                  data-focus-ring="true"
-                >
-                  {showTransferShares ? 'Cancel' : 'Transfer Shares'}
-                </TextureButton>
-                {fanoutData.data.fanout.membershipModel === 2 && (
-                  <TextureButton
-                    onClick={() => setShowStakeTokens(!showStakeTokens)}
-                    variant={showStakeTokens ? 'glass' : 'glass'}
-                    className="h-9 px-4 text-sm"
-                    data-focus-ring="true"
-                  >
-                    {showStakeTokens ? 'Cancel' : 'Stake Tokens'}
-                  </TextureButton>
-                )}
-              </>
-            )}
-          </div>
+    {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+            <div className="flex items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+      <TextureButton variant="luminous" className="h-9 px-4 text-sm flex items-center gap-1" data-focus-ring="true">Manage <IconChevronDown className="size-4" /></TextureButton>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent side="bottom" align="start" className="min-w-48">
+                  <DropdownMenuItem onClick={() => { setShowAddMember(s => !s); setShowTransferShares(false); setShowStakeTokens(false) }}>
+                    {showAddMember ? 'Close Add Member' : 'Add Member'}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => { setShowTransferShares(s => !s); setShowAddMember(false); setShowStakeTokens(false) }}>
+                    {showTransferShares ? 'Close Transfer Shares' : 'Transfer Shares'}
+                  </DropdownMenuItem>
+                  {fanoutData.data.fanout.membershipModel === 2 && (
+                    <DropdownMenuItem onClick={() => { setShowStakeTokens(s => !s); setShowAddMember(false); setShowTransferShares(false) }}>
+                      {showStakeTokens ? 'Close Stake Tokens' : 'Stake Tokens'}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => { setShowAddMember(false); setShowTransferShares(false); setShowStakeTokens(false) }}>Collapse All Forms</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
           
           {/* Add Member Form */}
           {showAddMember && (
@@ -970,34 +1037,53 @@ const Home: NextPage = () => {
             </div>
           )}
           
+          {/** Memoized members mapping */}
           <MemberList
             loading={!fanoutMembershipVouchers.data}
-            members={fanoutMembershipVouchers.data?.map(v => ({
-              id: v.pubkey.toString(),
-              address: v.parsed.membershipKey.toString(),
-              shares: Number(v.parsed.shares),
-              claimed: selectedFanoutMint ? 0 : parseInt(v.parsed.totalInflow.toString()) / 1e9, // simplified
-              totalClaimable: 0,
-              lastClaim: undefined,
-            })) || []}
+            members={React.useMemo(() => (
+              fanoutMembershipVouchers.data?.map(v => ({
+                id: v.pubkey.toString(),
+                address: v.parsed.membershipKey.toString(),
+                shares: Number(v.parsed.shares),
+                claimed: selectedFanoutMint ? 0 : parseInt(v.parsed.totalInflow.toString()) / 1e9,
+                totalClaimable: fanoutData.data?.fanout?.totalShares ? (undistributed * (Number(v.parsed.shares) / Number(fanoutData.data.fanout.totalShares))) : 0,
+                lastClaim: undefined,
+              })) || []
+            ), [fanoutMembershipVouchers.data, selectedFanoutMint, undistributed, fanoutData.data?.fanout?.totalShares])}
             totalShares={fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0}
             onDistributeMember={(m) => {
               if (fanoutData.data) distributeShare(fanoutData.data, false, new PublicKey(m.address))
             }}
           />
+          {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length === 0 && fanoutData.data && (
+            <div className="glass-panel rounded-xl p-6 text-sm text-[var(--text-color-muted)]" data-elev={1}>
+              <p className="font-medium text-white mb-1">No Members Yet</p>
+              <p className="mb-4">Add members with share units to enable distributions.</p>
+              {fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+                <TextureButton variant="luminous" className="h-9 px-5" onClick={() => { setShowAddMember(true); }} data-focus-ring="true">Add First Member</TextureButton>
+              )}
+            </div>
+          )}
         </div>
+
+  {/* Activity Timeline (scaffold) */}
+  <ActivityTimeline events={[]} loading={false} />
 
         {/* Actions */}
         <div className="flex flex-wrap gap-4">
-          <AsyncTextureButton
-            variant="luminous"
-            className="px-6 py-3 rounded-lg font-medium"
-            onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
-            disabled={!wallet.publicKey}
-            data-focus-ring="true"
-          >
-            Distribute To All Members
-          </AsyncTextureButton>
+          <div className="flex flex-col gap-1">
+            <AsyncTextureButton
+              variant="luminous"
+              className="px-6 py-3 rounded-lg font-medium"
+              onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
+              disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
+              data-focus-ring="true"
+            >
+              Distribute To All Members
+            </AsyncTextureButton>
+            {(!wallet.publicKey) && <span className="text-[11px] text-[var(--text-color-muted)]">Connect a wallet to distribute.</span>}
+            {(wallet.publicKey && fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length === 0) && <span className="text-[11px] text-[var(--text-color-muted)]">Add at least one member first.</span>}
+          </div>
           {fanoutData.data &&
             fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
             <AsyncTextureButton
@@ -1013,7 +1099,6 @@ const Home: NextPage = () => {
         </div>
       </div>
   </DashboardLayout>
-  </AnalyticsProvider>
   )
 }
 

@@ -89,6 +89,12 @@
 	outline: none;
 	box-shadow: var(--focus-ring);
 }
+/* Provide a default fallback for interactive elements when attribute not set */
+button:focus-visible:not([data-focus-ring="false"]),
+a:focus-visible:not([data-focus-ring="false"]) {
+	outline: none;
+	box-shadow: var(--focus-ring);
+}
 
 /* Wallet adapter button restyle using tokens (removes inline gradient styles) */
 .wallet-adapter-button:not([disabled]) {

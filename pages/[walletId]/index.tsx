@@ -1,6 +1,7 @@
 // DisplayAddress requires WalletIdentity provider, using shortPubKey instead
 import { executeTransaction } from 'common/Transactions'
 import { FanoutClient } from '@metaplex-foundation/mpl-hydra/dist/src'
+import { buildRemoveMemberInstructions, buildTransferSharesInstructions } from 'lib/hydraWrappers'
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey, Transaction } from '@solana/web3.js'
@@ -33,8 +34,11 @@ import { KPIGrid } from '@/components/dashboard/kpi-grid'
 import { MemberList } from '@/components/dashboard/member-list'
 import { ActivityTimeline } from '@/components/dashboard/activity-timeline'
 import { useAnalytics } from '@/hooks/useAnalytics'
+import { WalletHubPanels } from '@/components/wallet/WalletHubPanels'
+import { ProgressBar } from '@/components/ui/progress-bar'
+import { Skeleton } from '@/components/ui/skeleton'
 import { LoadWalletPanel } from '@/components/wallet/LoadWalletPanel'
-import { CreateWalletPanel } from '@/components/wallet/CreateWalletPanel'
+import { WalletContextPanel } from '@/components/wallet/WalletContextPanel'
 
 // Reusable StatCard component
 const StatCard = ({
@@ -69,7 +73,7 @@ const StatCard = ({
       </div>
       <div className="relative flex items-end gap-2">
         <div className="text-3xl font-semibold leading-none bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
-          {mounted ? displayValue : <span className="h-6 w-20 bg-gray-700/40 animate-pulse rounded" />}
+    {mounted ? displayValue : <Skeleton className="h-6 w-20" />}
         </div>
         {unit && <span className="text-sm text-gray-400 pb-1 font-medium">{unit}</span>}
       </div>
@@ -310,11 +314,10 @@ const Home: NextPage = () => {
         throw 'Member not found'
       }
 
-      const removeMemberInstructions = await fanoutSdk.removeMemberInstructions({
+      const removeMemberInstructions = await buildRemoveMemberInstructions(fanoutSdk, {
         fanout: fanoutData.data.fanoutId,
-        // TODO: verify correct argument name; temporary cast applied
         membershipAccount: membershipVoucher.pubkey,
-      } as any)
+      })
       
       transaction.add(...removeMemberInstructions.instructions)
       await executeTransaction(connection, wallet as Wallet, transaction, {})
@@ -364,15 +367,14 @@ const Home: NextPage = () => {
       const fanoutSdk = new FanoutClient(connection, asWallet(wallet))
       const transaction = new Transaction()
       
-      const transferSharesInstructions = await fanoutSdk.transferSharesInstructions({
+      const transferSharesInstructions = await buildTransferSharesInstructions(fanoutSdk, {
         fanout: fanoutData.data.fanoutId,
         fromMember: fromMemberPK,
         toMember: toMemberPK,
-        // TODO: verify arg names in SDK; using cast to unblock
         fromMembershipAccount: fromMembershipVoucher.pubkey,
         toMembershipAccount: toMembershipVoucher.pubkey,
         shares: transferShareAmount,
-      } as any)
+      })
       
       transaction.add(...transferSharesInstructions.instructions)
       await executeTransaction(connection, wallet as Wallet, transaction, {})
@@ -558,7 +560,7 @@ const Home: NextPage = () => {
         setDistDone(() => Math.min(vouchers.length, i + distributionMemberSize))
             }
             // Analytics success for all-members distribution
-            track({ name: 'distribution_success', scope: 'all', txCount: successfulTx } as any)
+            track({ name: 'distribution_success', scope: 'all', txCount: successfulTx })
           } else {
             throw 'No membership data found'
           }
@@ -592,11 +594,11 @@ const Home: NextPage = () => {
             } from ${fanoutData.fanout.name}`,
             type: 'success',
           })
-          track({ name: 'distribution_success', scope: 'member', txCount: 1, memberId: specificMember?.toString() || wallet.publicKey.toString() } as any)
+          track({ name: 'distribution_success', scope: 'member', txCount: 1, memberId: specificMember?.toString() || wallet.publicKey.toString() })
         }
       }
     } catch (e) {
-  track({ name: 'distribution_failure', scope: addAllMembers ? 'all' : 'member', reason: String(e), memberId: specificMember?.toString() } as any)
+  track({ name: 'distribution_failure', scope: addAllMembers ? 'all' : 'member', reason: String(e), memberId: specificMember?.toString() })
       notify({
         message: `Error claiming your share: ${e}`,
         type: 'error',
@@ -636,7 +638,7 @@ const Home: NextPage = () => {
         </div>
         <TextureButton
           type="submit"
-          variant={name.trim() ? "primarySolid" : "glass"}
+          variant={name.trim() ? "primary" : "glass"}
           className={"h-12 text-base font-semibold w-full" + (!name.trim() ? " btn-disabled text-gray-400" : "")}
           disabled={!name.trim()}
           data-focus-ring="true"
@@ -649,15 +651,10 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-  <div className="space-y-10 page-offset-top">
+  <div className="space-y-8 page-offset-top">
   {/* Live status region for screen readers (distribution progress, etc.) */}
   <div aria-live="polite" className="sr-only" id="live-status" />
-        {(noWalletProvided) && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 items-start mb-4">
-            <div className="lg:col-span-7 xl:col-span-6 order-2 lg:order-1 flex"><LoadWalletPanel autoFocus /></div>
-            <div className="lg:col-span-5 xl:col-span-4 order-1 lg:order-2 flex"><CreateWalletPanel /></div>
-          </div>
-        )}
+  {(noWalletProvided) && (<WalletHubPanels className="mb-4" />)}
         {fanoutMissing && !noWalletProvided && (
           <div className="glass-panel rounded-[var(--radius-xl)] p-8 md:p-10 space-y-6" data-elev="2">
             <div>
@@ -684,10 +681,11 @@ const Home: NextPage = () => {
         {/* Heading */}
         <div className="text-center space-y-4">
           <h1 className="hero-title text-4xl font-semibold tracking-tight">
-            {mounted && fanoutData.data?.fanout?.name ? 
-              String(fanoutData.data.fanout.name) : 
-              <span className="inline-block h-10 w-64 animate-pulse rounded-md bg-gray-700/30" />
-            }
+            {mounted && fanoutData.data?.fanout?.name ? (
+              String(fanoutData.data.fanout.name)
+            ) : (
+              <Skeleton variant="title" className="w-64" />
+            )}
           </h1>
           <div className="flex items-center justify-center gap-4">
             <p className="text-gray-400 text-sm md:text-base">
@@ -703,6 +701,7 @@ const Home: NextPage = () => {
         </div>
         
   {/* Unified Metrics (reuse KPIGrid) */}
+  <div id="overview" />
   <KPIGrid
           data={fanoutData.data ? {
             totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
@@ -721,91 +720,14 @@ const Home: NextPage = () => {
         <span>Distribution in progress</span>
         <span>{distDone} / {distTotal}</span>
       </div>
-      <div className="micro-progress" aria-hidden>
-        <span style={{ width: `${distTotal > 0 ? Math.min(100, (distDone / distTotal) * 100) : 0}%` }} />
-      </div>
+      <ProgressBar value={distDone} max={distTotal} label="Distribution progress" />
       <p className="text-[11px] text-[var(--text-color-muted)]">Processing batched transactions. Safe to keep browsing.</p>
     </div>
   )}
-  {/* Recent wallet persistence handled via useEffect above */}
-
-        {/* Token Selection & Wallet Details */}
-        <div className="grid gap-8 lg:grid-cols-2">
-          {/* Token Selection */}
-          <div className="glass-panel rounded-2xl p-6" data-elev="1">
-              <div className="mb-4">
-                <div className="eyebrow mb-2">Token</div>
-                <h3 className="text-xl font-semibold text-white tracking-tight">Token Selection</h3>
-                <p className="text-gray-400 text-sm">Choose which token to view and manage</p>
-            </div>
-            <select
-              value={mintId || 'default'}
-              onChange={(e) => selectSplToken(e.target.value)}
-              className="w-full h-12 input-glass rounded-lg px-4"
-              data-focus-ring="true"
-            >
-              <option value="default">SOL</option>
-              {fanoutMints.data?.map((fanoutMint) => (
-                <option key={fanoutMint.id.toString()} value={fanoutMint.data.mint.toString()}>
-                  {paymentMintConfig[fanoutMint.data.mint.toString()]?.name || shortPubKey(fanoutMint.data.mint.toString())}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Wallet Addresses */}
-          <div className="glass-panel rounded-2xl p-6" data-elev="1">
-            <div className="mb-4">
-              <div className="eyebrow mb-2">Addresses</div>
-              <h3 className="text-xl font-semibold text-white tracking-tight mb-2">Wallet Addresses</h3>
-              <p className="text-gray-400 text-sm">Key addresses for this treasury</p>
-            </div>
-            <div className="space-y-3 text-sm">
-              <div>
-                <span className="text-gray-400">Fanout Address:</span>
-                <a
-                  href={pubKeyUrl(fanoutData.data?.fanoutId, environment.label)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
-                  aria-label={`Fanout address ${fanoutData.data?.fanoutId?.toString()}`}
-                >
-                  {shortPubKey(fanoutData.data?.fanoutId?.toString())}
-                </a>
-              </div>
-              {selectedFanoutMint ? (
-                <div>
-                  <span className="text-gray-400">{selectedFanoutMint.config.symbol} Token Account:</span>
-                  <a
-                    href={pubKeyUrl(selectedFanoutMint.data.tokenAccount, environment.label)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
-                    aria-label={`${selectedFanoutMint.config.symbol} token account ${selectedFanoutMint.data.tokenAccount}`}
-                  >
-                    {shortPubKey(selectedFanoutMint.data.tokenAccount)}
-                  </a>
-                </div>
-              ) : (
-                <div>
-                  <span className="text-gray-400">SOL Wallet:</span>
-                  <a
-                    href={pubKeyUrl(fanoutData.data?.nativeAccount, environment.label)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="ml-2 text-blue-400 hover:text-blue-300 font-mono"
-                    aria-label={`Native SOL account ${fanoutData.data?.nativeAccount?.toString()}`}
-                  >
-                    {shortPubKey(fanoutData.data?.nativeAccount)}
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Members List & Management */}
-        <div className="space-y-6">
+  {/* Two-column main content */}
+  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+    <div className="space-y-6 min-w-0">
+      {/* Members List & Management */}
     {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
             <div className="flex items-center">
               <DropdownMenu>
@@ -1064,39 +986,41 @@ const Home: NextPage = () => {
               )}
             </div>
           )}
-        </div>
-
-  {/* Activity Timeline (scaffold) */}
-  <ActivityTimeline events={[]} loading={false} />
-
-        {/* Actions */}
-        <div className="flex flex-wrap gap-4">
-          <div className="flex flex-col gap-1">
+        {/* Inline actions under list when members exist */}
+        {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (
+          <div className="flex flex-wrap gap-3 items-center">
             <AsyncTextureButton
               variant="luminous"
-              className="px-6 py-3 rounded-lg font-medium"
+              className="h-9 px-5 text-sm font-medium"
               onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
               disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
               data-focus-ring="true"
-            >
-              Distribute To All Members
-            </AsyncTextureButton>
-            {(!wallet.publicKey) && <span className="text-[11px] text-[var(--text-color-muted)]">Connect a wallet to distribute.</span>}
-            {(wallet.publicKey && fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length === 0) && <span className="text-[11px] text-[var(--text-color-muted)]">Add at least one member first.</span>}
+            >Distribute All</AsyncTextureButton>
+            {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+              <AsyncTextureButton
+                variant="glass"
+                className="h-9 px-4 text-sm font-medium"
+                onAction={addSplToken}
+                disabled={!wallet.publicKey}
+                data-focus-ring="true"
+              >Add SPL Token</AsyncTextureButton>
+            )}
           </div>
-          {fanoutData.data &&
-            fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-            <AsyncTextureButton
-              variant="glass"
-              className="px-6 py-3 rounded-lg font-medium border border-[var(--glass-border)]"
-              onAction={addSplToken}
-              disabled={!wallet.publicKey}
-              data-focus-ring="true"
-            >
-              Add SPL Token
-            </AsyncTextureButton>
-          )}
-        </div>
+        )}
+    </div>
+    <div className="space-y-6">
+      <WalletContextPanel
+          fanoutData={fanoutData.data}
+          environment={environment}
+          mintId={mintId}
+          fanoutMints={fanoutMints}
+          selectedFanoutMint={selectedFanoutMint}
+          onSelectMint={selectSplToken}
+          className="w-full"
+        />
+      <ActivityTimeline events={[]} loading={false} />
+    </div>
+  </div>
       </div>
   </DashboardLayout>
   )

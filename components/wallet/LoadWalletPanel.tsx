@@ -55,7 +55,7 @@ export const LoadWalletPanel: React.FC<LoadWalletPanelProps> = ({
         <div className="mt-auto">
           <TextureButton
             type="submit"
-            variant={walletName.trim() ? 'primarySolid' : 'glass'}
+            variant={walletName.trim() ? 'primary' : 'glass'}
             className={cn('w-full font-semibold transition-colors', variant === 'full' ? 'h-12 text-base' : 'h-11 text-sm', !walletName.trim() && 'btn-disabled text-gray-400')}
             disabled={!walletName.trim()}
             data-focus-ring="true"

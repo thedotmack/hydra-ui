@@ -11,14 +11,19 @@ export interface ActivityEvent {
 // Placeholder timeline (future: fetch from on-chain / analytics log)
 export const ActivityTimeline: React.FC<{ events?: ActivityEvent[]; loading?: boolean }> = ({ events = [], loading }) => {
   return (
-    <section className="flex flex-col gap-4" aria-label="Activity Timeline">
-      <div className="flex items-center justify-between px-1">
-        <h2 className="eyebrow">Activity</h2>
-        <span className="text-[11px] text-[var(--text-color-muted)]">{events.length} events</span>
+    <section className="flex flex-col gap-3" aria-label="Activity Timeline">
+      <div className="flex items-center justify-between px-1 pb-0.5">
+        <h2 className="text-[11px] uppercase tracking-[1.25px] font-semibold text-[var(--text-color-muted)]/85">Recent Activity</h2>
+        <span className="text-[11px] text-[var(--text-color-muted)]/70 tabular-nums">{events.length}</span>
       </div>
-      <div className="glass-panel rounded-xl p-4 space-y-4" data-elev={1}>
+      <div className="glass-panel bg-white/[0.015] rounded-xl p-4 md:p-5 space-y-4" data-elev={1}>
         {loading && <p className="text-sm text-[var(--text-color-muted)]">Loading…</p>}
-        {!loading && events.length === 0 && <p className="text-sm text-[var(--text-color-muted)]">No activity yet. Actions like adding members or distributions will appear here.</p>}
+        {!loading && events.length === 0 && (
+          <div className="text-sm text-[var(--text-color-muted)] flex items-center gap-2">
+            <span className="opacity-70">No activity yet.</span>
+            <span className="hidden sm:inline">Add members or distribute funds to populate history.</span>
+          </div>
+        )}
         {!loading && events.map(ev => (
           <div key={ev.id} className="flex items-start gap-3 text-sm">
             <div className="mt-1 h-2 w-2 rounded-full bg-[var(--color-accent)]" aria-hidden />

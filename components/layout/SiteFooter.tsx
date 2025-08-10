@@ -12,16 +12,16 @@ const MetaplexLogo: React.FC<React.SVGProps<SVGSVGElement>> = ({ className, ...r
 export const SiteFooter: React.FC = () => {
   return (
     <footer className="mt-auto w-full border-t border-[var(--border-subtle)]/60 bg-[rgba(255,255,255,0.02)]/10 backdrop-blur-sm">
-      <div className="max-w-5xl mx-auto px-6 py-10 flex flex-col items-center gap-6 text-center">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 flex flex-col items-center gap-8 text-center">
         <MetaplexLogo className="h-10 w-10 text-gray-100 fill-gray-100" aria-label="Metaplex" />
-        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-gray-400">
+        <nav aria-label="Footer navigation" className="flex flex-wrap items-center justify-center gap-x-10 gap-y-3 text-sm text-gray-400">
           <Link href="https://developers.metaplex.com/hydra" className="hover:text-gray-200 transition-colors" target="_blank" rel="noopener noreferrer">Docs</Link>
           <Link href="https://github.com/metaplex-foundation/hydra-ui" className="hover:text-gray-200 transition-colors" target="_blank" rel="noopener noreferrer">GitHub UI</Link>
           <Link href="https://github.com/metaplex-foundation/mpl-hydra" className="hover:text-gray-200 transition-colors" target="_blank" rel="noopener noreferrer">Program Repo</Link>
           <Link href="https://discord.gg/metaplex" className="hover:text-gray-200 transition-colors" target="_blank" rel="noopener noreferrer">Discord</Link>
           <Link href="https://x.com/metaplex" className="hover:text-gray-200 transition-colors" target="_blank" rel="noopener noreferrer">X</Link>
-        </div>
-        <p className="text-xs text-gray-500">&copy; {new Date().getFullYear()} Metaplex • Hydra UI</p>
+        </nav>
+        <p className="text-[11px] tracking-wide text-gray-500">&copy; {new Date().getFullYear()} Metaplex • Hydra UI</p>
       </div>
     </footer>
   )

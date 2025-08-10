@@ -1,3 +1,4 @@
+// DEPRECATED: Sidebar replaced by TopNav in new IA. Keep temporarily for reference; remove after verification.
 import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/router"

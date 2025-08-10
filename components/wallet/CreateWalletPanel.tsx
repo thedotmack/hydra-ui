@@ -21,7 +21,7 @@ export const CreateWalletPanel: React.FC<CreateWalletPanelProps> = ({ variant='f
       </div>
       <div className="mt-auto space-y-4">
         <TextureButton
-          variant="primarySolid"
+          variant="primary"
           className={cn('w-full font-semibold', variant==='full' ? 'h-12 text-base' : 'h-11 text-sm')}
           onClick={() => router.push(`/create${environment.label !== 'mainnet-beta' ? `?cluster=${environment.label}` : ''}`)}
           data-focus-ring="true"

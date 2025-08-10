@@ -43,7 +43,7 @@ const App = ({
     useEffect(() => {
       if (lastPathRef.current !== router.asPath) {
         lastPathRef.current = router.asPath
-        track({ name: 'page_view', page: router.asPath } as any)
+  track({ name: 'page_view', page: router.asPath })
       }
     })
     return null

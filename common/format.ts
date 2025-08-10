@@ -44,6 +44,13 @@ export function formatAmount(
   return str
 }
 
+// Percent formatter with configurable precision (defaults align with high-level UI needs)
+export function formatPercent(value: number | null | undefined, opts: { digits?: number } = {}) {
+  if (value === null || value === undefined || isNaN(value)) return '--'
+  const { digits = value < 1 ? 2 : 1 } = opts
+  return `${value.toFixed(digits)}%`
+}
+
 export function formatValue(value: any, opts: FormatOptions = {}): string {
   const { divisor, decimals, fallback = '--' } = opts
   if (value === null || value === undefined) return fallback

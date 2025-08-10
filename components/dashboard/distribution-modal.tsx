@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { TextureButton } from "@/components/ui/texture-button";
+import { formatAmount } from "@/common/format";
 import { useAnalytics } from "@/hooks/useAnalytics";
 interface DistributionModalProps { available: number; token: string }
 export const DistributionModal: React.FC<DistributionModalProps> = ({ available, token }) => {
@@ -9,8 +10,7 @@ export const DistributionModal: React.FC<DistributionModalProps> = ({ available,
 	const [pending, setPending] = React.useState(false);
 	const onDistribute = async () => {
 		setPending(true);
-		// Cast to any for transitional analytics schema (legacy union still present)
-		track({ name: 'distribution_initiated', scope: 'all' } as any);
+		track({ name: 'distribution_initiated', scope: 'all' });
 		await new Promise(r => setTimeout(r, 800));
 		setPending(false);
 		setOpen(false);
@@ -30,7 +30,7 @@ export const DistributionModal: React.FC<DistributionModalProps> = ({ available,
 				<div className="text-sm space-y-3">
 					<div className="flex items-center justify-between">
 						<span className="text-[var(--text-color-muted)]">Available</span>
-						<strong className="font-mono">{available.toFixed(6)} {token}</strong>
+						<strong className="font-mono tabular-nums">{formatAmount(available,{ maxSig:6, minSig:2 })} {token}</strong>
 					</div>
 					<div className="text-[11px] text-[var(--text-color-muted)]">Network fee estimate will display here.</div>
 				</div>

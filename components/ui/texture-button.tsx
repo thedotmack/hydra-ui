@@ -4,26 +4,16 @@ import { cva } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
 
-const buttonVariantsOuter = cva("relative inline-flex select-none items-center justify-center font-medium transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none data-[focus-ring=true]:focus-visible:shadow-[var(--focus-ring)] overflow-hidden group", {
+const buttonVariantsOuter = cva("relative inline-flex select-none items-center justify-center font-medium transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none data-[focus-ring=true]:focus-visible:shadow-[var(--focus-ring)] overflow-hidden group interactive-hover", {
   variants: {
     variant: {
-      primary:
-        "w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-gradient-to-b from-neutral-800 to-neutral-900 text-white hover:from-neutral-700 hover:to-neutral-800 active:from-neutral-800 active:to-neutral-900",
-      accent:
-        "w-full rounded-[var(--radius-lg)] border border-[var(--color-accent-alt-ring)] bg-[linear-gradient(140deg,var(--color-accent-alt)_0%,oklch(0.63_0.14_300)_100%)] text-white shadow-[0_1px_2px_rgba(0,0,0,0.5),0_0_0_1px_var(--color-accent-alt-ring)] hover:brightness-105 active:brightness-95",
-      primarySolid:
-        "w-full rounded-[var(--radius-lg)] border border-[var(--color-accent-ring)] bg-[var(--color-accent)] text-gray-950 font-semibold tracking-tight shadow-[0_1px_2px_rgba(0,0,0,0.45),0_0_0_1px_var(--color-accent-ring)] hover:brightness-105 active:brightness-95",
-      secondaryOutline:
-        "w-full rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-transparent text-[var(--text-color-muted)] hover:text-[var(--color-accent)] hover:border-[var(--color-accent-ring)] hover:bg-[var(--glass-bg-alt)] active:bg-[var(--glass-bg)] transition-colors",
-      destructive:
-        "w-full rounded-[var(--radius-lg)] border border-red-500/40 bg-gradient-to-b from-red-500 to-red-600 text-white hover:from-red-500/90 hover:to-red-600/90 active:from-red-600 active:to-red-700",
-      secondary:
-        "w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-white/5 text-gray-200 hover:bg-white/10 active:bg-white/15",
-      minimal:
-        "w-full rounded-[var(--radius-lg)] border border-transparent bg-transparent text-gray-300 hover:bg-white/5 active:bg-white/10",
+  primary: "w-full rounded-[var(--radius-lg)] border border-[var(--color-accent-ring)] bg-[var(--color-accent)] text-gray-950 font-semibold tracking-tight shadow-[0_1px_2px_rgba(0,0,0,0.45),0_0_0_1px_var(--color-accent-ring)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.45),0_0_0_1px_var(--color-accent-ring)]",
+  secondary: "w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-white/5 text-gray-200 hover:bg-white/8",
+  outline: "w-full rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-transparent text-[var(--text-color-muted)] hover:text-white hover:border-[var(--color-accent-ring)] hover:bg-[var(--glass-bg-alt)]",
+  destructive: "w-full rounded-[var(--radius-lg)] border border-red-500/40 bg-gradient-to-b from-red-500 to-red-600 text-white hover:from-red-500/95 hover:to-red-600/95",
       icon: "rounded-full border border-[var(--border-subtle)] bg-white/5 text-gray-200 hover:bg-white/10 active:bg-white/15 w-9 h-9 p-0",
-  luminous: "btn-luminous w-full",
-  glass: "w-full rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl text-gray-300 hover:text-white hover:bg-[var(--glass-bg-alt)] active:bg-[var(--glass-bg-alt)]",
+      luminous: "btn-luminous w-full",
+  glass: "w-full rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl text-gray-300 hover:text-white hover:bg-[var(--glass-bg-alt)]",
     },
     size: {
       sm: "text-xs h-7 px-3",
@@ -53,19 +43,8 @@ const innerDivVariants = cva("inline-flex items-center justify-center gap-2 w-fu
   },
 })
 
-export interface UnifiedButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?:
-    | "primary"
-    | "secondary"
-    | "accent"
-    | "primarySolid"
-    | "secondaryOutline"
-    | "destructive"
-    | "minimal"
-    | "icon"
-    | "luminous"
-    | "glass"
+export interface UnifiedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "primary" | "secondary" | "outline" | "destructive" | "icon" | "luminous" | "glass"
   size?: "default" | "sm" | "lg" | "icon"
   asChild?: boolean
 }

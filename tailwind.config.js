@@ -15,6 +15,17 @@ module.exports = {
       },
     },
     extend: {
+      spacing: {
+        1: 'var(--space-1)',
+        2: 'var(--space-2)',
+        3: 'var(--space-3)',
+        4: 'var(--space-4)',
+        5: 'var(--space-5)',
+        6: 'var(--space-6)',
+        8: 'var(--space-8)',
+        10: 'var(--space-10)',
+        12: 'var(--space-12)'
+      },
       fontFamily: {
         sans: ["var(--font-inter)", 'ui-sans-serif', 'system-ui', 'sans-serif'],
         heading: ["var(--font-lexend)", 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -58,6 +69,7 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+  xl: "var(--radius-xl, 1.25rem)"
       },
       keyframes: {
         "accordion-down": {

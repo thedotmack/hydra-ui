@@ -172,12 +172,12 @@ a:focus-visible:not([data-focus-ring="false"]) {
 @keyframes gradient-pan { 0% { background-position:0% 50%; } 100% { background-position:200% 50%; } }
 @keyframes shimmer-sweep { 0% { transform:translateX(-120%);} 100% { transform:translateX(120%);} }
 
-.btn-luminous { position:relative; background:linear-gradient(135deg,var(--glow-accent) 0%, oklch(.62 .14 300) 100%); color:#fff; border:1px solid var(--color-accent-ring); border-radius:var(--radius-lg,12px); font-weight:600; letter-spacing:.25px; box-shadow:0 0 0 1px var(--color-accent-ring), 0 2px 10px -4px var(--glow-accent-soft); transition:background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }
-.btn-luminous:hover { filter:brightness(1.05); box-shadow:0 0 0 1px var(--color-accent-ring), 0 3px 14px -4px var(--glow-accent-soft); }
-.btn-luminous:active { filter:brightness(.95); }
+.btn-luminous { position:relative; background:var(--color-accent); color:#101010; border:1px solid var(--color-accent-ring); border-radius:var(--radius-lg,12px); font-weight:600; letter-spacing:0; box-shadow:0 1px 2px rgba(0,0,0,.45), 0 0 0 1px var(--color-accent-ring); transition:background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out); }
+.btn-luminous:hover { background:color-mix(in oklab, var(--color-accent) 92%, white); box-shadow:0 2px 4px -2px rgba(0,0,0,.55), 0 0 0 1px var(--color-accent-ring); }
+.btn-luminous:active { background:color-mix(in oklab, var(--color-accent) 88%, black); transform:translateY(1px); }
 .btn-luminous:disabled { background:linear-gradient(135deg, oklch(.48 .07 300), oklch(.42 .05 300)); box-shadow:none; opacity:.7; }
-.btn-luminous::before { content:""; position:absolute; inset:0; background:linear-gradient(110deg,rgba(255,255,255,.0) 0%,rgba(255,255,255,.3) 55%,rgba(255,255,255,.0) 80%); mix-blend-mode:overlay; opacity:.15; pointer-events:none; }
-.btn-luminous:hover::before { opacity:.22; }
+.btn-luminous::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.55), transparent 55%); opacity:.18; mix-blend-mode:overlay; pointer-events:none; transition:opacity var(--dur-fast) var(--ease-out); }
+.btn-luminous:hover::before { opacity:.26; }
 
 /* Icon pill / control group */
 .icon-pill { position:relative; width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center; border-radius:999px; background:var(--glass-bg-alt); border:1px solid var(--glass-border); box-shadow:var(--shadow-softer); backdrop-filter:blur(22px) saturate(140%); transition:background var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out); }

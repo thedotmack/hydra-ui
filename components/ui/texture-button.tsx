@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils"
 const buttonVariantsOuter = cva("relative inline-flex select-none items-center justify-center font-medium transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none data-[focus-ring=true]:focus-visible:shadow-[var(--focus-ring)] overflow-hidden group interactive-hover", {
   variants: {
     variant: {
-  primary: "w-full rounded-[var(--radius-lg)] border border-[var(--color-accent-ring)] bg-[var(--color-accent)] text-gray-950 font-semibold tracking-tight shadow-[0_1px_2px_rgba(0,0,0,0.45),0_0_0_1px_var(--color-accent-ring)] hover:shadow-[0_2px_6px_rgba(0,0,0,0.45),0_0_0_1px_var(--color-accent-ring)]",
-  secondary: "w-full rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-white/5 text-gray-200 hover:bg-white/8",
+  primary: "w-full rounded-[var(--radius-lg)] bg-[var(--color-accent)] text-gray-950 font-semibold tracking-tight shadow-[0_1px_2px_rgba(0,0,0,0.45)] hover:shadow-[0_2px_5px_rgba(0,0,0,0.5)]",
+  secondary: "w-full rounded-[var(--radius-lg)] bg-white/6 text-gray-200 hover:bg-white/10",
   outline: "w-full rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-transparent text-[var(--text-color-muted)] hover:text-white hover:border-[var(--color-accent-ring)] hover:bg-[var(--glass-bg-alt)]",
-  destructive: "w-full rounded-[var(--radius-lg)] border border-red-500/40 bg-gradient-to-b from-red-500 to-red-600 text-white hover:from-red-500/95 hover:to-red-600/95",
+  destructive: "w-full rounded-[var(--radius-lg)] bg-gradient-to-b from-red-500 to-red-600 text-white shadow-[0_1px_2px_rgba(0,0,0,0.45)] hover:from-red-500/95 hover:to-red-600/95",
       icon: "rounded-full border border-[var(--border-subtle)] bg-white/5 text-gray-200 hover:bg-white/10 active:bg-white/15 w-9 h-9 p-0",
       luminous: "btn-luminous w-full",
   glass: "w-full rounded-[var(--radius-lg)] border border-[var(--glass-border)] bg-[var(--glass-bg)] backdrop-blur-xl text-gray-300 hover:text-white hover:bg-[var(--glass-bg-alt)]",

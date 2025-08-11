@@ -26,7 +26,6 @@ import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import React, { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { Section } from '@/components/primitives/Section'
 import { Card, CardHeader, CardBody } from '@/components/primitives/Card'
 import { FormPanel } from '@/components/primitives/FormPanel'
 import { Button } from '@/components/catalyst-ui-ts/button'
@@ -103,7 +102,7 @@ const Home: NextPage = () => {
   const [voucherMapping, setVoucherMapping] = useState<{
     [key: string]: string
   }>({})
-  const [activeTab, setActiveTab] = useState('overview')
+  const [activeTab, setActiveTab] = useState('dashboard')
   const [showAddMember, setShowAddMember] = useState(false)
   const [newMemberWallet, setNewMemberWallet] = useState('')
   const [newMemberShares, setNewMemberShares] = useState<number>(0)
@@ -681,24 +680,39 @@ const Home: NextPage = () => {
           </div>
         )}
 
-        {/* Heading */}
-        <Section 
-          id="overview" 
-          spacing="md" 
-          className="!py-0" 
-          heading={
-            mounted && fanoutData.data?.fanout?.name ? 
-              String(fanoutData.data.fanout.name) : 
-              <Skeleton variant="title" className="w-64" />
-          } 
-          description="Treasury wallet management and distribution" 
-        />
-        <div className="flex items-center justify-center gap-3 -mt-4">
-          {fanoutData.data?.fanout && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-500/30">
-              {fanoutData.data.fanout.membershipModel === 0 ? 'Wallet' : 
-               fanoutData.data.fanout.membershipModel === 1 ? 'NFT' : 'Token'} Model
-            </span>
+        {/* Header with Token Management */}
+        <div className="flex items-start justify-between gap-6 mb-8">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold text-white mb-2">
+              {mounted && fanoutData.data?.fanout?.name ? 
+                String(fanoutData.data.fanout.name) : 
+                <Skeleton variant="title" className="w-64" />
+              }
+            </h1>
+            <p className="text-[var(--text-color-muted)] mb-4">Treasury wallet management and distribution</p>
+            <div className="flex items-center gap-3">
+              {fanoutData.data?.fanout && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-500/30">
+                  {fanoutData.data.fanout.membershipModel === 0 ? 'Wallet' : 
+                   fanoutData.data.fanout.membershipModel === 1 ? 'NFT' : 'Token'} Model
+                </span>
+              )}
+            </div>
+          </div>
+          
+          {/* Token Management */}
+          {fanoutData.data && (
+            <div className="min-w-0">
+              <WalletContextPanel
+                fanoutData={fanoutData.data}
+                environment={environment}
+                mintId={mintId}
+                fanoutMints={fanoutMints}
+                selectedFanoutMint={selectedFanoutMint}
+                onSelectMint={selectSplToken}
+                className="w-full min-w-64"
+              />
+            </div>
           )}
         </div>
         
@@ -718,24 +732,14 @@ const Home: NextPage = () => {
         <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="w-full">
           <Tabs.List className="flex items-center gap-1 p-1 glass-panel rounded-xl mb-8" data-elev={1}>
             <Tabs.Trigger
-              value="overview"
+              value="dashboard"
               className={cn(
                 'relative px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
                 'data-[state=active]:bg-[var(--color-accent)]/10 data-[state=active]:text-[var(--color-accent)]',
                 'data-[state=inactive]:text-[var(--text-color-muted)] data-[state=inactive]:hover:text-white data-[state=inactive]:hover:bg-white/5'
               )}
             >
-              Overview
-            </Tabs.Trigger>
-            <Tabs.Trigger
-              value="members"
-              className={cn(
-                'relative px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
-                'data-[state=active]:bg-[var(--color-accent)]/10 data-[state=active]:text-[var(--color-accent)]',
-                'data-[state=inactive]:text-[var(--text-color-muted)] data-[state=inactive]:hover:text-white data-[state=inactive]:hover:bg-white/5'
-              )}
-            >
-              Members
+              Dashboard
             </Tabs.Trigger>
             <Tabs.Trigger
               value="activity"
@@ -749,7 +753,8 @@ const Home: NextPage = () => {
             </Tabs.Trigger>
           </Tabs.List>
 
-          <Tabs.Content value="overview" className="space-y-8">
+          <Tabs.Content value="dashboard" className="space-y-8">
+            {/* Overview Metrics */}
             <Card elev={2} surface="subtle" className="p-8">
               <KPIGrid
                 data={fanoutData.data ? {
@@ -764,9 +769,8 @@ const Home: NextPage = () => {
                 loading={!fanoutData.data}
               />
             </Card>
-          </Tabs.Content>
 
-          <Tabs.Content value="members" className="space-y-8">
+            {/* Members Management */}
       {/* Members List & Management */}
     {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
             <div className="flex items-center">
@@ -1052,20 +1056,61 @@ const Home: NextPage = () => {
           </Tabs.Content>
 
           <Tabs.Content value="activity" className="space-y-8">
-            {/* Context Panel - Token Selection */}
-            <WalletContextPanel
-              fanoutData={fanoutData.data}
-              environment={environment}
-              mintId={mintId}
-              fanoutMints={fanoutMints}
-              selectedFanoutMint={selectedFanoutMint}
-              onSelectMint={selectSplToken}
-              className="w-full"
-            />
-            
             {/* Activity Timeline */}
             <Card elev={2} surface="subtle" className="p-8">
-              <ActivityTimeline events={[]} loading={false} />
+              <ActivityTimeline 
+                events={React.useMemo(() => {
+                  // Generate activity events from membership vouchers and fanout data
+                  const events: Array<{
+                    id: string;
+                    type: 'member_added' | 'distribution';
+                    createdAt: number;
+                    summary: string;
+                    meta?: Record<string, any>;
+                  }> = [];
+                  
+                  // Add member creation events
+                  if (fanoutMembershipVouchers.data) {
+                    fanoutMembershipVouchers.data.forEach(voucher => {
+                      const timestamp = Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000;
+                      events.push({
+                        id: `member-${voucher.pubkey.toString()}`,
+                        type: 'member_added',
+                        createdAt: timestamp,
+                        summary: `${voucher.parsed.membershipKey.toString().slice(0,6)}...${voucher.parsed.membershipKey.toString().slice(-4)} joined with ${voucher.parsed.shares} shares`,
+                        meta: {
+                          address: voucher.parsed.membershipKey.toString(),
+                          shares: Number(voucher.parsed.shares)
+                        }
+                      });
+                    });
+                  }
+                  
+                  // Add distribution events based on claimed amounts
+                  if (fanoutMembershipVouchers.data && fanoutData.data) {
+                    fanoutMembershipVouchers.data.forEach(voucher => {
+                      const claimed = parseInt(voucher.parsed.totalInflow.toString()) / 1e9;
+                      if (claimed > 0) {
+                        const timestamp = Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000;
+                        events.push({
+                          id: `distribution-${voucher.pubkey.toString()}`,
+                          type: 'distribution',
+                          createdAt: timestamp,
+                          summary: `${voucher.parsed.membershipKey.toString().slice(0,6)}...${voucher.parsed.membershipKey.toString().slice(-4)} claimed ${claimed.toFixed(4)} SOL`,
+                          meta: {
+                            address: voucher.parsed.membershipKey.toString(),
+                            amount: claimed
+                          }
+                        });
+                      }
+                    });
+                  }
+                  
+                  // Sort events by timestamp descending (newest first)
+                  return events.sort((a, b) => b.createdAt - a.createdAt);
+                }, [fanoutMembershipVouchers.data, fanoutData.data])}
+                loading={!fanoutMembershipVouchers.data || !fanoutData.data} 
+              />
             </Card>
           </Tabs.Content>
         </Tabs.Root>

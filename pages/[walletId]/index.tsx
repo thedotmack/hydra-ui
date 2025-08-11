@@ -42,6 +42,8 @@ import { ProgressBar } from '@/components/ui/progress-bar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { LoadWalletPanel } from '@/components/wallet/LoadWalletPanel'
 import { WalletContextPanel } from '@/components/wallet/WalletContextPanel'
+import * as Tabs from '@radix-ui/react-tabs'
+import { cn } from '@/lib/utils'
 
 // Reusable StatCard component
 const StatCard = ({
@@ -101,6 +103,7 @@ const Home: NextPage = () => {
   const [voucherMapping, setVoucherMapping] = useState<{
     [key: string]: string
   }>({})
+  const [activeTab, setActiveTab] = useState('overview')
   const [showAddMember, setShowAddMember] = useState(false)
   const [newMemberWallet, setNewMemberWallet] = useState('')
   const [newMemberShares, setNewMemberShares] = useState<number>(0)
@@ -699,34 +702,71 @@ const Home: NextPage = () => {
           )}
         </div>
         
-        {/* Unified Metrics */}
-        <Card elev={2} surface="subtle" className="p-6" id="metrics">
-          <KPIGrid
-            data={fanoutData.data ? {
-              totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
-              currentBalance: selectedFanoutMint ? Number(selectedFanoutMint.balance) : Number(fanoutData.data?.balance || 0),
-              members: fanoutData.data?.fanout?.totalMembers ? Number(fanoutData.data.fanout.totalMembers) : 0,
-              totalShares: fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0,
-              lastUpdated: Date.now(),
-              topHolderPct,
-              unclaimed: undistributed,
-            } : undefined}
-            loading={!fanoutData.data}
-          />
-        </Card>
-  {distInFlight && distTotal !== null && (
-    <div className="glass-panel rounded-xl p-4 flex flex-col gap-3" data-elev={1} aria-live="polite">
-      <div className="flex items-center justify-between text-xs text-[var(--text-color-muted)]">
-        <span>Distribution in progress</span>
-        <span>{distDone} / {distTotal}</span>
-      </div>
-      <ProgressBar value={distDone} max={distTotal} label="Distribution progress" />
-      <p className="text-[11px] text-[var(--text-color-muted)]">Processing batched transactions. Safe to keep browsing.</p>
-    </div>
-  )}
-        {/* Main Content - Improved Spacing */}
-        <div className="space-y-12">
-          <Section id="members" heading="Members" description="Manage distribution membership and share units." spacing="lg" className="space-y-8 min-w-0">
+        {/* Distribution Progress */}
+        {distInFlight && distTotal !== null && (
+          <div className="glass-panel rounded-xl p-4 flex flex-col gap-3" data-elev={1} aria-live="polite">
+            <div className="flex items-center justify-between text-xs text-[var(--text-color-muted)]">
+              <span>Distribution in progress</span>
+              <span>{distDone} / {distTotal}</span>
+            </div>
+            <ProgressBar value={distDone} max={distTotal} label="Distribution progress" />
+            <p className="text-[11px] text-[var(--text-color-muted)]">Processing batched transactions. Safe to keep browsing.</p>
+          </div>
+        )}
+
+        {/* Tabbed Interface */}
+        <Tabs.Root value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs.List className="flex items-center gap-1 p-1 glass-panel rounded-xl mb-8" data-elev={1}>
+            <Tabs.Trigger
+              value="overview"
+              className={cn(
+                'relative px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
+                'data-[state=active]:bg-[var(--color-accent)]/10 data-[state=active]:text-[var(--color-accent)]',
+                'data-[state=inactive]:text-[var(--text-color-muted)] data-[state=inactive]:hover:text-white data-[state=inactive]:hover:bg-white/5'
+              )}
+            >
+              Overview
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="members"
+              className={cn(
+                'relative px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
+                'data-[state=active]:bg-[var(--color-accent)]/10 data-[state=active]:text-[var(--color-accent)]',
+                'data-[state=inactive]:text-[var(--text-color-muted)] data-[state=inactive]:hover:text-white data-[state=inactive]:hover:bg-white/5'
+              )}
+            >
+              Members
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="activity"
+              className={cn(
+                'relative px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
+                'data-[state=active]:bg-[var(--color-accent)]/10 data-[state=active]:text-[var(--color-accent)]',
+                'data-[state=inactive]:text-[var(--text-color-muted)] data-[state=inactive]:hover:text-white data-[state=inactive]:hover:bg-white/5'
+              )}
+            >
+              Activity
+            </Tabs.Trigger>
+          </Tabs.List>
+
+          <Tabs.Content value="overview" className="space-y-8">
+            <Card elev={2} surface="subtle" className="p-8">
+              <KPIGrid
+                data={fanoutData.data ? {
+                  totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
+                  currentBalance: selectedFanoutMint ? Number(selectedFanoutMint.balance) : Number(fanoutData.data?.balance || 0),
+                  members: fanoutData.data?.fanout?.totalMembers ? Number(fanoutData.data.fanout.totalMembers) : 0,
+                  totalShares: fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0,
+                  lastUpdated: Date.now(),
+                  topHolderPct,
+                  unclaimed: undistributed,
+                } : undefined}
+                loading={!fanoutData.data}
+              />
+            </Card>
+          </Tabs.Content>
+
+          <Tabs.Content value="members" className="space-y-8">
       {/* Members List & Management */}
     {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
             <div className="flex items-center">
@@ -962,6 +1002,7 @@ const Home: NextPage = () => {
             onDistributeMember={(m) => {
               if (fanoutData.data) distributeShare(fanoutData.data, false, new PublicKey(m.address))
             }}
+            hasDistributableFunds={undistributed > 0}
           />
           {/* Primary Actions */}
           {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (
@@ -1008,9 +1049,9 @@ const Home: NextPage = () => {
               )}
             </div>
           )}
-          </Section>
+          </Tabs.Content>
 
-          <Section id="activity" heading="Activity" description="Recent distributions and membership events." spacing="lg" className="space-y-8">
+          <Tabs.Content value="activity" className="space-y-8">
             {/* Context Panel - Token Selection */}
             <WalletContextPanel
               fanoutData={fanoutData.data}
@@ -1023,11 +1064,11 @@ const Home: NextPage = () => {
             />
             
             {/* Activity Timeline */}
-            <Card elev={2} surface="subtle" className="p-6">
+            <Card elev={2} surface="subtle" className="p-8">
               <ActivityTimeline events={[]} loading={false} />
             </Card>
-          </Section>
-        </div>
+          </Tabs.Content>
+        </Tabs.Root>
       </div>
   </DashboardLayout>
   )

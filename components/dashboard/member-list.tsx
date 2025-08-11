@@ -7,12 +7,11 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useDataFreshness } from "@/hooks/useDataFreshness";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { IconSearch, IconArrowDown, IconArrowUp, IconDownload, IconDotsVertical } from "@tabler/icons-react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { IconSearch, IconArrowDown, IconArrowUp, IconDownload } from "@tabler/icons-react";
 import { formatAmount, formatPercent } from "@/common/format";
 interface MemberEntry { id: string; address: string; shares: number; claimed: number; totalClaimable: number; lastClaim?: string }
-interface MemberListProps { members?: MemberEntry[]; loading?: boolean; totalShares: number; onDistributeMember?: (member: MemberEntry) => void }
-export const MemberList: React.FC<MemberListProps> = ({ members = [], loading, totalShares, onDistributeMember }) => {
+interface MemberListProps { members?: MemberEntry[]; loading?: boolean; totalShares: number; onDistributeMember?: (member: MemberEntry) => void; hasDistributableFunds?: boolean }
+export const MemberList: React.FC<MemberListProps> = ({ members = [], loading, totalShares, onDistributeMember, hasDistributableFunds = false }) => {
 	const { track } = useAnalytics();
 	const [query, setQuery] = React.useState("");
 	const [sort, setSort] = React.useState<{ key: keyof MemberEntry; dir: 1 | -1 }>({ key: "shares", dir: -1 });
@@ -74,25 +73,20 @@ export const MemberList: React.FC<MemberListProps> = ({ members = [], loading, t
 							</div>
 						</div>
 						<div className="flex justify-end">
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button 
-										plain 
-										className="w-8 h-8 rounded-lg hover:bg-white/10 opacity-60 hover:opacity-100 transition-all"
-										aria-label={`Member ${m.id} actions`}
-									>
-										<IconDotsVertical className="size-4" />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end" className="min-w-[180px]">
-									<DropdownMenuItem onClick={() => { track({ name:'page_view', page: 'member_details' }) }}>
-										View Details
-									</DropdownMenuItem>
-									<DropdownMenuItem onClick={() => { track({ name:'distribution_initiated', scope:'member', memberId:m.id }); onDistributeMember?.(m); }}>
-										Distribute Share
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
+							{hasDistributableFunds && m.totalClaimable > 0 ? (
+								<Button 
+									color="indigo"
+									className="h-8 px-3 text-xs font-semibold"
+									onClick={() => { 
+										track({ name:'distribution_initiated', scope:'member', memberId:m.id }); 
+										onDistributeMember?.(m); 
+									}}
+								>
+									Distribute
+								</Button>
+							) : (
+								<div className="w-8 h-8" />
+							)}
 						</div>
 					</div>
 				) })}

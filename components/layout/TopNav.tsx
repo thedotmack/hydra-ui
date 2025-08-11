@@ -58,9 +58,7 @@ export const TopNav: React.FC = () => {
   const connected = !!wallet.publicKey
   const { wallets: myWallets } = useMyWallets()
   const navSelect = (section: string) => track({ name:'navigation_select', section })
-  const walletSections = ['overview','token-selection','addresses']
   const onWalletPage = !!router.query.walletId
-  const activeSection = useScrollSpy({ ids: walletSections })
 
   return (
     <nav className="fixed top-0 left-0 right-0 h-14 border-b border-[var(--border-subtle)] bg-[var(--glass-bg)]/50 backdrop-blur-md flex items-center px-4 gap-4 z-40" role="navigation" aria-label="Primary">
@@ -83,18 +81,7 @@ export const TopNav: React.FC = () => {
         </div>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        {onWalletPage && (
-          <div className="hidden md:flex items-center gap-1 mr-4" aria-label="In-page sections">
-            {walletSections.map(id => (
-              <button
-                key={id}
-                onClick={() => { document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); navSelect(id) }}
-                className={"px-2.5 py-1.5 rounded-md text-[11px] font-medium tracking-wide transition-colors " + (activeSection===id ? 'bg-white/15 text-white' : 'text-[var(--text-color-muted)] hover:text-white hover:bg-white/10')}
-                aria-current={activeSection===id? 'true': undefined}
-              >{id.replace(/-/g,' ')}</button>
-            ))}
-          </div>
-        )}
+  {/* In-page section navigation moved to ContextBar */}
         {connected && (
           <div className="relative" ref={myRef}>
             <Button variant="outline" className="h-9 px-3 gap-1.5 text-sm font-medium" onClick={()=>setMyOpen(o=>!o)} aria-haspopup="menu" aria-expanded={myOpen}>My Shared Wallets<ChevronDown className="h-3.5 w-3.5 opacity-70" /></Button>

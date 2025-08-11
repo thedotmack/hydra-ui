@@ -26,6 +26,9 @@ import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import React, { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Section } from '@/components/primitives/Section'
+import { Card, CardHeader, CardBody } from '@/components/primitives/Card'
+import { FormPanel } from '@/components/primitives/FormPanel'
 import { Button } from '@/components/catalyst-ui-ts/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { IconChevronDown } from '@tabler/icons-react'
@@ -676,29 +679,26 @@ const Home: NextPage = () => {
         )}
 
         {/* Heading */}
-        <div className="text-center space-y-4">
-          <h1 className="hero-title text-4xl font-semibold tracking-tight">
-            {mounted && fanoutData.data?.fanout?.name ? (
-              String(fanoutData.data.fanout.name)
-            ) : (
-              <Skeleton variant="title" className="w-64" />
-            )}
-          </h1>
-          <div className="flex items-center justify-center gap-4">
-            <p className="text-gray-400 text-sm md:text-base">
-              Treasury wallet management and distribution
-            </p>
-            {fanoutData.data?.fanout && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-500/30">
-                {fanoutData.data.fanout.membershipModel === 0 ? 'Wallet' : 
-                 fanoutData.data.fanout.membershipModel === 1 ? 'NFT' : 'Token'} Model
-              </span>
-            )}
-          </div>
+        <Section id="overview" spacing="md" className="!py-0" heading={
+          mounted && fanoutData.data?.fanout?.name ? (
+            <span className="hero-title text-4xl font-semibold tracking-tight">
+              {String(fanoutData.data.fanout.name)}
+            </span>
+          ) : (
+            <Skeleton variant="title" className="w-64" />
+          )
+        } description="Treasury wallet management and distribution" />
+        <div className="flex items-center justify-center gap-3 -mt-4">
+          {fanoutData.data?.fanout && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-500/30">
+              {fanoutData.data.fanout.membershipModel === 0 ? 'Wallet' : 
+               fanoutData.data.fanout.membershipModel === 1 ? 'NFT' : 'Token'} Model
+            </span>
+          )}
         </div>
         
-  {/* Unified Metrics (reuse KPIGrid) */}
-  <div id="overview" />
+  {/* Unified Metrics */}
+  <Card elev={2} surface="subtle" className="p-6" id="metrics">
   <KPIGrid
           data={fanoutData.data ? {
             totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
@@ -711,6 +711,7 @@ const Home: NextPage = () => {
           } : undefined}
           loading={!fanoutData.data}
         />
+  </Card>
   {distInFlight && distTotal !== null && (
     <div className="glass-panel rounded-xl p-4 flex flex-col gap-3" data-elev={1} aria-live="polite">
       <div className="flex items-center justify-between text-xs text-[var(--text-color-muted)]">
@@ -722,8 +723,8 @@ const Home: NextPage = () => {
     </div>
   )}
   {/* Two-column main content */}
-  <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-    <div className="space-y-6 min-w-0">
+  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
+    <Section id="members" heading="Members" description="Manage distribution membership and share units." spacing="lg" className="space-y-10 min-w-0">
       {/* Members List & Management */}
     {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
             <div className="flex items-center">
@@ -752,8 +753,7 @@ const Home: NextPage = () => {
           
           {/* Add Member Form */}
           {showAddMember && (
-            <div className="mb-6 p-4 rounded-lg glass-panel" data-elev="1">
-              <h4 className="text-lg font-medium text-white mb-4">Add New Member</h4>
+            <FormPanel title="Add New Member" onClose={() => { setShowAddMember(false); setNewMemberWallet(''); setNewMemberShares(0); setNewMemberType('wallet') }} className="mb-6">
               
               {/* Member Type Selector - only show for NFT model fanouts */}
               {fanoutData.data?.fanout?.membershipModel === 1 && (
@@ -810,7 +810,7 @@ const Home: NextPage = () => {
                   />
                 </div>
               </div>
-              <div className="mt-4 flex gap-2">
+              <div className="mt-2 flex gap-2">
                 <Button color={(!newMemberWallet || newMemberShares <= 0) ? undefined : 'indigo'} outline={(!newMemberWallet || newMemberShares <= 0)}
                   onClick={addMember}
                   className="h-9 px-6"
@@ -830,13 +830,12 @@ const Home: NextPage = () => {
                   Cancel
                 </Button>
               </div>
-            </div>
+            </FormPanel>
           )}
           
           {/* Transfer Shares Form */}
           {showTransferShares && (
-            <div className="mb-6 p-4 rounded-lg glass-panel" data-elev="1">
-              <h4 className="text-lg font-medium text-white mb-4">Transfer Shares</h4>
+            <FormPanel title="Transfer Shares" onClose={() => { setShowTransferShares(false); setTransferFromMember(''); setTransferToMember(''); setTransferShareAmount(0) }} className="mb-6">
               <div className="grid gap-4 md:grid-cols-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">From Member</label>
@@ -882,7 +881,7 @@ const Home: NextPage = () => {
                   />
                 </div>
               </div>
-              <div className="mt-4 flex gap-2">
+              <div className="mt-2 flex gap-2">
                 <Button color={(!transferFromMember || !transferToMember || transferShareAmount <= 0) ? undefined : 'indigo'} outline={(!transferFromMember || !transferToMember || transferShareAmount <= 0)}
                   onClick={transferShares}
                   className="h-9 px-6"
@@ -902,13 +901,12 @@ const Home: NextPage = () => {
                   Cancel
                 </Button>
               </div>
-            </div>
+            </FormPanel>
           )}
           
           {/* Stake Tokens Form */}
           {showStakeTokens && (
-            <div className="mb-6 p-4 rounded-lg glass-panel" data-elev="1">
-              <h4 className="text-lg font-medium text-white mb-4">Stake Tokens</h4>
+            <FormPanel title="Stake Tokens" onClose={() => { setShowStakeTokens(false); setStakeAmount(0) }} className="mb-6">
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">Stake Amount</label>
@@ -941,10 +939,11 @@ const Home: NextPage = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </FormPanel>
           )}
           
           {/** Memoized members mapping */}
+          <Card elev={2} surface="subtle" className="p-6 space-y-6">
           <MemberList
             loading={!fanoutMembershipVouchers.data}
             members={React.useMemo(() => (
@@ -962,6 +961,36 @@ const Home: NextPage = () => {
               if (fanoutData.data) distributeShare(fanoutData.data, false, new PublicKey(m.address))
             }}
           />
+          {/* Inline actions */}
+          {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (
+            <div className="flex flex-wrap gap-3 items-center">
+              <AsyncButton
+                className="h-9 px-5 text-sm font-medium"
+                onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
+                disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
+                loadingText="Distributing"
+              >Distribute All</AsyncButton>
+              {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+                <AsyncButton
+                  outline
+                  className="h-9 px-4 text-sm font-medium"
+                  onAction={addSplToken}
+                  disabled={!wallet.publicKey}
+                  loadingText="Adding"
+                >Add SPL Token</AsyncButton>
+              )}
+            </div>
+          )}
+          {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length === 0 && fanoutData.data && (
+            <div className="rounded-xl p-6 text-sm text-[var(--text-color-muted)] bg-white/5 border border-white/10">
+              <p className="font-medium text-white mb-1">No Members Yet</p>
+              <p className="mb-4">Add members with share units to enable distributions.</p>
+              {fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+                <Button color="indigo" className="h-9 px-5" onClick={() => { setShowAddMember(true); }}>Add First Member</Button>
+              )}
+            </div>
+          )}
+          </Card>
           {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length === 0 && fanoutData.data && (
             <div className="glass-panel rounded-xl p-6 text-sm text-[var(--text-color-muted)]" data-elev={1}>
               <p className="font-medium text-white mb-1">No Members Yet</p>
@@ -991,8 +1020,8 @@ const Home: NextPage = () => {
             )}
           </div>
         )}
-    </div>
-    <div className="space-y-6">
+    </Section>
+  <Section id="activity" heading="Activity" description="Recent distributions and membership events." spacing="lg" className="space-y-8">
       <WalletContextPanel
           fanoutData={fanoutData.data}
           environment={environment}
@@ -1002,8 +1031,10 @@ const Home: NextPage = () => {
           onSelectMint={selectSplToken}
           className="w-full"
         />
-      <ActivityTimeline events={[]} loading={false} />
-    </div>
+      <Card elev={2} surface="subtle" className="p-6">
+        <ActivityTimeline events={[]} loading={false} />
+      </Card>
+  </Section>
   </div>
       </div>
   </DashboardLayout>

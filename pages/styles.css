@@ -159,6 +159,12 @@ a:focus-visible:not([data-focus-ring="false"]) {
 .glass-panel[data-surface="soft"] { background:var(--surface-glass-soft); }
 .glass-panel[data-surface="solid"] { background:var(--surface-glass); }
 
+/* Elevation utility classes (interim until Tailwind plugin) */
+.elev-0 { box-shadow:none !important; background:var(--surface-glass-subtle); }
+.elev-1 { box-shadow:var(--shadow-softer); }
+.elev-2 { box-shadow:var(--shadow-soft); }
+.elev-3 { box-shadow:0 4px 32px -6px rgba(0,0,0,.65), 0 2px 8px -2px rgba(0,0,0,.55); }
+
 /* Density mode (compact) activated below 780px height or explicit attribute */
 @media (max-height:780px) {
 	:root:not([data-density="comfortable"]) {

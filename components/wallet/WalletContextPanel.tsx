@@ -2,6 +2,7 @@ import * as React from 'react'
 import { shortPubKey, pubKeyUrl } from 'common/utils'
 import { paymentMintConfig } from 'config/paymentMintConfig'
 import { cn } from '@/lib/utils'
+import { Card, CardHeader, CardBody } from '@/components/primitives/Card'
 
 interface WalletContextPanelProps {
   fanoutData: any
@@ -23,12 +24,8 @@ export const WalletContextPanel: React.FC<WalletContextPanelProps> = ({
   className
 }) => {
   return (
-    <div className={cn('glass-panel rounded-2xl p-6 space-y-8', className)} data-elev={1} id="context-panel">
-      <header className="space-y-2">
-        <div className="eyebrow">Context</div>
-        <h3 className="text-xl font-semibold text-white tracking-tight">Token & Addresses</h3>
-        <p className="text-sm text-gray-400 max-w-md">Select an asset and view key on-chain addresses for the treasury.</p>
-      </header>
+    <Card elev={1} surface="subtle" className={cn('space-y-8', className)} id="token-selection">
+      <CardHeader heading="Token & Addresses" subtitle="Select an asset and view key on-chain addresses for the treasury." />
       <section aria-labelledby="token-select-label" className="space-y-3">
         <label id="token-select-label" className="text-[13px] font-medium text-gray-300 block">Token Selection</label>
         <select
@@ -45,7 +42,7 @@ export const WalletContextPanel: React.FC<WalletContextPanelProps> = ({
           ))}
         </select>
       </section>
-      <section aria-labelledby="addresses-heading" className="space-y-4">
+      <section aria-labelledby="addresses-heading" className="space-y-4" id="addresses">
         <h4 id="addresses-heading" className="text-sm font-semibold tracking-wide text-gray-200">Addresses</h4>
         <dl className="space-y-3 text-sm">
           <div className="flex flex-wrap items-center gap-1">
@@ -96,7 +93,7 @@ export const WalletContextPanel: React.FC<WalletContextPanelProps> = ({
           )}
         </dl>
       </section>
-    </div>
+    </Card>
   )
 }
 

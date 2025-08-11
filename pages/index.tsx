@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { Button } from '@/components/catalyst-ui-ts/button'
+import { Section } from '@/components/primitives/Section'
+import { Card, CardHeader, CardBody } from '@/components/primitives/Card'
 import { WalletHubPanels } from '@/components/wallet/WalletHubPanels'
 import { LoadWalletPanel } from '@/components/wallet/LoadWalletPanel'
 import { useMyWallets, useAnalytics } from '@/hooks'
@@ -29,10 +31,14 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-3 mb-8 max-w-4xl page-offset-top">
-        <h1 className="hero-title font-heading text-[2.35rem] md:text-[2.7rem] leading-tight font-semibold tracking-tight">Shared Revenue Split Wallets</h1>
-        <p className="text-gray-300 text-sm md:text-[15px] leading-relaxed max-w-2xl">Create a treasury, assign shares, accumulate SOL or tokens, distribute when you choose.</p>
-      </div>
+      <div className="page-offset-top" />
+      <Section
+        heading={<span className="hero-title">Shared Revenue Split Wallets</span>}
+        description={
+          <span>Create a treasury, assign shares, accumulate SOL or tokens, distribute when you choose.</span>
+        }
+        spacing="lg"
+      />
 
       {/* Connected View */}
       {wallet.publicKey ? (
@@ -42,17 +48,12 @@ const Home: NextPage = () => {
             const myIds = new Set(myWallets.map(w=>w.id))
             const recentFiltered = recent.filter(r=> !myIds.has(r.id))
             return (
-              <section className="max-w-7xl" aria-labelledby="my-wallets-heading">
+              <Section id="my-wallets" heading="Your Wallets" description={wallet.publicKey ? 'Manage and open your shared wallets.' : undefined} spacing="md">
                 <div className="grid gap-8 md:grid-cols-12 items-start">
                   {/* My Wallets Panel */}
-                  <div className="glass-panel md:col-span-8 p-6 flex flex-col gap-5" data-elev={2} data-surface="subtle">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <h2 id="my-wallets-heading" className="text-lg font-semibold tracking-tight">My Shared Wallets</h2>
-                        <p className="text-[12px] text-[var(--text-color-muted)] leading-relaxed">Your wallets (authority detection coming soon).</p>
-                      </div>
-                        <Button color="indigo" className="w-auto px-4 font-semibold" onClick={()=>router.push('/create')}>New</Button>
-                    </div>
+                  <div className="md:col-span-8">
+                    <Card elev={2} surface="subtle" className="flex flex-col gap-5">
+                      <CardHeader heading="My Shared Wallets" subtitle="Your wallets (authority detection coming soon)." actions={<Button color="indigo" className="w-auto px-4 font-semibold" onClick={()=>router.push('/create')}>New</Button>} />
                     {myWallets.length === 0 && (
                       <div className="text-[13px] text-[var(--text-color-muted)] space-y-4 py-6">
                         <div>
@@ -74,15 +75,13 @@ const Home: NextPage = () => {
                         ))}
                       </ul>
                     )}
+                    </Card>
                   </div>
                   {/* Recent Panel */}
                   <div className="md:col-span-4 flex flex-col gap-5">
                     {recentFiltered.length > 0 && (
-                      <div className="glass-panel p-6 flex flex-col gap-4 h-full" data-elev={2} data-surface="subtle" aria-labelledby="recent-heading">
-                        <div className="space-y-1">
-                          <h2 id="recent-heading" className="text-lg font-semibold tracking-tight">Recently Accessed</h2>
-                          <p className="text-[12px] text-[var(--text-color-muted)]">Not already listed above.</p>
-                        </div>
+                      <Card elev={2} surface="subtle" className="flex flex-col gap-4 h-full" aria-labelledby="recent-heading">
+                        <CardHeader heading="Recently Accessed" subtitle="Not already listed above." tight />
                         <ul className="flex flex-col gap-2 max-h-80 overflow-y-auto pr-1">
                           {recentFiltered.slice(0,10).map(r => (
                             <li key={r.id}>
@@ -93,39 +92,31 @@ const Home: NextPage = () => {
                             </li>
                           ))}
                         </ul>
-                      </div>
+                      </Card>
                     )}
                   </div>
                 </div>
-              </section>
+              </Section>
             )
           })()}
         </div>
       ) : (
         <div className="space-y-14 mb-20">
-          <section id="view-any" aria-labelledby="view-any-heading" className="max-w-7xl">
+          <Section id="view-any" heading="Get Started" description="Create or load a shared wallet to begin" spacing="md">
             <div className="grid gap-6 md:grid-cols-12 items-start">
               {/* Create Column */}
-              <div className={`glass-panel p-6 flex flex-col ${recent.length>0 ? 'md:col-span-4' : 'md:col-span-6'} gap-4`} data-elev={2} data-surface="subtle">
-                <div className="space-y-2">
-                  <p className="eyebrow">Create</p>
-                  <h2 className="text-lg font-semibold tracking-tight">New Wallet</h2>
-                  <p className="text-[12px] text-[var(--text-color-muted)] leading-relaxed">Name it now. Add members anytime.</p>
-                </div>
+              <Card elev={2} surface="subtle" className={`flex flex-col ${recent.length>0 ? 'md:col-span-4' : 'md:col-span-6'} gap-4`}>
+                <CardHeader heading="New Wallet" subtitle="Name it now. Add members anytime." />
                 <Button color="indigo" className="h-10 w-full !text-sm font-semibold" onClick={()=>router.push('/create')}>Create Wallet</Button>
-              </div>
+              </Card>
               {/* Load Column (equal width to Create) */}
               <div className={`${recent.length>0 ? 'md:col-span-4' : 'md:col-span-6'} flex flex-col`}>
                 <LoadWalletPanel variant="compact" autoFocus className="h-full" />
               </div>
               {/* Recent Column */}
               {recent.length > 0 && (
-                <div className="glass-panel p-6 flex flex-col gap-4 md:col-span-4" data-elev={2} data-surface="subtle" aria-labelledby="recent-inline-heading">
-                  <div className="space-y-2">
-                    <p className="eyebrow">Recent</p>
-                    <h2 id="recent-inline-heading" className="text-lg font-semibold tracking-tight">Visited</h2>
-                    <p className="text-[11px] text-[var(--text-color-muted)] leading-relaxed">Quick access</p>
-                  </div>
+                <Card elev={2} surface="subtle" className="flex flex-col gap-4 md:col-span-4" aria-labelledby="recent-inline-heading">
+                  <CardHeader heading="Visited" subtitle="Quick access" tight />
                   <ul className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
                     {recent.slice(0,8).map(r => (
                       <li key={r.id}>
@@ -136,10 +127,10 @@ const Home: NextPage = () => {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </Card>
               )}
             </div>
-          </section>
+          </Section>
         </div>
       )}
       {/* Bottom network pill removed for dashboard style; environment visible in header */}

@@ -679,15 +679,17 @@ const Home: NextPage = () => {
         )}
 
         {/* Heading */}
-        <Section id="overview" spacing="md" className="!py-0" heading={
-          mounted && fanoutData.data?.fanout?.name ? (
-            <span className="hero-title text-4xl font-semibold tracking-tight">
-              {String(fanoutData.data.fanout.name)}
-            </span>
-          ) : (
-            <Skeleton variant="title" className="w-64" />
-          )
-        } description="Treasury wallet management and distribution" />
+        <Section 
+          id="overview" 
+          spacing="md" 
+          className="!py-0" 
+          heading={
+            mounted && fanoutData.data?.fanout?.name ? 
+              String(fanoutData.data.fanout.name) : 
+              <Skeleton variant="title" className="w-64" />
+          } 
+          description="Treasury wallet management and distribution" 
+        />
         <div className="flex items-center justify-center gap-3 -mt-4">
           {fanoutData.data?.fanout && (
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-900/30 text-blue-300 border border-blue-500/30">
@@ -697,21 +699,21 @@ const Home: NextPage = () => {
           )}
         </div>
         
-  {/* Unified Metrics */}
-  <Card elev={2} surface="subtle" className="p-6" id="metrics">
-  <KPIGrid
-          data={fanoutData.data ? {
-            totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
-            currentBalance: selectedFanoutMint ? Number(selectedFanoutMint.balance) : Number(fanoutData.data?.balance || 0),
-            members: fanoutData.data?.fanout?.totalMembers ? Number(fanoutData.data.fanout.totalMembers) : 0,
-            totalShares: fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0,
-            lastUpdated: Date.now(),
-            topHolderPct,
-            unclaimed: undistributed,
-          } : undefined}
-          loading={!fanoutData.data}
-        />
-  </Card>
+        {/* Unified Metrics */}
+        <Card elev={2} surface="subtle" className="p-6" id="metrics">
+          <KPIGrid
+            data={fanoutData.data ? {
+              totalInflow: selectedFanoutMint ? Number(getMintNaturalAmountFromDecimal(Number(selectedFanoutMint.data.totalInflow), selectedFanoutMint.info.decimals)) : (fanoutData.data?.fanout?.totalInflow ? Number(fanoutData.data.fanout.totalInflow) / 1e9 : 0),
+              currentBalance: selectedFanoutMint ? Number(selectedFanoutMint.balance) : Number(fanoutData.data?.balance || 0),
+              members: fanoutData.data?.fanout?.totalMembers ? Number(fanoutData.data.fanout.totalMembers) : 0,
+              totalShares: fanoutData.data?.fanout?.totalShares ? Number(fanoutData.data.fanout.totalShares) : 0,
+              lastUpdated: Date.now(),
+              topHolderPct,
+              unclaimed: undistributed,
+            } : undefined}
+            loading={!fanoutData.data}
+          />
+        </Card>
   {distInFlight && distTotal !== null && (
     <div className="glass-panel rounded-xl p-4 flex flex-col gap-3" data-elev={1} aria-live="polite">
       <div className="flex items-center justify-between text-xs text-[var(--text-color-muted)]">
@@ -722,9 +724,9 @@ const Home: NextPage = () => {
       <p className="text-[11px] text-[var(--text-color-muted)]">Processing batched transactions. Safe to keep browsing.</p>
     </div>
   )}
-  {/* Two-column main content */}
-  <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px]">
-    <Section id="members" heading="Members" description="Manage distribution membership and share units." spacing="lg" className="space-y-10 min-w-0">
+        {/* Main Content - Improved Spacing */}
+        <div className="space-y-12">
+          <Section id="members" heading="Members" description="Manage distribution membership and share units." spacing="lg" className="space-y-8 min-w-0">
       {/* Members List & Management */}
     {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
             <div className="flex items-center">
@@ -961,24 +963,30 @@ const Home: NextPage = () => {
               if (fanoutData.data) distributeShare(fanoutData.data, false, new PublicKey(m.address))
             }}
           />
-          {/* Inline actions */}
+          {/* Primary Actions */}
           {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (
-            <div className="flex flex-wrap gap-3 items-center">
-              <AsyncButton
-                className="h-9 px-5 text-sm font-medium"
-                onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
-                disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
-                loadingText="Distributing"
-              >Distribute All</AsyncButton>
-              {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+            <div className="flex flex-wrap gap-3 items-center justify-between p-4 bg-white/[0.02] rounded-lg border border-white/5">
+              <div className="flex items-center gap-3">
                 <AsyncButton
-                  outline
-                  className="h-9 px-4 text-sm font-medium"
-                  onAction={addSplToken}
-                  disabled={!wallet.publicKey}
-                  loadingText="Adding"
-                >Add SPL Token</AsyncButton>
-              )}
+                  color="indigo"
+                  className="h-10 px-6 text-sm font-semibold"
+                  onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
+                  disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
+                  loadingText="Distributing..."
+                >Distribute All</AsyncButton>
+                {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
+                  <AsyncButton
+                    outline
+                    className="h-10 px-4 text-sm font-medium"
+                    onAction={addSplToken}
+                    disabled={!wallet.publicKey}
+                    loadingText="Adding..."
+                  >Add SPL Token</AsyncButton>
+                )}
+              </div>
+              <div className="text-xs text-[var(--text-color-muted)]">
+                {fanoutMembershipVouchers.data.length} member{fanoutMembershipVouchers.data.length !== 1 ? 's' : ''} ready
+              </div>
             </div>
           )}
           {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length === 0 && fanoutData.data && (
@@ -1000,42 +1008,26 @@ const Home: NextPage = () => {
               )}
             </div>
           )}
-        {/* Inline actions under list when members exist */}
-        {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (
-          <div className="flex flex-wrap gap-3 items-center">
-            <AsyncButton
-              className="h-9 px-5 text-sm font-medium"
-              onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
-              disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
-              loadingText="Distributing"
-            >Distribute All</AsyncButton>
-            {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-              <AsyncButton
-                outline
-                className="h-9 px-4 text-sm font-medium"
-                onAction={addSplToken}
-                disabled={!wallet.publicKey}
-                loadingText="Adding"
-              >Add SPL Token</AsyncButton>
-            )}
-          </div>
-        )}
-    </Section>
-  <Section id="activity" heading="Activity" description="Recent distributions and membership events." spacing="lg" className="space-y-8">
-      <WalletContextPanel
-          fanoutData={fanoutData.data}
-          environment={environment}
-          mintId={mintId}
-          fanoutMints={fanoutMints}
-          selectedFanoutMint={selectedFanoutMint}
-          onSelectMint={selectSplToken}
-          className="w-full"
-        />
-      <Card elev={2} surface="subtle" className="p-6">
-        <ActivityTimeline events={[]} loading={false} />
-      </Card>
-  </Section>
-  </div>
+          </Section>
+
+          <Section id="activity" heading="Activity" description="Recent distributions and membership events." spacing="lg" className="space-y-8">
+            {/* Context Panel - Token Selection */}
+            <WalletContextPanel
+              fanoutData={fanoutData.data}
+              environment={environment}
+              mintId={mintId}
+              fanoutMints={fanoutMints}
+              selectedFanoutMint={selectedFanoutMint}
+              onSelectMint={selectSplToken}
+              className="w-full"
+            />
+            
+            {/* Activity Timeline */}
+            <Card elev={2} surface="subtle" className="p-6">
+              <ActivityTimeline events={[]} loading={false} />
+            </Card>
+          </Section>
+        </div>
       </div>
   </DashboardLayout>
   )

@@ -33,10 +33,8 @@ const Home: NextPage = () => {
     <DashboardLayout>
       <div className="page-offset-top" />
       <Section
-        heading={<span className="hero-title">Shared Revenue Split Wallets</span>}
-        description={
-          <span>Create a treasury, assign shares, accumulate SOL or tokens, distribute when you choose.</span>
-        }
+        heading="Shared Revenue Split Wallets"
+        description="Create a treasury, assign shares, accumulate SOL or tokens, distribute when you choose."
         spacing="lg"
       />
 
@@ -69,7 +67,7 @@ const Home: NextPage = () => {
                           <li key={w.id}>
                             <button onClick={()=>router.push(`/${w.name}`)} className="glass-panel p-3 flex flex-col gap-1 text-left hover:bg-white/5 transition-colors rounded-lg" data-elev={1}>
                               <span className="text-[13px] font-medium text-white truncate" title={w.name}>{w.name}</span>
-                              <span className="text-[10px] text-[var(--text-color-muted)] font-mono">{w.id.slice(0,4)}…{w.id.slice(-4)}</span>
+                              <span className="text-[11px] text-[var(--text-color-muted)]/90 font-mono">{w.id.slice(0,4)}…{w.id.slice(-4)}</span>
                             </button>
                           </li>
                         ))}
@@ -87,7 +85,7 @@ const Home: NextPage = () => {
                             <li key={r.id}>
                               <button onClick={()=>router.push(`/${r.name}`)} className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-white/5 hover:bg-white/7 transition-colors text-left">
                                 <span className="truncate text-[13px] font-medium text-white" title={r.name}>{r.name}</span>
-                                <span className="font-mono text-[10px] text-[var(--text-color-muted)]">{r.id.slice(0,3)}…{r.id.slice(-3)}</span>
+                                <span className="font-mono text-[11px] text-[var(--text-color-muted)]/90">{r.id.slice(0,3)}…{r.id.slice(-3)}</span>
                               </button>
                             </li>
                           ))}
@@ -122,7 +120,7 @@ const Home: NextPage = () => {
                       <li key={r.id}>
                         <button onClick={()=>router.push(`/${r.name}`)} className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md bg-white/5 hover:bg-white/7 transition-colors text-left">
                           <span className="truncate text-[13px] font-medium text-white" title={r.name}>{r.name}</span>
-                          <span className="font-mono text-[10px] text-[var(--text-color-muted)]">{r.id.slice(0,3)}…{r.id.slice(-3)}</span>
+                          <span className="font-mono text-[11px] text-[var(--text-color-muted)]/90">{r.id.slice(0,3)}…{r.id.slice(-3)}</span>
                         </button>
                       </li>
                     ))}

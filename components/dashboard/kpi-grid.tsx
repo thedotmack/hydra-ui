@@ -1,7 +1,7 @@
 import * as React from "react";
 import { KPICard } from "./kpi-card";
 import { EmptyState } from '@/components/ui/empty-state';
-import { formatAmount } from "@/common/format";
+import { formatAmount, formatPercent } from "@/common/format";
 import { DataChip } from '@/components/ui/data-chip';
 // Path adjusted to match actual file name (case-sensitive environments)
 import { useDataFreshness } from "@/hooks";
@@ -32,20 +32,22 @@ export const KPIGrid: React.FC<{ data?: KPIData | null; loading?: boolean; token
         <EmptyState
           title="No treasury metrics yet"
           description="Load or create a wallet to see balances, inflow, members, and distribution stats."
+          centered
+          icon="📊"
         />
       </section>
     )
   }
   // Primary KPI cards (Tier 1)
   const primary = [
-    { key: 'Available', value: loading || !data ? <Skeleton className="h-7 w-24" /> : `${formatAmount(data.currentBalance)} ${tokenSymbol}`, sub: 'Ready' },
-    { key: 'Undistributed', value: loading || !data ? <Skeleton className="h-7 w-24" /> : <span className="tabular-nums">{formatAmount(data.unclaimed ?? 0)} {tokenSymbol} <Tooltip><TooltipTrigger asChild><span className="ml-1 inline-block align-middle text-[10px] px-1 py-0.5 rounded bg-white/10 text-[var(--text-color-muted)] cursor-help" aria-describedby="undistributed-desc">Approx</span></TooltipTrigger><TooltipContent className="max-w-xs">Approximate until precise per-member accrual tracking is implemented.</TooltipContent></Tooltip><span id="undistributed-desc" className="sr-only">Approximate value</span></span>, sub: 'Accruing' },
+    { key: 'Available', value: loading || !data ? <Skeleton className="h-7 w-24" /> : formatAmount(data.currentBalance, { currency: tokenSymbol }), sub: 'Ready' },
+    { key: 'Undistributed', value: loading || !data ? <Skeleton className="h-7 w-24" /> : <span className="tabular-nums">{formatAmount(data.unclaimed ?? 0, { currency: tokenSymbol })} <Tooltip><TooltipTrigger asChild><span className="ml-1 inline-block align-middle text-[10px] px-1 py-0.5 rounded bg-white/10 text-[var(--text-color-muted)] cursor-help" aria-describedby="undistributed-desc">Approx</span></TooltipTrigger><TooltipContent className="max-w-xs">Approximate until precise per-member accrual tracking is implemented.</TooltipContent></Tooltip><span id="undistributed-desc" className="sr-only">Approximate value</span></span>, sub: 'Accruing' },
   ];
   // Secondary chips (Tier 2)
   const secondary = [
     { key: 'Members', value: loading || !data ? <Skeleton className="h-4 w-6" /> : data.members },
-    { key: 'Total Received', value: loading || !data ? <Skeleton className="h-4 w-12" /> : `${formatAmount(data.totalInflow)} ${tokenSymbol}` },
-    { key: 'Top Holder', value: loading || !data ? <Skeleton className="h-4 w-10" /> : `${formatAmount(data.topHolderPct ?? 0, { maxSig: 2, minSig: 2 })}%` },
+    { key: 'Total Received', value: loading || !data ? <Skeleton className="h-4 w-12" /> : formatAmount(data.totalInflow, { currency: tokenSymbol, compact: true }) },
+    { key: 'Top Holder', value: loading || !data ? <Skeleton className="h-4 w-10" /> : formatPercent(data.topHolderPct ?? 0, { digits: 1 }) },
   ];
   return (
     <section className="flex flex-col gap-4" aria-label="Overview">

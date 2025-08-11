@@ -15,33 +15,58 @@ export interface FormatOptions {
   fallback?: string
 }
 
-// Flexible human amount formatter with significant trimming and threshold
+// Enhanced amount formatter with currency symbol support and consistent formatting
 export function formatAmount(
   value: number | string | null | undefined,
-  opts: { maxSig?: number; minSig?: number; minThreshold?: number; showLessThan?: boolean } = {}
+  opts: { 
+    maxSig?: number; 
+    minSig?: number; 
+    minThreshold?: number; 
+    showLessThan?: boolean;
+    currency?: string;
+    compact?: boolean;
+  } = {}
 ): string {
-  const { maxSig = 4, minSig = 2, minThreshold = 0.0001, showLessThan = true } = opts
+  const { 
+    maxSig = 4, 
+    minSig = 2, 
+    minThreshold = 0.0001, 
+    showLessThan = true,
+    currency,
+    compact = false 
+  } = opts
+  
   if (value === null || value === undefined || value === '') return '--'
   const num = typeof value === 'string' ? Number(value) : value
   if (isNaN(num)) return '--'
-  if (num === 0) return '0'
-  if (num > 0 && num < minThreshold && showLessThan) return `<${minThreshold}`
-  // Determine precision: at least minSig, up to maxSig, trim trailing zeros.
-  let str = num.toFixed(maxSig)
-  // Trim trailing zeros but keep at least minSig decimals if <1
-  if (str.includes('.')) {
-    str = str.replace(/\.0+$/, '') // whole number
-    if (str.includes('.')) {
-      // Remove excess zeros
-      str = str.replace(/(\.[0-9]*?)0+$/, '$1')
-      // Ensure minimum decimals if <1 and decimals below minSig
-      const [i, d = ''] = str.split('.')
-      if (Number(i) === 0 && d.length < minSig) {
-        str = `${i}.${d.padEnd(minSig, '0')}`
-      }
-    }
+  if (num === 0) return currency ? `0 ${currency}` : '0'
+  if (num > 0 && num < minThreshold && showLessThan) {
+    return currency ? `<${minThreshold} ${currency}` : `<${minThreshold}`
   }
-  return str
+
+  let str: string
+
+  // Compact notation for large numbers
+  if (compact && num >= 1000000) {
+    const suffixes = ['', 'K', 'M', 'B', 'T']
+    let tier = Math.log10(Math.abs(num)) / 3 | 0
+    if (tier === 0) {
+      str = num.toFixed(minSig)
+    } else {
+      const suffix = suffixes[tier]
+      const scale = Math.pow(10, tier * 3)
+      const scaled = num / scale
+      str = scaled.toFixed(scaled < 10 ? 2 : scaled < 100 ? 1 : 0) + suffix
+    }
+  } else {
+    // Standard formatting with improved decimal handling
+    str = num.toLocaleString('en-US', {
+      minimumFractionDigits: num >= 1 ? Math.min(minSig, 2) : minSig,
+      maximumFractionDigits: maxSig,
+    })
+  }
+
+  return currency ? `${str} ${currency}` : str
 }
 
 // Percent formatter with configurable precision (defaults align with high-level UI needs)

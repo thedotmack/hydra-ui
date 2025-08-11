@@ -11,6 +11,7 @@ import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useState } from 'react'
 import { useAnalytics } from '@/hooks'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
+import { Section } from '@/components/primitives/Section'
 import { CreateWalletStepper, StepMember } from '@/components/wallet/CreateWalletStepper'
 
 const Home: NextPage = () => {
@@ -73,11 +74,13 @@ const Home: NextPage = () => {
 
   return (
     <DashboardLayout>
-      <div className="text-center mb-12 space-y-6 page-offset-top">
-        <p className="eyebrow tracking-wide text-[var(--color-accent)]">Hydra Treasury</p>
-        <h1 className="hero-title heading-hero">Create Hydra Wallet</h1>
-        <p className="text-gray-300 text-lg max-w-3xl mx-auto leading-relaxed">Set up a new treasury wallet with member shares and distribution rules.</p>
-      </div>
+      <div className="page-offset-top" />
+      <Section
+        heading="Create Hydra Wallet"
+        description="Set up a new treasury wallet with member shares and distribution rules."
+        spacing="lg"
+        className="text-center"
+      />
       {successName && (
         <div className="mb-10 rounded-xl border border-green-500/30 bg-green-900/20 backdrop-blur p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-4 shadow-lg shadow-green-900/20">
           <div className="text-green-300 text-xl font-semibold flex items-center gap-2"><span>✅</span>Wallet Created Successfully</div>

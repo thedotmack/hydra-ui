@@ -27,19 +27,27 @@ export const ContextBar: React.FC<ContextBarProps> = ({ sections = DEFAULT_SECTI
   if(!router.query.walletId) return null
 
   return (
-    <div className={cn('sticky top-14 z-30 w-full border-b border-[var(--border-subtle)] bg-[var(--glass-bg)]/45 backdrop-blur-xl', className)} role="navigation" aria-label="In-page">
-      <div className="mx-auto max-w-7xl px-4 md:px-6 h-10 flex items-center gap-2 overflow-x-auto">
+    <div className={cn('sticky top-14 z-30 w-full border-b border-[var(--glass-border-strong)] bg-[var(--glass-bg)]/65 backdrop-blur-xl', className)} role="navigation" aria-label="In-page">
+      <div className="mx-auto max-w-7xl px-4 md:px-6 h-12 flex items-center gap-1 overflow-x-auto">
         {sections.map(s => {
           const current = active === s.id
           return (
             <button
               key={s.id}
               onClick={() => { document.getElementById(s.id)?.scrollIntoView({ behavior:'smooth', block:'start' }); track({ name:'navigation_select', section: s.id }) }}
-              className={cn('px-3 h-7 rounded-md text-[12px] font-medium tracking-wide transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent-ring)]',
-                current ? 'bg-white/15 text-white' : 'text-[var(--text-color-muted)] hover:text-white hover:bg-white/10'
+              className={cn(
+                'relative px-4 h-8 rounded-lg text-[13px] font-semibold tracking-wide transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-ring)]',
+                current 
+                  ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)] border border-[var(--color-accent)]/20 shadow-sm' 
+                  : 'text-[var(--text-color-muted)] hover:text-white hover:bg-white/8 border border-transparent'
               )}
               aria-current={current ? 'true' : undefined}
-            >{s.label || s.id}</button>
+            >
+              {current && (
+                <div className="absolute inset-x-0 -bottom-[1px] h-0.5 bg-[var(--color-accent)] rounded-full" />
+              )}
+              {s.label || s.id}
+            </button>
           )
         })}
       </div>

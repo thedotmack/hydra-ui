@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/catalyst-ui-ts/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from '@/components/ui/empty-state';
@@ -25,61 +25,79 @@ export const MemberList: React.FC<MemberListProps> = ({ members = [], loading, t
 			<div className="flex items-center justify-between gap-4 flex-wrap px-1">
 				<h2 className="eyebrow">Members</h2>
 				<div className="flex items-center gap-2 flex-wrap">
-					<Button size="sm" className="w-auto px-4 font-medium" onClick={()=>track({ name:'distribution_initiated', scope:'all' })}>Distribute Funds</Button>
+					<Button color="indigo" className="h-8 px-4 text-sm font-semibold" onClick={()=>track({ name:'distribution_initiated', scope:'all' })}>Distribute Funds</Button>
 					<div className="relative">
-						<IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-						<Input placeholder="Search" className="pl-8 h-8 w-44" value={query} onChange={e=>setQuery(e.target.value)} />
+						<IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[var(--text-color-muted)]/70" />
+						<Input placeholder="Search members..." className="input-glass pl-10 pr-4 h-9 w-48 text-sm font-medium" value={query} onChange={e=>setQuery(e.target.value)} />
 					</div>
 					<Tooltip>
 							<TooltipTrigger asChild>
-								<Button variant="outline" size="sm" className="w-auto px-3" onClick={()=>setSort(s=>({ key: s.key, dir: s.dir * -1 as 1 | -1 }))}>{sort.dir === -1 ? <IconArrowDown className="size-4" /> : <IconArrowUp className="size-4" />} {sort.key}</Button>
+								<Button outline className="h-8 px-3 text-sm" onClick={()=>setSort(s=>({ key: s.key, dir: s.dir * -1 as 1 | -1 }))}>{sort.dir === -1 ? <IconArrowDown className="size-4" /> : <IconArrowUp className="size-4" />} {sort.key}</Button>
 							</TooltipTrigger>
 						<TooltipContent>Toggle sort direction</TooltipContent>
 					</Tooltip>
 					<Tooltip>
 							<TooltipTrigger asChild>
-								<Button variant="outline" size="sm" className="w-auto px-3" onClick={exportCsv} aria-label="Export CSV"><IconDownload className="size-4" /></Button>
+								<Button outline className="h-8 px-3 text-sm" onClick={exportCsv} aria-label="Export CSV"><IconDownload className="size-4" /></Button>
 							</TooltipTrigger>
 						<TooltipContent>Export CSV</TooltipContent>
 					</Tooltip>
 				</div>
 			</div>
 			<div className="glass-panel overflow-hidden" data-elev={2} role="table" aria-label="Member share allocations">
-				<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-3 px-4 py-2 text-[10px] uppercase tracking-[1.4px] text-[var(--text-color-muted)]/80 bg-white/[0.02]" role="row">
+				<div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 px-5 py-4 text-[11px] uppercase tracking-[1.2px] font-semibold text-white/70 bg-white/[0.03] border-b border-white/[0.05]" role="row">
 					<div>Member</div><div className="text-right">Claimed</div><div className="text-right">Shares</div><div className="text-right">Share %</div><div className="text-right">Action</div>
 				</div>
-				{loading && <div className="p-4 space-y-3" role="rowgroup">{Array.from({ length: 4 }).map((_,i)=>(<div key={i} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-3 px-4 items-center" role="row"><Skeleton className="h-5 w-40" /><Skeleton className="h-5 w-16 justify-self-end" /><Skeleton className="h-5 w-10 justify-self-end" /><Skeleton className="h-5 w-10 justify-self-end" /><Skeleton className="h-7 w-20 justify-self-end" /></div>))}</div>}
-				{!loading && filtered.length===0 && <div className="p-4" role="row"><EmptyState dense title="No members found" description="Adjust your search or distribute funds once members are added." /></div>}
+				{loading && <div className="p-5 space-y-4" role="rowgroup">{Array.from({ length: 4 }).map((_,i)=>(<div key={i} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 items-center" role="row"><Skeleton className="h-5 w-40" /><Skeleton className="h-5 w-16 justify-self-end" /><Skeleton className="h-5 w-10 justify-self-end" /><Skeleton className="h-5 w-10 justify-self-end" /><Skeleton className="h-7 w-20 justify-self-end" /></div>))}</div>}
+				{!loading && filtered.length===0 && <div className="p-8" role="row"><EmptyState dense title="No members found" description="Adjust your search or distribute funds once members are added." icon="👥" centered /></div>}
 				{!loading && filtered.map(m=>{ const pct= totalShares ? (m.shares/totalShares)*100 : 0; return (
-					<div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-3 px-4 py-2.5 text-sm items-center hover:bg-white/4 transition-colors" role="row">
-						<div className="flex items-center gap-2 min-w-0">
-							<div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--glass-bg-alt)] border border-[var(--glass-border)] text-[var(--color-accent)] text-xs font-semibold">{m.id.slice(0,1).toUpperCase()}</div>
-							<div className="flex flex-col truncate">
-								<span className="font-medium truncate text-white" title={m.address}>{m.address.slice(0,4)}…{m.address.slice(-4)}</span>
-								<span className="text-[11px] text-muted-foreground">Last claim {m.lastClaim || '—'}</span>
+					<div key={m.id} className="grid grid-cols-[1.5fr_1fr_1fr_1fr_auto] gap-4 px-5 py-4 text-sm items-center hover:bg-white/[0.04] transition-all duration-200 hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.02)] border-b border-white/[0.03] last:border-b-0" role="row">
+						<div className="flex items-center gap-3 min-w-0">
+							<div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-accent)]/20 to-[var(--color-accent)]/10 border border-[var(--color-accent)]/20 text-[var(--color-accent)] text-xs font-semibold">
+								{m.id.slice(0,1).toUpperCase()}
 							</div>
-							<CopyButton value={m.address} label="Copy Address" className="ml-auto" onCopy={()=>track({ name: 'copied_value', valueType: 'member_address' })} />
+							<div className="flex flex-col truncate">
+								<span className="font-semibold truncate text-white" title={m.address}>{m.address.slice(0,4)}…{m.address.slice(-4)}</span>
+								<span className="text-[11px] text-[var(--text-color-muted)]">Last claim {m.lastClaim || '—'}</span>
+							</div>
+							<CopyButton value={m.address} label="Copy Address" className="ml-auto opacity-60 hover:opacity-100 transition-opacity" onCopy={()=>track({ name: 'copied_value', valueType: 'member_address' })} />
 						</div>
-						<div className="text-right align-decimals tabular-nums"><span className="int">{formatAmount(m.claimed, { maxSig: 6, minSig: 2 })}</span></div>
-						<div className="text-right align-decimals tabular-nums"><span className="int">{m.shares}</span></div>
-						<div className="text-right align-decimals tabular-nums" aria-label={`Share percent ${formatPercent(pct,{ digits: 2 })}`}><span className="int">{formatPercent(pct,{ digits: 2 })}</span></div>
+						<div className="text-right align-decimals tabular-nums font-medium"><span className="int">{formatAmount(m.claimed, { maxSig: 6, minSig: 2 })}</span></div>
+						<div className="text-right align-decimals tabular-nums font-medium"><span className="int">{m.shares}</span></div>
+						<div className="text-right flex flex-col items-end gap-1" aria-label={`Share percent ${formatPercent(pct,{ digits: 1 })}`}>
+							<span className="text-sm font-medium tabular-nums">{formatPercent(pct,{ digits: 1 })}</span>
+							<div className="w-12 h-1.5 bg-white/10 rounded-full overflow-hidden">
+								<div 
+									className="h-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent)]/80 rounded-full transition-all duration-300" 
+									style={{ width: `${Math.min(pct, 100)}%` }}
+								/>
+							</div>
+						</div>
 						<div className="flex justify-end">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-										<Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" aria-label={`Member ${m.id} actions`}>
-											<IconDotsVertical className="size-4" />
-										</Button>
+									<Button 
+										plain 
+										className="w-8 h-8 rounded-lg hover:bg-white/10 opacity-60 hover:opacity-100 transition-all"
+										aria-label={`Member ${m.id} actions`}
+									>
+										<IconDotsVertical className="size-4" />
+									</Button>
 								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end" className="min-w-[160px]">
-									<DropdownMenuItem onClick={() => { track({ name:'page_view', page: 'member_details' }) }}>View Details</DropdownMenuItem>
-									<DropdownMenuItem onClick={() => { track({ name:'distribution_initiated', scope:'member', memberId:m.id }); onDistributeMember?.(m); }}>Distribute Portion</DropdownMenuItem>
+								<DropdownMenuContent align="end" className="min-w-[180px]">
+									<DropdownMenuItem onClick={() => { track({ name:'page_view', page: 'member_details' }) }}>
+										View Details
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={() => { track({ name:'distribution_initiated', scope:'member', memberId:m.id }); onDistributeMember?.(m); }}>
+										Distribute Share
+									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
 						</div>
 					</div>
 				) })}
 			</div>
-			<p className="text-[11px] text-[var(--text-color-muted)] mt-1 px-1">{members.length} members • Updated {freshness.ageSeconds}s ago</p>
+			<p className="text-sm text-[var(--text-color-muted)]/90 mt-2 px-1">{members.length} members • Updated {freshness.ageSeconds}s ago</p>
 		</section>
 	)
 }

@@ -74,7 +74,7 @@ export const TopNav: React.FC = () => {
             onChange={e=>setViewId(e.target.value)}
             onKeyDown={e=>{ if(e.key==='Enter'){ goView() } }}
             placeholder="View any shared wallet (name/id)"
-            className="w-full h-9 rounded-lg bg-[var(--glass-bg-alt)] border border-[var(--glass-border)] px-3 pr-9 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[var(--color-accent-ring)] font-mono"
+            className="w-full h-9 rounded-lg input-glass px-3 pr-9 text-sm font-mono"
             aria-label="View any wallet by name or id"
           />
           <button aria-label="Open wallet" onClick={goView} className="absolute right-1.5 top-1.5 h-6 w-6 rounded-md bg-white/10 hover:bg-white/15 flex items-center justify-center"><Search className="h-3.5 w-3.5" /></button>

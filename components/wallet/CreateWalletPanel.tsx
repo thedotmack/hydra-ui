@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
-import { TextureButton } from '@/components/ui/texture-button'
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface CreateWalletPanelProps {
@@ -20,14 +20,10 @@ export const CreateWalletPanel: React.FC<CreateWalletPanelProps> = ({ variant='f
         {variant==='full' && (<p className="text-gray-300 text-sm md:text-base leading-relaxed">Set up a new treasury with custom member shares and distribution rules.</p>)}
       </div>
       <div className="mt-auto space-y-4">
-        <TextureButton
-          variant="primary"
+        <Button
           className={cn('w-full font-semibold', variant==='full' ? 'h-12 text-base' : 'h-11 text-sm')}
           onClick={() => router.push(`/create${environment.label !== 'mainnet-beta' ? `?cluster=${environment.label}` : ''}`)}
-          data-focus-ring="true"
-        >
-          Create Wallet
-        </TextureButton>
+        >Create Wallet</Button>
         {variant==='full' && <p className="text-xs text-gray-500 text-center">Configure members & shares</p>}
       </div>
     </div>

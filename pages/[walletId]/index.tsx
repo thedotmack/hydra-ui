@@ -5,7 +5,7 @@ import { buildRemoveMemberInstructions, buildTransferSharesInstructions } from '
 import { Wallet } from '@coral-xyz/anchor/dist/cjs/provider'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { PublicKey, Transaction } from '@solana/web3.js'
-import { AsyncTextureButton } from '@/components/ui/async-texture-button'
+import { AsyncButton } from '@/components/ui/async-texture-button'
 import { notify } from 'common/Notification'
 import {
   getMintNaturalAmountFromDecimal,
@@ -26,7 +26,7 @@ import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import React, { useEffect, useState } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { TextureButton } from '@/components/ui/texture-button'
+import { Button } from '@/components/catalyst-ui-ts/button'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { IconChevronDown } from '@tabler/icons-react'
 import { Input } from '@/components/ui/input'
@@ -636,15 +636,13 @@ const Home: NextPage = () => {
           />
           <p className="text-xs text-gray-500">Same name you used when creating the wallet.</p>
         </div>
-        <TextureButton
+  <Button color={name.trim() ? 'indigo' : undefined} outline={!name.trim()}
           type="submit"
-          variant={name.trim() ? "primary" : "glass"}
-          className={"h-12 text-base font-semibold w-full" + (!name.trim() ? " btn-disabled text-gray-400" : "")}
+          className={"h-12 text-base font-semibold w-full" + (!name.trim() ? " opacity-50 cursor-not-allowed" : "")}
           disabled={!name.trim()}
-          data-focus-ring="true"
         >
           Load Wallet
-        </TextureButton>
+  </Button>
       </form>
     )
   }
@@ -668,13 +666,12 @@ const Home: NextPage = () => {
         {fanoutData.error && (
           <div className="glass-panel rounded-[var(--radius-xl)] p-6 text-center" data-elev="2">
             <h3 className="text-xl font-semibold text-red-300 mb-2">Hydra Wallet Not Found</h3>
-            <TextureButton
+            <Button outline
               onClick={() => router.push(`/${environment.label !== 'mainnet-beta' ? `?cluster=${environment.label}` : ''}`)}
-              variant="glass"
               className="mt-4"
             >
               Return to Dashboard
-            </TextureButton>
+            </Button>
           </div>
         )}
 
@@ -732,7 +729,7 @@ const Home: NextPage = () => {
             <div className="flex items-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-      <TextureButton variant="luminous" className="h-9 px-4 text-sm flex items-center gap-1" data-focus-ring="true">Manage <IconChevronDown className="size-4" /></TextureButton>
+  <Button color="indigo" className="h-9 px-4 text-sm flex items-center gap-1">Manage <IconChevronDown className="size-4" /></Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="bottom" align="start" className="min-w-48">
                   <DropdownMenuItem onClick={() => { setShowAddMember(s => !s); setShowTransferShares(false); setShowStakeTokens(false) }}>
@@ -814,28 +811,24 @@ const Home: NextPage = () => {
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
-                <TextureButton
+                <Button color={(!newMemberWallet || newMemberShares <= 0) ? undefined : 'indigo'} outline={(!newMemberWallet || newMemberShares <= 0)}
                   onClick={addMember}
-                  variant={(!newMemberWallet || newMemberShares <= 0) ? 'glass' : 'luminous'}
                   className="h-9 px-6"
                   disabled={!newMemberWallet || newMemberShares <= 0}
-                  data-focus-ring="true"
                 >
                   Add Member
-                </TextureButton>
-                <TextureButton
+                </Button>
+                <Button outline
                   onClick={() => {
                     setShowAddMember(false)
                     setNewMemberWallet('')
                     setNewMemberShares(0)
                     setNewMemberType('wallet')
                   }}
-                  variant="glass"
                   className="h-9 px-4"
-                  data-focus-ring="true"
                 >
                   Cancel
-                </TextureButton>
+                </Button>
               </div>
             </div>
           )}
@@ -890,28 +883,24 @@ const Home: NextPage = () => {
                 </div>
               </div>
               <div className="mt-4 flex gap-2">
-                <TextureButton
+                <Button color={(!transferFromMember || !transferToMember || transferShareAmount <= 0) ? undefined : 'indigo'} outline={(!transferFromMember || !transferToMember || transferShareAmount <= 0)}
                   onClick={transferShares}
-                  variant={(!transferFromMember || !transferToMember || transferShareAmount <= 0) ? 'glass' : 'luminous'}
                   className="h-9 px-6"
                   disabled={!transferFromMember || !transferToMember || transferShareAmount <= 0}
-                  data-focus-ring="true"
                 >
                   Transfer Shares
-                </TextureButton>
-                <TextureButton
+                </Button>
+                <Button outline
                   onClick={() => {
                     setShowTransferShares(false)
                     setTransferFromMember('')
                     setTransferToMember('')
                     setTransferShareAmount(0)
                   }}
-                  variant="glass"
                   className="h-9 px-4"
-                  data-focus-ring="true"
                 >
                   Cancel
-                </TextureButton>
+                </Button>
               </div>
             </div>
           )}
@@ -933,26 +922,22 @@ const Home: NextPage = () => {
                 </div>
                 <div className="flex items-end">
                   <div className="flex gap-2 w-full">
-                    <TextureButton
+                    <Button color={stakeAmount > 0 ? 'indigo' : undefined} outline={stakeAmount <= 0}
                       onClick={stakeTokens}
-                      variant={stakeAmount > 0 ? "luminous" : "glass"}
                       className="h-10 px-6"
                       disabled={stakeAmount <= 0}
-                      data-focus-ring="true"
                     >
                       Stake Tokens
-                    </TextureButton>
-                    <TextureButton
+                    </Button>
+                    <Button outline
                       onClick={() => {
                         setShowStakeTokens(false)
                         setStakeAmount(0)
                       }}
-                      variant="glass"
                       className="h-10 px-4"
-                      data-focus-ring="true"
                     >
                       Cancel
-                    </TextureButton>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -982,28 +967,27 @@ const Home: NextPage = () => {
               <p className="font-medium text-white mb-1">No Members Yet</p>
               <p className="mb-4">Add members with share units to enable distributions.</p>
               {fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-                <TextureButton variant="luminous" className="h-9 px-5" onClick={() => { setShowAddMember(true); }} data-focus-ring="true">Add First Member</TextureButton>
+                <Button color="indigo" className="h-9 px-5" onClick={() => { setShowAddMember(true); }}>Add First Member</Button>
               )}
             </div>
           )}
         {/* Inline actions under list when members exist */}
         {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (
           <div className="flex flex-wrap gap-3 items-center">
-            <AsyncTextureButton
-              variant="luminous"
+            <AsyncButton
               className="h-9 px-5 text-sm font-medium"
               onAction={async () => fanoutData.data && distributeShare(fanoutData.data, true)}
               disabled={!wallet.publicKey || !fanoutMembershipVouchers.data || fanoutMembershipVouchers.data.length === 0}
-              data-focus-ring="true"
-            >Distribute All</AsyncTextureButton>
+              loadingText="Distributing"
+            >Distribute All</AsyncButton>
             {fanoutData.data && fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() && (
-              <AsyncTextureButton
-                variant="glass"
+              <AsyncButton
+                outline
                 className="h-9 px-4 text-sm font-medium"
                 onAction={addSplToken}
                 disabled={!wallet.publicKey}
-                data-focus-ring="true"
-              >Add SPL Token</AsyncTextureButton>
+                loadingText="Adding"
+              >Add SPL Token</AsyncButton>
             )}
           </div>
         )}

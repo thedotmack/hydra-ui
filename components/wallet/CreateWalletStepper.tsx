@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { TextureButton } from '@/components/ui/texture-button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { tryPublicKey } from 'common/utils'
 import { formatPercent } from '@/common/format'
@@ -48,7 +48,7 @@ export const CreateWalletStepper: React.FC<CreateWalletStepperProps> = ({ onComp
             </div>
           </div>
           <div className="pt-1 flex justify-end">
-            <TextureButton variant="primary" disabled={!canContinueName} onClick={()=> setStep(1)} className="w-auto px-7 h-11 font-semibold">Continue</TextureButton>
+            <Button disabled={!canContinueName} onClick={()=> setStep(1)} className="w-auto px-7 h-11 font-semibold">Continue</Button>
           </div>
         </section>
       )}
@@ -72,20 +72,20 @@ export const CreateWalletStepper: React.FC<CreateWalletStepperProps> = ({ onComp
                   <div className="w-12 h-1.5 bg-white/10 rounded-full overflow-hidden"><div className="h-full bg-[var(--color-accent)]" style={{ width: `${Math.min(100,pct)}%` }} /></div>
                 </div>
                 <div className="flex items-center justify-end">
-                  {members.length>1 && <TextureButton variant="outline" size="sm" className="w-auto px-3" onClick={()=>removeMember(i)}>Remove</TextureButton>}
+                  {members.length>1 && <Button variant="outline" size="sm" className="w-auto px-3" onClick={()=>removeMember(i)}>Remove</Button>}
                 </div>
               </div>
             )})}
             <div className="flex gap-3 flex-wrap">
-              <TextureButton variant="primary" size="sm" className="px-4 h-9" onClick={addMember}>+ Add Member</TextureButton>
-              {members.length>1 && <TextureButton variant="outline" size="sm" className="px-4 h-9" onClick={()=> setMembers(m=> m.slice(0,-1))}>- Remove Last</TextureButton>}
+              <Button size="sm" className="px-4 h-9" onClick={addMember}>+ Add Member</Button>
+              {members.length>1 && <Button variant="outline" size="sm" className="px-4 h-9" onClick={()=> setMembers(m=> m.slice(0,-1))}>- Remove Last</Button>}
             </div>
             <ProgressBar value={sharesAllocated} max={totalShares} label="Allocation progress" />
             <p className="text-[11px] text-[var(--text-color-muted)]">Allocated {sharesAllocated}/{totalShares} shares ({remaining} remaining)</p>
           </div>
           <div className="flex justify-between pt-1">
-            <TextureButton variant="outline" onClick={()=> setStep(0)} className="w-auto px-6 h-11">Back</TextureButton>
-            <TextureButton variant="primary" disabled={!canContinueMembers} onClick={()=> setStep(2)} className="w-auto px-7 h-11 font-semibold">Review</TextureButton>
+            <Button variant="outline" onClick={()=> setStep(0)} className="w-auto px-6 h-11">Back</Button>
+            <Button disabled={!canContinueMembers} onClick={()=> setStep(2)} className="w-auto px-7 h-11 font-semibold">Review</Button>
           </div>
         </section>
       )}
@@ -106,8 +106,8 @@ export const CreateWalletStepper: React.FC<CreateWalletStepperProps> = ({ onComp
             </div>
           </div>
           <div className="flex justify-between pt-1">
-            <TextureButton variant="outline" onClick={()=> setStep(1)} className="w-auto px-6 h-11">Back</TextureButton>
-            <TextureButton variant="primary" disabled={submitting || !canContinueMembers} onClick={finish} className="w-auto px-8 h-11 font-semibold">{submitting? 'Creating…':'Create Wallet'}</TextureButton>
+            <Button variant="outline" onClick={()=> setStep(1)} className="w-auto px-6 h-11">Back</Button>
+            <Button disabled={submitting || !canContinueMembers} onClick={finish} className="w-auto px-8 h-11 font-semibold">{submitting? 'Creating…':'Create Wallet'}</Button>
           </div>
         </section>
       )}

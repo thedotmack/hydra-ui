@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { TextureButton } from "@/components/ui/texture-button";
+import { Button } from "@/components/ui/button";
 import { formatAmount } from "@/common/format";
 import { useAnalytics } from "@/hooks/useAnalytics";
 interface DistributionModalProps { available: number; token: string }
@@ -18,7 +18,7 @@ export const DistributionModal: React.FC<DistributionModalProps> = ({ available,
 	return (
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
-				<TextureButton size="sm" variant="luminous" className="w-auto px-4">Distribute All</TextureButton>
+				<Button size="sm" className="w-auto px-4 font-medium">Distribute All</Button>
 			</DialogTrigger>
 			<DialogContent className="glass-panel p-6 max-w-sm w-full" data-elev={3}>
 				<DialogHeader>
@@ -35,8 +35,8 @@ export const DistributionModal: React.FC<DistributionModalProps> = ({ available,
 					<div className="text-[11px] text-[var(--text-color-muted)]">Network fee estimate will display here.</div>
 				</div>
 				<div className="flex justify-end gap-2 pt-4">
-					<TextureButton variant="glass" size="sm" className="w-auto px-4" onClick={() => setOpen(false)} disabled={pending}>Cancel</TextureButton>
-					<TextureButton variant="luminous" size="sm" className="w-auto px-5" onClick={onDistribute} disabled={pending || available <= 0}>{pending ? "Distributing…" : "Confirm"}</TextureButton>
+					<Button variant="outline" size="sm" className="w-auto px-4" onClick={() => setOpen(false)} disabled={pending}>Cancel</Button>
+					<Button size="sm" className="w-auto px-5 font-medium" onClick={onDistribute} disabled={pending || available <= 0}>{pending ? "Distributing…" : "Confirm"}</Button>
 				</div>
 			</DialogContent>
 		</Dialog>

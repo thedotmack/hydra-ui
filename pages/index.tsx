@@ -5,7 +5,7 @@ import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
 import { useEffect, useState } from 'react'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
-import { TextureButton } from '@/components/ui/texture-button'
+import { Button } from '@/components/catalyst-ui-ts/button'
 import { WalletHubPanels } from '@/components/wallet/WalletHubPanels'
 import { LoadWalletPanel } from '@/components/wallet/LoadWalletPanel'
 import { useMyWallets, useAnalytics } from '@/hooks'
@@ -51,7 +51,7 @@ const Home: NextPage = () => {
                         <h2 id="my-wallets-heading" className="text-lg font-semibold tracking-tight">My Shared Wallets</h2>
                         <p className="text-[12px] text-[var(--text-color-muted)] leading-relaxed">Your wallets (authority detection coming soon).</p>
                       </div>
-                      <TextureButton variant="luminous" size="sm" className="w-auto px-4 font-semibold" onClick={()=>router.push('/create')}>New</TextureButton>
+                        <Button color="indigo" className="w-auto px-4 font-semibold" onClick={()=>router.push('/create')}>New</Button>
                     </div>
                     {myWallets.length === 0 && (
                       <div className="text-[13px] text-[var(--text-color-muted)] space-y-4 py-6">
@@ -59,7 +59,7 @@ const Home: NextPage = () => {
                           <p className="font-medium text-white mb-1">No wallets yet</p>
                           <p>Create your first shared wallet to start tracking balances & distributions.</p>
                         </div>
-                        <TextureButton variant="luminous" className="w-auto px-5 h-9" onClick={()=>router.push('/create')}>Create Wallet</TextureButton>
+                        <Button color="indigo" className="w-auto !px-5 !py-2" onClick={()=>router.push('/create')}>Create Wallet</Button>
                       </div>
                     )}
                     {myWallets.length > 0 && (
@@ -112,7 +112,7 @@ const Home: NextPage = () => {
                   <h2 className="text-lg font-semibold tracking-tight">New Wallet</h2>
                   <p className="text-[12px] text-[var(--text-color-muted)] leading-relaxed">Name it now. Add members anytime.</p>
                 </div>
-                <TextureButton variant="luminous" className="h-10 w-full text-sm font-semibold" onClick={()=>router.push('/create')} data-focus-ring="true">Create Wallet</TextureButton>
+                <Button color="indigo" className="h-10 w-full !text-sm font-semibold" onClick={()=>router.push('/create')}>Create Wallet</Button>
               </div>
               {/* Load Column (equal width to Create) */}
               <div className={`${recent.length>0 ? 'md:col-span-4' : 'md:col-span-6'} flex flex-col`}>

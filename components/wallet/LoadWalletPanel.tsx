@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useRouter } from 'next/router'
 import { useEnvironmentCtx } from 'providers/EnvironmentProvider'
-import { TextureButton } from '@/components/ui/texture-button'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
@@ -53,15 +53,12 @@ export const LoadWalletPanel: React.FC<LoadWalletPanelProps> = ({
           <p className="text-xs text-gray-500">Use 3–32 lowercase letters, numbers, or hyphens.</p>
         </div>
         <div className="mt-auto">
-          <TextureButton
+          <Button
             type="submit"
-            variant={walletName.trim() ? 'primary' : 'glass'}
-            className={cn('w-full font-semibold transition-colors', variant === 'full' ? 'h-12 text-base' : 'h-11 text-sm', !walletName.trim() && 'btn-disabled text-gray-400')}
+            variant={walletName.trim() ? 'default' : 'outline'}
+            className={cn('w-full font-semibold transition-colors', variant === 'full' ? 'h-12 text-base' : 'h-11 text-sm', !walletName.trim() && 'text-gray-400')}
             disabled={!walletName.trim()}
-            data-focus-ring="true"
-          >
-            Load Wallet
-          </TextureButton>
+          >Load Wallet</Button>
         </div>
       </form>
     </div>

@@ -5,7 +5,7 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { Network, ChevronDown, Check } from "lucide-react"
 import Link from "next/link"
 import { HydraLogo } from "@/components/ui/hydra-logo"
-import { TextureButton } from "@/components/ui/texture-button"
+import { Button } from "@/components/ui/button"
 import { useEnvironmentCtx, ENVIRONMENTS } from 'providers/EnvironmentProvider'
 import { Cluster } from '@solana/web3.js'
 import { cn } from "@/lib/utils"
@@ -65,19 +65,18 @@ export function ModernHeader({ className }: HeaderProps) {
         <div className="flex items-center gap-2 md:gap-3" ref={dropdownRef}>
           {/* Environment dropdown */}
           <div className="relative">
-            <TextureButton
-              variant="glass"
+            <Button
+              variant="outline"
               onClick={() => setEnvOpen(o => !o)}
               aria-haspopup="menu"
               aria-expanded={envOpen}
               aria-label="Select network"
-              data-focus-ring="true"
-              className={"h-9 px-3 gap-1.5 text-sm font-medium hover:shadow-[0_0_0_1px_var(--color-accent-ring),0_0_0_3px_rgba(174,104,255,0.15)] " + (envOpen ? 'bg-[var(--glass-bg)]' : '')}
+              className={"h-9 px-3 gap-1.5 text-sm font-medium " + (envOpen ? 'bg-[var(--glass-bg)]' : '')}
             >
               <Network className="h-4 w-4 text-[var(--color-accent)]" />
               <span className="capitalize font-medium tracking-tight">{ctx.environment.label}</span>
               <ChevronDown className={"h-3.5 w-3.5 transition-transform opacity-70 " + (envOpen ? 'rotate-180' : '')} />
-            </TextureButton>
+            </Button>
             {envOpen && (
               <div role="menu" aria-label="Select network" className="absolute right-0 mt-2 w-44 rounded-lg glass-panel p-1.5 z-50 border border-[var(--glass-border-strong)] shadow-lg">
                 <ul className="flex flex-col gap-0.5">

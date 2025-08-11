@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
-import { TextureButton } from "@/components/ui/texture-button";
+import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from '@/components/ui/empty-state';
@@ -24,22 +24,22 @@ export const MemberList: React.FC<MemberListProps> = ({ members = [], loading, t
 		<section className="flex flex-col gap-4" aria-label="Members">
 			<div className="flex items-center justify-between gap-4 flex-wrap px-1">
 				<h2 className="eyebrow">Members</h2>
-				<div className="flex items-center gap-2">
-					<TextureButton size="sm" variant="luminous" className="w-auto px-4" onClick={()=>track({ name:'distribution_initiated', scope:'all' })}>Distribute Funds</TextureButton>
+				<div className="flex items-center gap-2 flex-wrap">
+					<Button size="sm" className="w-auto px-4 font-medium" onClick={()=>track({ name:'distribution_initiated', scope:'all' })}>Distribute Funds</Button>
 					<div className="relative">
 						<IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
 						<Input placeholder="Search" className="pl-8 h-8 w-44" value={query} onChange={e=>setQuery(e.target.value)} />
 					</div>
 					<Tooltip>
-						<TooltipTrigger asChild>
-							<TextureButton variant="glass" size="sm" className="w-auto px-3" onClick={()=>setSort(s=>({ key: s.key, dir: s.dir * -1 as 1 | -1 }))}>{sort.dir === -1 ? <IconArrowDown className="size-4" /> : <IconArrowUp className="size-4" />} {sort.key}</TextureButton>
-						</TooltipTrigger>
+							<TooltipTrigger asChild>
+								<Button variant="outline" size="sm" className="w-auto px-3" onClick={()=>setSort(s=>({ key: s.key, dir: s.dir * -1 as 1 | -1 }))}>{sort.dir === -1 ? <IconArrowDown className="size-4" /> : <IconArrowUp className="size-4" />} {sort.key}</Button>
+							</TooltipTrigger>
 						<TooltipContent>Toggle sort direction</TooltipContent>
 					</Tooltip>
 					<Tooltip>
-						<TooltipTrigger asChild>
-							<TextureButton variant="glass" size="sm" className="w-auto px-3" onClick={exportCsv} aria-label="Export CSV"><IconDownload className="size-4" /></TextureButton>
-						</TooltipTrigger>
+							<TooltipTrigger asChild>
+								<Button variant="outline" size="sm" className="w-auto px-3" onClick={exportCsv} aria-label="Export CSV"><IconDownload className="size-4" /></Button>
+							</TooltipTrigger>
 						<TooltipContent>Export CSV</TooltipContent>
 					</Tooltip>
 				</div>
@@ -66,9 +66,9 @@ export const MemberList: React.FC<MemberListProps> = ({ members = [], loading, t
 						<div className="flex justify-end">
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
-									<TextureButton size="sm" variant="icon" className="w-8 h-8" aria-label={`Member ${m.id} actions`}>
-										<IconDotsVertical className="size-4" />
-									</TextureButton>
+										<Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" aria-label={`Member ${m.id} actions`}>
+											<IconDotsVertical className="size-4" />
+										</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end" className="min-w-[160px]">
 									<DropdownMenuItem onClick={() => { track({ name:'page_view', page: 'member_details' }) }}>View Details</DropdownMenuItem>

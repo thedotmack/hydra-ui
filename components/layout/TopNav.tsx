@@ -4,10 +4,11 @@ import { useRouter } from 'next/router'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui'
 import { HydraLogo } from '@/components/ui/hydra-logo'
-import { TextureButton } from '@/components/ui/texture-button'
+import { Button } from '@/components/ui/button'
 import { useEnvironmentCtx, ENVIRONMENTS } from 'providers/EnvironmentProvider'
 import { ChevronDown, Check, Network, Plus, Search } from 'lucide-react'
-import { useMyWallets, useScrollSpy } from '@/hooks'
+import { useMyWallets } from '@/hooks/useMyWallets'
+import { useScrollSpy } from '@/hooks/useScrollSpy'
 import { useAnalytics } from '@/hooks'
 
 interface StoredWalletMeta { id: string; name: string; lastAccessed: number }
@@ -96,7 +97,7 @@ export const TopNav: React.FC = () => {
         )}
         {connected && (
           <div className="relative" ref={myRef}>
-            <TextureButton variant="glass" className="h-9 px-3 gap-1.5 text-sm font-medium" onClick={()=>setMyOpen(o=>!o)} aria-haspopup="menu" aria-expanded={myOpen}>My Shared Wallets<ChevronDown className="h-3.5 w-3.5 opacity-70" /></TextureButton>
+            <Button variant="outline" className="h-9 px-3 gap-1.5 text-sm font-medium" onClick={()=>setMyOpen(o=>!o)} aria-haspopup="menu" aria-expanded={myOpen}>My Shared Wallets<ChevronDown className="h-3.5 w-3.5 opacity-70" /></Button>
             {myOpen && (
               <div role="menu" className="absolute right-0 mt-2 w-72 glass-panel rounded-lg p-2 border border-[var(--glass-border)] z-50 flex flex-col gap-2" aria-label="My Shared Wallets">
                 {myWallets.length===0 && <p className="text-xs text-[var(--text-color-muted)] px-2 py-1">No wallets yet.</p>}
@@ -106,7 +107,7 @@ export const TopNav: React.FC = () => {
                     <span className="text-[10px] text-[var(--text-color-muted)]">{w.id.slice(0,4)}…{w.id.slice(-4)}</span>
                   </button>
                 ))}
-                <TextureButton variant="luminous" className="h-8 text-xs font-medium mt-1" onClick={()=>router.push('/create')}>+ New Shared Wallet</TextureButton>
+                <Button className="h-8 text-xs font-medium mt-1" onClick={()=>router.push('/create')}>+ New Shared Wallet</Button>
                 {recent.length>0 && (
                   <div className="pt-2 mt-1 border-t border-white/5">
                     <p className="px-2 mb-1 text-[10px] uppercase tracking-wide text-[var(--text-color-muted)]">Recent</p>
@@ -125,7 +126,7 @@ export const TopNav: React.FC = () => {
           </div>
         )}
         <div className="relative" ref={envRef}>
-            <TextureButton variant="glass" className="h-9 px-3 gap-1.5 text-sm font-medium" onClick={()=>setEnvOpen(o=>!o)} aria-haspopup="menu" aria-expanded={envOpen}><Network className="h-4 w-4 text-[var(--color-accent)]" /><span className="capitalize">{environment.label}</span><ChevronDown className="h-3.5 w-3.5 opacity-70" /></TextureButton>
+            <Button variant="outline" className="h-9 px-3 gap-1.5 text-sm font-medium" onClick={()=>setEnvOpen(o=>!o)} aria-haspopup="menu" aria-expanded={envOpen}><Network className="h-4 w-4 text-[var(--color-accent)]" /><span className="capitalize">{environment.label}</span><ChevronDown className="h-3.5 w-3.5 opacity-70" /></Button>
             {envOpen && (
               <div role="menu" className="absolute right-0 mt-2 w-40 glass-panel rounded-lg p-1.5 border border-[var(--glass-border)] z-50">
                 <ul className="flex flex-col gap-0.5">
@@ -144,7 +145,7 @@ export const TopNav: React.FC = () => {
               </div>
             )}
         </div>
-        {connected && <TextureButton variant="luminous" className="h-9 px-4 text-sm font-medium hidden md:inline-flex" onClick={()=>router.push('/create')}><Plus className="h-4 w-4 mr-1" />Create</TextureButton>}
+  {connected && <Button className="h-9 px-4 text-sm font-medium hidden md:inline-flex" onClick={()=>router.push('/create')}><Plus className="h-4 w-4 mr-1" />Create</Button>}
         {mounted && (
           <div className="btn-luminous h-9 flex items-center !px-0">
             <WalletMultiButton className="focus-ring !h-9 !px-4 !text-sm !font-medium !tracking-tight !bg-transparent !shadow-none !border-0" />

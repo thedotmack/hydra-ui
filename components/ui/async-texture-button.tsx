@@ -1,15 +1,18 @@
-import * as React from "react"
-import { TextureButton, UnifiedButtonProps } from "./texture-button"
-import { LoadingSpinner } from "@/common/LoadingSpinner"
-import { cn } from "@/lib/utils"
+import * as React from 'react'
+import { Button } from '@/components/catalyst-ui-ts/button'
+import { LoadingSpinner } from '@/common/LoadingSpinner'
+import { cn } from '@/lib/utils'
 
-export interface AsyncTextureButtonProps extends UnifiedButtonProps {
+export interface AsyncButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   onAction: () => Promise<void> | void
   loadingText?: string
+  color?: string
+  outline?: boolean
+  plain?: boolean
 }
 
-export const AsyncTextureButton = React.forwardRef<HTMLButtonElement, AsyncTextureButtonProps>(
-  ({ onAction, children, className, loadingText, disabled, ...rest }, ref) => {
+export const AsyncButton = React.forwardRef<HTMLButtonElement, AsyncButtonProps>(
+  ({ onAction, children, className, loadingText, disabled, color='indigo', outline, plain, ...rest }, ref) => {
     const [loading, setLoading] = React.useState(false)
 
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -23,12 +26,15 @@ export const AsyncTextureButton = React.forwardRef<HTMLButtonElement, AsyncTextu
     }
 
     return (
-      <TextureButton
-        ref={ref}
+      <Button
+        ref={ref as any}
         disabled={disabled || loading}
-        className={cn(className, loading && "cursor-wait")}
         onClick={handleClick}
-        {...rest}
+        className={cn(className, loading && 'cursor-wait')}
+        color={!outline && !plain ? (color as any) : undefined}
+        outline={outline}
+        plain={plain}
+        {...rest as any}
       >
         {loading ? (
           <span className="flex items-center gap-2">
@@ -38,9 +44,9 @@ export const AsyncTextureButton = React.forwardRef<HTMLButtonElement, AsyncTextu
         ) : (
           children
         )}
-      </TextureButton>
+      </Button>
     )
   }
 )
 
-AsyncTextureButton.displayName = "AsyncTextureButton"
+AsyncButton.displayName = 'AsyncButton'

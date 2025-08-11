@@ -1007,6 +1007,16 @@ const Home: NextPage = () => {
               if (fanoutData.data) distributeShare(fanoutData.data, false, new PublicKey(m.address))
             }}
             hasDistributableFunds={undistributed > 0}
+            isWalletAuthority={fanoutData.data ? fanoutData.data.fanout.authority.toString() === wallet.publicKey?.toString() : false}
+            onRemoveMember={(m) => {
+              removeMember(new PublicKey(m.address))
+            }}
+            onTransferShares={(fromMember, toAddress, shares) => {
+              setTransferFromMember(fromMember.address)
+              setTransferToMember(toAddress)
+              setTransferShareAmount(shares)
+              transferShares()
+            }}
           />
           {/* Primary Actions */}
           {fanoutMembershipVouchers.data && fanoutMembershipVouchers.data.length > 0 && (

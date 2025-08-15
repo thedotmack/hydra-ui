@@ -65,7 +65,7 @@ Near Term (Tomorrow / Next Sprint):
 4. Empty / zero states for KPIs & members.
 5. Distribution progress + success/failure analytics (distribution_success / distribution_failure).
 6. Remove legacy analytics events after validation.
-7. Activity Timeline scaffold (member added, distribution, token added, share transfer, token added).
+7. Activity Timeline scaffold (member added, distribution, token added, share transfer).
 8. A11y pass (contrast, headings, aria-live, tooltip focus, address alt text).
 9. Lightweight tests (analytics track events, KPI computations, member filtering).
 10. Memoization for derived metrics (topHolderPct) & row mapping.

@@ -1,4 +1,4 @@
-## UX Review & Roadmap (_ux-redesign-dashboard_)
+# UX Review & Roadmap (_ux-redesign-dashboard_)
 
 Last updated: 2025-08-09
 
